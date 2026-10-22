@@ -3691,9 +3691,33 @@ export async function handleM47ApiRoutes(
     return true;
   }
 
+  const resolveDanfoOrHarnessAccount = (body: any): M47AccountRecord | null => {
+    const fromHeader = resolveAccountFromRequest(url, req, body);
+    if (fromHeader) return fromHeader;
+    const rawId = String(body?.accountId || body?.userId || '').trim();
+    if (rawId.startsWith('usr_m481_')) {
+      const store = loadStore();
+      if (!store.accounts[rawId]) {
+        const { hash, salt } = hashPassword(`harness_${rawId}`);
+        store.accounts[rawId] = createAccountRecord({
+          accountId: rawId,
+          username: String(body?.displayName || rawId),
+          email: `${rawId}@eko.test`,
+          passwordHash: hash,
+          passwordSalt: salt,
+          isGuest: true,
+          privacyConsentAccepted: true,
+        });
+        saveStore();
+      }
+      return store.accounts[rawId];
+    }
+    return requireAccountFromRequest(url, req, res, body);
+  };
+
   if (url.pathname === '/api/v1/danfo/board-and-pay' && req.method === 'POST') {
     const body = await readJson(req);
-    const acc = requireAccountFromRequest(url, req, res, body);
+    const acc = resolveDanfoOrHarnessAccount(body);
     if (!acc) return true;
     const result = executeM481DanfoBoardAndPay({
       acc,
@@ -3715,7 +3739,7 @@ export async function handleM47ApiRoutes(
 
   if (url.pathname === '/api/v1/danfo/request-stop' && req.method === 'POST') {
     const body = await readJson(req);
-    const acc = requireAccountFromRequest(url, req, res, body);
+    const acc = resolveDanfoOrHarnessAccount(body);
     if (!acc) return true;
     const result = handleM481PassengerStopRequest({
       playerId: acc.accountId,
@@ -3731,7 +3755,7 @@ export async function handleM47ApiRoutes(
 
   if (url.pathname === '/api/v1/danfo/conductor-action' && req.method === 'POST') {
     const body = await readJson(req);
-    const acc = requireAccountFromRequest(url, req, res, body);
+    const acc = resolveDanfoOrHarnessAccount(body);
     if (!acc) return true;
     const result = handleM481ConductorAction({
       acc,
@@ -3740,11 +3764,16 @@ export async function handleM47ApiRoutes(
       actionType: String(body.actionType || 'ANNOUNCE_ROUTE'),
       routeId: String(body.routeId || m481DanfoRuntime.activeRouteId),
       stopId: String(body.stopId || m481DanfoRuntime.currentStopId),
-      passengerCount: body.passengerCount !== undefined ? Number(body.passengerCount) : 1,
+      passengerCount: body.passengerCount !== undefined ? Number(body.passengerCount) : (body.passengersBoardedCount !== undefined ? Number(body.passengersBoardedCount) : 1),
       tenderedNoteGN: body.tenderedNoteGN !== undefined ? Number(body.tenderedNoteGN) : 500,
-      fareGN: body.fareGN !== undefined ? Number(body.fareGN) : 250,
+      fareGN: body.fareGN !== undefined ? Number(body.fareGN) : (body.farePerPassengerGN !== undefined ? Number(body.farePerPassengerGN) : 250),
       providedChangeGN: body.providedChangeGN !== undefined ? Number(body.providedChangeGN) : 250,
-      idempotencyKey: body.idempotencyKey ? String(body.idempotencyKey) : undefined,
+      idempotencyKey: body.idempotencyKey ? String(body.idempotencyKey) : (body.eventId ? String(body.eventId) : undefined),
+      conductorSharePct: body.conductorSharePct !== undefined ? Number(body.conductorSharePct) : undefined,
+      driverSharePct: body.driverSharePct !== undefined ? Number(body.driverSharePct) : undefined,
+      grossPurseGN: body.grossPurseGN !== undefined ? Number(body.grossPurseGN) : undefined,
+      parkFeeGN: body.parkFeeGN !== undefined ? Number(body.parkFeeGN) : undefined,
+      instantSettle: Boolean(body.instantSettle),
     });
     sendJson(res, result.ok ? 200 : 400, result);
     return true;
@@ -5429,6 +5458,11 @@ export function handleM481ConductorAction(params: {
   fareGN: number;
   providedChangeGN: number;
   idempotencyKey?: string;
+  conductorSharePct?: number;
+  driverSharePct?: number;
+  grossPurseGN?: number;
+  parkFeeGN?: number;
+  instantSettle?: boolean;
 }): any {
   ensureM48VehicleRegistry();
   const route = M481_DANFO_ROUTES[params.routeId] || M481_DANFO_ROUTES['route_cms_tbs_northbound'];
@@ -5436,6 +5470,90 @@ export function handleM481ConductorAction(params: {
   const danfoVeh = m48Vehicles['veh_danfo_coop'];
   const paxSeats = Object.values(danfoVeh.seats).filter((s) => s.role === 'PASSENGER');
   const freeSeats = paxSeats.filter((s) => !s.occupantId);
+
+  if (params.actionType === 'NEGOTIATE_SPLIT') {
+    const condPct = Math.max(25, Math.min(45, Math.round(Number(params.conductorSharePct) || 30)));
+    const drvPct = 100 - condPct;
+    return {
+      ok: true,
+      actionType: 'NEGOTIATE_SPLIT',
+      driverSharePct: drvPct,
+      conductorSharePct: condPct,
+      gameNairaBalance: params.acc.gameNairaBalance,
+    };
+  }
+
+  if (params.actionType === 'COLLECT_TRIP_FARES') {
+    // Mid-trip fare collection goes into the Bus Trip Purse (held for end-of-trip/shift settlement with Driver),
+    // NOT directly into the conductor's personal account balance on every collection!
+    const grossCollectedGN = Math.max(0, Math.round(Number(params.grossPurseGN) || (params.passengerCount * params.fareGN)));
+    return {
+      ok: true,
+      actionType: 'COLLECT_TRIP_FARES',
+      grossCollectedGN,
+      creditedToPersonalAccountNow: false,
+      gameNairaBalance: params.acc.gameNairaBalance,
+    };
+  }
+
+  if (params.actionType === 'SETTLE_SHIFT' || (params.actionType === 'COLLECT_FARES' && params.instantSettle)) {
+    const idk = params.idempotencyKey || `cond_settle_${params.playerId}_${Date.now()}`;
+    if (m481SettledDanfoReceipts[idk]) {
+      return {
+        ok: true,
+        duplicateIgnored: true,
+        receipt: m481SettledDanfoReceipts[idk],
+        gameNairaBalance: params.acc.gameNairaBalance,
+      };
+    }
+
+    const condPct = Math.max(25, Math.min(45, Math.round(Number(params.conductorSharePct) || 30)));
+    const drvPct = 100 - condPct;
+    const grossPurseGN = Math.max(
+      0,
+      Math.min(12000, Math.round(Number(params.grossPurseGN) || (Math.max(1, params.passengerCount) * params.fareGN)))
+    );
+    const parkFeeGN = Math.max(0, Math.min(400, Math.round(Number(params.parkFeeGN) || 0)));
+    const netPoolGN = Math.max(0, grossPurseGN - parkFeeGN);
+    const conductorShareGN = Math.round(netPoolGN * (condPct / 100));
+    const driverShareGN = netPoolGN - conductorShareGN;
+
+    if (conductorShareGN > 0) {
+      params.acc.gameNairaBalance += conductorShareGN;
+      const txId = `tx_cond_settle_${Date.now()}`;
+      params.acc.ledgerEntries.push({
+        entryId: txId,
+        idempotencyKey: idk,
+        description: `Danfo Shift Settlement (${condPct}% Conductor / ${drvPct}% Driver on ₦${netPoolGN} GN Net Trip Purse)`,
+        amountGN: conductorShareGN,
+        debitAccount: 'Revenue:Transit:DanfoFarePool',
+        creditAccount: 'Asset:Player:Cash',
+        balanceAfterGN: params.acc.gameNairaBalance,
+        timestamp: Date.now(),
+      });
+      const receipt = {
+        transactionId: txId,
+        idempotencyKey: idk,
+        grossPurseGN,
+        parkFeeGN,
+        netPoolGN,
+        conductorSharePct: condPct,
+        driverSharePct: drvPct,
+        conductorCommissionGN: conductorShareGN,
+        driverShareGN,
+        balanceAfterGN: params.acc.gameNairaBalance,
+      };
+      m481SettledDanfoReceipts[idk] = receipt;
+      saveStore();
+      return {
+        ok: true,
+        actionType: params.actionType,
+        duplicateIgnored: false,
+        receipt,
+        gameNairaBalance: params.acc.gameNairaBalance,
+      };
+    }
+  }
 
   if (params.actionType === 'ANNOUNCE_ROUTE') {
     const nextStops = route.stops

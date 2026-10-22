@@ -58,9 +58,28 @@ export interface ExtendedVehicleState extends VehicleState {
   seats?: Record<string, { seatId: string; role: 'DRIVER' | 'PASSENGER' | 'CONDUCTOR'; occupantId: string | null; localOffset: { x: number; y: number; z: number } }>;
 }
 
+export interface SharedHeroDanfoState {
+  vehicleId: string;
+  position: { x: number; y: number; z: number };
+  rotationY: number;
+  speedKmh: number;
+  routeId: string;
+  currentStopId: string;
+  nextStopId: string;
+  lifecycleState: string;
+  slidingDoorState: string;
+  doorOpenRatio: number;
+  authoritativeControllerId: string | null;
+  authoritativeRole: 'DRIVER' | 'PASSENGER' | 'CONDUCTOR' | 'ON_FOOT' | null;
+  isActivelyOccupied: boolean;
+  interactionTimestamp: number;
+  updatedAt: number;
+}
+
 // Initial Active Entities in the Marina/CMS zone
 const zonePlayers = new Map<string, ExtendedPlayerPresence>();
 const zoneVehicles = new Map<string, ExtendedVehicleState>();
+let sharedHeroDanfoState: SharedHeroDanfoState | null = null;
 
 // Session, Idempotency, Moderation, Privacy, Crew & Co-op Stores
 const playerSessions = new Map<string, {
@@ -302,6 +321,7 @@ function persistDurableZoneState(): void {
       crews,
       coopSessions,
       sessions,
+      sharedHeroDanfoState,
     };
     const tmpPath = `${ZONE_STATE_STORE_PATH}.${process.pid}.tmp`;
     fs.writeFileSync(tmpPath, JSON.stringify(payload, null, 2), { encoding: 'utf8', mode: 0o600 });
@@ -351,6 +371,9 @@ function loadDurableZoneState(): void {
           });
         }
       }
+    }
+    if (raw.sharedHeroDanfoState && typeof raw.sharedHeroDanfoState === 'object') {
+      sharedHeroDanfoState = raw.sharedHeroDanfoState;
     }
   } catch {
     // ignore corrupt/empty store on startup
@@ -674,10 +697,12 @@ const server = http.createServer(async (req, res) => {
       zoneId: ZONE_ID,
       tickNumber: tickCount,
       timestamp: Date.now(),
+      serverTimeMs: Date.now(),
       weather: 'clear',
       timeBand: 'afternoon',
       players: classified.spatialFilteredPlayers,
       vehicles: Array.from(zoneVehicles.values()),
+      sharedHeroDanfoState,
       humanPlayers: classified.activeHumanPlayers,
       disconnectedHumanPlayers: classified.disconnectedHumanPlayers,
       simulatedNpcs: classified.simulatedNpcs,
@@ -780,6 +805,8 @@ const server = http.createServer(async (req, res) => {
       crewId: p.crewId !== undefined ? p.crewId : (prevPresence?.crewId || null),
       coopSessionId: p.coopSessionId !== undefined ? p.coopSessionId : (prevPresence?.coopSessionId || null),
       coopRole: p.coopRole !== undefined ? p.coopRole : (prevPresence?.coopRole || null),
+      vehicleOccupancyRole: p.vehicleOccupancyRole !== undefined ? p.vehicleOccupancyRole : (prevPresence?.vehicleOccupancyRole || 'ON_FOOT'),
+      seatId: p.seatId !== undefined ? p.seatId : (prevPresence?.seatId || null),
       roleTitle: p.roleTitle || prevPresence?.roleTitle || 'Authenticated Citizen (Human)',
       position: p.position || prevPresence?.position || { x: -95, y: 0, z: -185 },
       rotationY: typeof p.rotationY === 'number' ? p.rotationY : (prevPresence?.rotationY || 0),
@@ -791,13 +818,77 @@ const server = http.createServer(async (req, res) => {
     };
 
     zonePlayers.set(p.playerId, updatedPresence);
+
+    // Synchronize shared Hero Danfo (Apex Danfo 14 #04) across all screens in the zone
+    if (p.heroDanfoState && typeof p.heroDanfoState === 'object' && p.heroDanfoState.position) {
+      const inc = p.heroDanfoState;
+      const dx = Math.max(-250, Math.min(250, Number(inc.position.x) || -110.2));
+      const dy = Math.max(-5, Math.min(10, Number(inc.position.y) || 0.05));
+      const dz = Math.max(-300, Math.min(200, Number(inc.position.z) || -211.0));
+      const incOccupied = Boolean(inc.isActivelyOccupied);
+      const incInteractionTs = Math.max(0, Number(inc.interactionTimestamp) || 0);
+      const incRole = (inc.authoritativeRole || updatedPresence.vehicleOccupancyRole || 'ON_FOOT') as 'DRIVER' | 'PASSENGER' | 'CONDUCTOR' | 'ON_FOOT';
+
+      const roleWeight = (r: string | null | undefined) => (r === 'DRIVER' ? 3 : r === 'CONDUCTOR' ? 2 : r === 'PASSENGER' ? 1 : 0);
+
+      let shouldUpdateDanfo = false;
+      if (!sharedHeroDanfoState) {
+        shouldUpdateDanfo = true;
+      } else {
+        const curStale = now - (sharedHeroDanfoState.updatedAt || 0) > 6500;
+        if (curStale) {
+          shouldUpdateDanfo = true;
+        } else if (incOccupied) {
+          if (!sharedHeroDanfoState.isActivelyOccupied || sharedHeroDanfoState.authoritativeControllerId === p.playerId) {
+            shouldUpdateDanfo = true;
+          } else if (roleWeight(incRole) >= roleWeight(sharedHeroDanfoState.authoritativeRole)) {
+            shouldUpdateDanfo = true;
+          }
+        } else if (!sharedHeroDanfoState.isActivelyOccupied) {
+          if (incInteractionTs > (sharedHeroDanfoState.interactionTimestamp || 0)) {
+            shouldUpdateDanfo = true;
+          } else if (
+            sharedHeroDanfoState.authoritativeControllerId === p.playerId &&
+            incInteractionTs >= (sharedHeroDanfoState.interactionTimestamp || 0)
+          ) {
+            shouldUpdateDanfo = true;
+          }
+        } else if (sharedHeroDanfoState.authoritativeControllerId === p.playerId) {
+          // The player who was actively occupying just alighted at a stop
+          shouldUpdateDanfo = true;
+        }
+      }
+
+      if (shouldUpdateDanfo) {
+        sharedHeroDanfoState = {
+          vehicleId: 'veh_danfo_coop',
+          position: { x: Number(dx.toFixed(2)), y: Number(dy.toFixed(2)), z: Number(dz.toFixed(2)) },
+          rotationY: Number((Number(inc.rotationY) || 0).toFixed(3)),
+          speedKmh: Math.max(0, Math.min(140, Number(inc.speedKmh) || 0)),
+          routeId: String(inc.routeId || 'route_cms_tbs_northbound').slice(0, 60),
+          currentStopId: String(inc.currentStopId || 'stop_cms').slice(0, 60),
+          nextStopId: String(inc.nextStopId || 'stop_broad_north').slice(0, 60),
+          lifecycleState: String(inc.lifecycleState || 'DOORS_OPEN').slice(0, 40),
+          slidingDoorState: String(inc.slidingDoorState || 'OPEN').slice(0, 20),
+          doorOpenRatio: Math.max(0, Math.min(1, Number(inc.doorOpenRatio ?? 1))),
+          authoritativeControllerId: p.playerId,
+          authoritativeRole: incRole,
+          isActivelyOccupied: incOccupied,
+          interactionTimestamp: Math.max(incInteractionTs, sharedHeroDanfoState?.interactionTimestamp || 0),
+          updatedAt: now,
+        };
+      }
+    }
+
     persistDurableZoneState();
 
     const classified = getClassifiedEntities(p.playerId);
     const responsePayload = {
       synced: true,
       tick: tickCount,
+      serverTimeMs: now,
       player: updatedPresence,
+      sharedHeroDanfoState,
       reconnected,
       reconnectCount: existingSession.reconnectCount,
       staleSessionReplaced,
