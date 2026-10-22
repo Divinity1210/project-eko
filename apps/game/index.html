@@ -14838,7 +14838,9 @@
         }
 
         AudioEngine.updateEngineRPM(currentSpeedKmh, keys.w);
-        if (playerAvatar) {
+        if (window.__PROJECT_EKO_VEHICLE_STATE__ && typeof window.__PROJECT_EKO_VEHICLE_STATE__.syncSeatedAvatarTransform === 'function') {
+          window.__PROJECT_EKO_VEHICLE_STATE__.syncSeatedAvatarTransform(dt);
+        } else if (playerAvatar) {
           EkoAnimStateMachine.setState(playerAvatar, 'driving');
           EkoAnimStateMachine.updateCharacter(playerAvatar, dt, { speed: 0 });
         }
@@ -18679,36 +18681,48 @@
       const countEl = document.getElementById('garage-owned-count');
       const invList = document.getElementById('dealership-inventory-list');
 
-      const ownedModels = Array.isArray(player.ownedVehicleModels) ? player.ownedVehicleModels : ['adera_compact_16'];
-      if (countEl) countEl.innerText = String(ownedModels.length);
+      const ownedModels = Array.isArray(player.ownedVehicleModels) ? player.ownedVehicleModels : [];
+      const ownedItems = DEALERSHIP_CATALOG.filter(
+        item => ownedModels.includes(item.modelId) || (Array.isArray(player.ownedVehicles) && player.ownedVehicles.includes(item.vehKey))
+      );
+      if (countEl) countEl.innerText = String(ownedItems.length);
 
       if (garageList) {
-        garageList.innerHTML = DEALERSHIP_CATALOG
-          .filter(item => ownedModels.includes(item.modelId) || (Array.isArray(player.ownedVehicles) && player.ownedVehicles.includes(item.vehKey)))
-          .map(item => {
-            const imgTag = portraits[item.vehKey]
-              ? `<img src="${portraits[item.vehKey]}" style="width:48px; height:32px; object-fit:contain; border-radius:6px; border:1px solid rgba(16,185,129,0.45); background:#061318;">`
-              : '';
-            const isMounted = isDriving && activeVehicleKey === item.vehKey;
-            return `
-              <div style="font-size:11px; color:#CBD5E1; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.28); padding:6px 8px; border-radius:8px;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  ${imgTag}
-                  <div>
-                    <strong>${item.name}</strong><br>
-                    <span style="font-size:10px; color:#94A3B8;">Condition: ${Math.round(playerVehicleCondition)}% • ${isMounted ? 'ACTIVE ON ROAD' : 'GARAGED'}</span>
+        if (ownedItems.length === 0) {
+          garageList.innerHTML = `
+            <div style="font-size:11px; color:#94A3B8; background:rgba(0,0,0,0.28); padding:10px; border-radius:8px; text-align:center;">
+              <strong style="color:#E2E8F0;">No Personal Vehicle Owned Yet (0 in Garage)</strong><br>
+              <span style="font-size:10px; color:#A7F3D0;">New Lagos arrivals start on foot. Board public transit as a Passenger [F], work as a Conductor [G] or Parcel Runner, and save up to buy your first vehicle below!</span>
+            </div>
+          `;
+        } else {
+          garageList.innerHTML = ownedItems
+            .map(item => {
+              const imgTag = portraits[item.vehKey]
+                ? `<img src="${portraits[item.vehKey]}" style="width:48px; height:32px; object-fit:contain; border-radius:6px; border:1px solid rgba(16,185,129,0.45); background:#061318;">`
+                : '';
+              const isMounted = isDriving && activeVehicleKey === item.vehKey;
+              return `
+                <div style="font-size:11px; color:#CBD5E1; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.28); padding:6px 8px; border-radius:8px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    ${imgTag}
+                    <div>
+                      <strong>${item.name}</strong><br>
+                      <span style="font-size:10px; color:#94A3B8;">Condition: ${Math.round(playerVehicleCondition)}% • ${isMounted ? 'ACTIVE ON ROAD' : 'GARAGED'}</span>
+                    </div>
                   </div>
+                  <button class="btn-app-action" onclick="summonVehicleToCurb('${item.vehKey}')">${isMounted ? 'Mounted' : 'Summon Curb'}</button>
                 </div>
-                <button class="btn-app-action" onclick="summonVehicleToCurb('${item.vehKey}')">${isMounted ? 'Mounted' : 'Summon Curb'}</button>
-              </div>
-            `;
-          })
-          .join('');
+              `;
+            })
+            .join('');
+        }
       }
 
       if (invList) {
+        const ownsStarterSedan = ownedModels.includes('adera_compact_16') || (Array.isArray(player.ownedVehicles) && player.ownedVehicles.includes('sedan'));
         invList.innerHTML = DEALERSHIP_CATALOG
-          .filter(item => item.modelId !== 'adera_compact_16')
+          .filter(item => item.modelId !== 'adera_compact_16' || !ownsStarterSedan)
           .map(item => {
             const isOwned = ownedModels.includes(item.modelId) || (Array.isArray(player.ownedVehicles) && player.ownedVehicles.includes(item.vehKey));
             const imgTag = portraits[item.vehKey]
@@ -18750,19 +18764,22 @@
 
       if (appId === 'dealership') {
         renderDealershipAndGarageUI();
-        fetch('http://localhost:3001/api/v1/dealership/inventory')
-          .then(r => r.ok ? r.json() : null)
-          .then(data => {
-            if (data && Array.isArray(data.ownedVehicles)) {
-              data.ownedVehicles.forEach(mId => {
-                if (!player.ownedVehicleModels.includes(mId)) player.ownedVehicleModels.push(mId);
-                const found = DEALERSHIP_CATALOG.find(c => c.modelId === mId);
-                if (found && !player.ownedVehicles.includes(found.vehKey)) player.ownedVehicles.push(found.vehKey);
-              });
-              renderDealershipAndGarageUI();
-            }
-          })
-          .catch(() => {});
+        const isDefaultDemoCitizen = !window.__PROJECT_EKO_AUTH__ || !window.__PROJECT_EKO_AUTH__.sessionToken || window.__PROJECT_EKO_AUTH__.accountId === 'usr_eko_hustler_01';
+        if (isDefaultDemoCitizen) {
+          fetch('http://localhost:3001/api/v1/dealership/inventory')
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+              if (data && Array.isArray(data.ownedVehicles)) {
+                data.ownedVehicles.forEach(mId => {
+                  if (!player.ownedVehicleModels.includes(mId)) player.ownedVehicleModels.push(mId);
+                  const found = DEALERSHIP_CATALOG.find(c => c.modelId === mId);
+                  if (found && !player.ownedVehicles.includes(found.vehKey)) player.ownedVehicles.push(found.vehKey);
+                });
+                renderDealershipAndGarageUI();
+              }
+            })
+            .catch(() => {});
+        }
       } else if (appId === 'fleet') {
         fetch('http://localhost:3001/api/v1/fleet/overview')
           .then(r => r.ok ? r.json() : null)
@@ -20181,7 +20198,7 @@
         } else if (activeAccountId === 'usr_eko_hustler_01' && prof && prof.player && typeof prof.player.gameNairaBalance === 'number') {
           this.reconcileBalance(prof.player.gameNairaBalance, 'PROFILE_SYNC');
         }
-        if (prof && prof.player && Array.isArray(prof.player.ownedVehicleIds)) {
+        if (activeAccountId === 'usr_eko_hustler_01' && prof && prof.player && Array.isArray(prof.player.ownedVehicleIds)) {
           const modelToClass = {
             adera_compact_16: 'sedan',
             apex_danfo_14: 'danfo',
@@ -35561,6 +35578,42 @@
             if (balEl) balEl.innerText = `₦${player.balance.toLocaleString()} GN`;
           }
         }
+        if (acc.accountId !== 'usr_eko_hustler_01' && acc.onboarding && Array.isArray(acc.onboarding.ownedVehicles) && typeof player !== 'undefined' && player) {
+          const modelToClass = {
+            adera_compact_16: 'sedan',
+            sedan: 'sedan',
+            apex_danfo_14: 'danfo',
+            danfo: 'danfo',
+            koro_okada_125: 'okada',
+            okada: 'okada',
+            apex_keke_napep: 'keke',
+            apex_keke_200: 'keke',
+            keke: 'keke',
+            ekobrt_coach_42: 'brt',
+            brt: 'brt'
+          };
+          const classToModel = {
+            sedan: 'adera_compact_16',
+            danfo: 'apex_danfo_14',
+            okada: 'koro_okada_125',
+            keke: 'apex_keke_napep',
+            brt: 'ekobrt_coach_42'
+          };
+          player.ownedVehicles = [];
+          player.ownedVehicleModels = [];
+          acc.onboarding.ownedVehicles.forEach(item => {
+            const vClass = modelToClass[item] || item;
+            const mId = classToModel[vClass] || item;
+            if (!player.ownedVehicles.includes(vClass)) player.ownedVehicles.push(vClass);
+            if (!player.ownedVehicleModels.includes(mId)) player.ownedVehicleModels.push(mId);
+          });
+          if (typeof renderDealershipAndGarageUI === 'function') {
+            renderDealershipAndGarageUI();
+          }
+          if (player.ownedVehicles.length === 0 && typeof isDriving !== 'undefined' && isDriving && window.__PROJECT_EKO_VEHICLE_STATE__ && typeof window.__PROJECT_EKO_VEHICLE_STATE__.exitVehicleToOnFoot === 'function') {
+            window.__PROJECT_EKO_VEHICLE_STATE__.exitVehicleToOnFoot({ forceExit: true });
+          }
+        }
         if (window.__PROJECT_EKO_LIFE__) {
           const life = window.__PROJECT_EKO_LIFE__;
           if (acc.onboarding && Array.isArray(acc.onboarding.ownedOutfits) && acc.onboarding.ownedOutfits.length > 0) {
@@ -36158,6 +36211,10 @@
         if (typeof player !== 'undefined' && player) {
           player.balance = 5000;
           player.ownedVehicles = [];
+          player.ownedVehicleModels = [];
+          if (typeof renderDealershipAndGarageUI === 'function') {
+            renderDealershipAndGarageUI();
+          }
           if (typeof EkoBackendSync !== 'undefined' && EkoBackendSync) {
             EkoBackendSync.reconcileBalance(5000, 'TEST_FIXTURE_RESET');
           }
@@ -37997,8 +38054,33 @@
         const hasActiveAcceptedJob = Boolean(
           (window.__PROJECT_EKO_GUIDE__ && window.__PROJECT_EKO_GUIDE__.journeyState && window.__PROJECT_EKO_GUIDE__.journeyState.activeShiftId) ||
           (typeof taxiRouteState !== 'undefined' && (taxiRouteState.stage === 'pickup' || taxiRouteState.stage === 'dropoff')) ||
-          (typeof EkoJobsHub !== 'undefined' && EkoJobsHub.activeShift)
+          (typeof EkoJobsHub !== 'undefined' && EkoJobsHub.activeShift) ||
+          (window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.activeJobShift)
         );
+
+        const vKey = this.resolveVehicleKey(vehicleId);
+        const isAuthenticatedCitizen = Boolean(
+          window.__PROJECT_EKO_AUTH__ &&
+          window.__PROJECT_EKO_AUTH__.sessionToken &&
+          window.__PROJECT_EKO_AUTH__.accountId &&
+          window.__PROJECT_EKO_AUTH__.accountId !== 'usr_eko_hustler_01'
+        );
+        const ownsVehicle = Boolean(
+          typeof player !== 'undefined' &&
+          player &&
+          Array.isArray(player.ownedVehicles) &&
+          player.ownedVehicles.includes(vKey)
+        );
+        if (isAuthenticatedCitizen && !ownsVehicle && !hasActiveAcceptedJob) {
+          return {
+            allowed: false,
+            vehicleId,
+            reasonCode: 'PERSONAL_VEHICLE_NOT_OWNED',
+            explanation: `You do not own a personal ${vRec.label} yet! New Lagos arrivals start on foot with ₦5,000 GN. Board public transit as a Passenger [F], work entry shifts (Walking Parcel Runner, Market Assistant, or Danfo Conductor [G]), and save up to purchase your first vehicle at Eko Motors.`,
+            alternativeRole: 'PASSENGER',
+            alternativeActionLabel: 'Board as Passenger [F]'
+          };
+        }
 
         return {
           allowed: true,
@@ -38047,29 +38129,35 @@
         const vKey = deniedInfo.vehicleKey || 'brt';
         const isCdlLock = deniedInfo.reasonCode === 'DRIVING_QUALIFICATION_REQUIRED';
         const isPeerLock = deniedInfo.reasonCode === 'OTHER_HUMAN_OWNED_LOCKED';
+        const isOwnershipLock = deniedInfo.reasonCode === 'PERSONAL_VEHICLE_NOT_OWNED';
 
         modal.style.display = 'flex';
         modal.innerHTML = `
           <div style="background:#0F172A;border:2px solid #F59E0B;border-radius:16px;max-width:520px;width:95%;padding:20px;color:#F8FAFC;box-shadow:0 20px 50px rgba(0,0,0,0.8);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <span style="background:rgba(245,158,11,0.2);border:1px solid #F59E0B;color:#FCD34D;font-size:10px;font-weight:900;padding:4px 10px;border-radius:999px;">
-                ${isCdlLock ? '🔒 CAREER QUALIFICATION REQUIRED' : (isPeerLock ? '🔐 OWNER PERMISSION REQUIRED' : '🚫 SEAT UNAVAILABLE')}
+                ${isCdlLock ? '🔒 CAREER QUALIFICATION REQUIRED' : (isPeerLock ? '🔐 OWNER PERMISSION REQUIRED' : (isOwnershipLock ? '🔑 VEHICLE OWNERSHIP REQUIRED' : '🚫 SEAT UNAVAILABLE'))}
               </span>
               <button type="button" id="m48-qual-close-btn" onclick="window.__PROJECT_EKO_VEHICLE_STATE__.closeQualificationModal()" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:8px;padding:5px 10px;font-weight:800;cursor:pointer;">✕</button>
             </div>
             <h3 style="margin:0 0 8px 0;font-size:17px;font-weight:900;color:#FEF08A;">
-              ${isCdlLock ? 'LAMATA Mass Transit CDL Required to Drive BRT' : (isPeerLock ? 'Vehicle Locked by Owner (Tunde_VI)' : 'Driver Seat Occupied')}
+              ${isCdlLock ? 'LAMATA Mass Transit CDL Required to Drive BRT' : (isPeerLock ? 'Vehicle Locked by Owner (Tunde_VI)' : (isOwnershipLock ? 'No Personal Vehicle Owned Yet' : 'Driver Seat Occupied'))}
             </h3>
             <p id="m48-qual-explanation" style="margin:0 0 14px 0;font-size:12.5px;line-height:1.5;color:#E2E8F0;">
               ${deniedInfo.explanation}
             </p>
             <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.35);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;color:#A7F3D0;">
-              💡 <strong>Useful Alternative:</strong> You can board this vehicle right now as a <strong>Passenger [F]</strong> to travel along the Marina–Obalende corridor, or unlock the required qualification.
+              💡 <strong>Useful Alternative:</strong> You can board this vehicle right now as a <strong>Passenger [F]</strong> to travel along the Marina–Obalende corridor, ${isOwnershipLock ? 'or visit Eko Motors to browse vehicle prices.' : 'or unlock the required qualification.'}
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:8px;">
               <button type="button" id="m48-qual-board-passenger-btn" onclick="window.__PROJECT_EKO_VEHICLE_STATE__.closeQualificationModal(); window.__PROJECT_EKO_VEHICLE_STATE__.boardAsPassenger('${vKey}', { startShuttleCruise: true });" style="flex:1;min-width:190px;background:#10B981;color:#052E16;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:900;cursor:pointer;">
                 🪑 Board as Passenger [F]
               </button>
+              ${isOwnershipLock ? `
+                <button type="button" id="m48-qual-open-dealership-btn" onclick="window.__PROJECT_EKO_VEHICLE_STATE__.closeQualificationModal(); const p = document.getElementById('eko-phone-container'); if (p) { p.classList.add('active'); p.classList.add('open'); } if (typeof openPhoneApp === 'function') openPhoneApp('dealership');" style="flex:1;min-width:190px;background:#3B82F6;color:#EFF6FF;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:900;cursor:pointer;">
+                  🏎️ View Eko Motors Prices
+                </button>
+              ` : ''}
               ${isCdlLock ? `
                 <button type="button" id="m48-qual-complete-cdl-btn" onclick="window.__PROJECT_EKO_VEHICLE_STATE__.completeMassTransitCdlCertification('${vKey}')" style="flex:1;min-width:190px;background:#3B82F6;color:#EFF6FF;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:900;cursor:pointer;">
                   🎓 Pass LASDRI Mass Transit CDL
@@ -38171,7 +38259,7 @@
             mesh.position.z - ox * Math.sin(yaw) + oz * Math.cos(yaw)
           );
           playerAvatar.rotation.y = yaw;
-          playerAvatar.visible = (cameraMode !== 'cockpit');
+          playerAvatar.visible = (vKey === 'okada' && cameraMode !== 'cockpit');
           if (typeof EkoAnimStateMachine !== 'undefined' && EkoAnimStateMachine.setState) {
             EkoAnimStateMachine.setState(playerAvatar, 'driving');
           }
@@ -39060,7 +39148,7 @@
             });
           }
         } else if (this.state === 'DRIVER') {
-          playerAvatar.visible = (cameraMode !== 'cockpit');
+          playerAvatar.visible = (this.currentVehicleKey === 'okada' && cameraMode !== 'cockpit');
           if (typeof EkoAnimStateMachine !== 'undefined' && EkoAnimStateMachine.setState) {
             EkoAnimStateMachine.setState(playerAvatar, 'driving');
             EkoAnimStateMachine.updateCharacter(playerAvatar, dt, {

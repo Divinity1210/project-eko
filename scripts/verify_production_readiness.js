@@ -633,6 +633,7 @@ async function main() {
     });
     assert.strictEqual(returningLoginRes.status, 200, 'Returning login after guest promotion must succeed');
     assert.strictEqual(returningLoginRes.body.account.character.displayName, 'lagbaja_permanent');
+    assert.ok(Array.isArray(returningLoginRes.body.account.onboarding.ownedVehicles) && returningLoginRes.body.account.onboarding.ownedVehicles.length === 0, 'New citizens must start with 0 personal vehicles');
 
     // Verify Frontend HTML Input & Modal Safeguards
     const indexHtml = fs.readFileSync(path.join(ROOT, 'apps/game/index.html'), 'utf8');
@@ -658,7 +659,14 @@ async function main() {
       indexHtml.includes('const hipCurveGeo = new THREE.SphereGeometry'),
       'index.html must dynamically rebuild 3D male vs female anatomical geometry, physique proportions, pectorals/belt/beard vs bust/hourglass hips'
     );
-    console.log('✅ QA Sign-Up, Character Studio (Color Pickers + 360° 3D Rotation + Male/Female 3D Anatomy & Physique) & UX Gate verified.');
+    assert.ok(
+      indexHtml.includes('PERSONAL_VEHICLE_NOT_OWNED') &&
+      indexHtml.includes('window.__PROJECT_EKO_VEHICLE_STATE__.syncSeatedAvatarTransform(dt)') &&
+      indexHtml.includes("playerAvatar.visible = (vKey === 'okada' && cameraMode !== 'cockpit')") &&
+      indexHtml.includes("playerAvatar.visible = (this.currentVehicleKey === 'okada' && cameraMode !== 'cockpit')"),
+      'index.html must sync driver avatar position every frame while driving and enforce 0-vehicle ownership for newly created citizens'
+    );
+    console.log('✅ QA Sign-Up, Character Studio, New-Citizen 0-Car Ownership & Driver Avatar Transform Sync Gate verified.');
 
     console.log('\n==============================================================');
     console.log('ALL PRODUCTION READINESS GATES (PHASES 0–11) PASSED');
