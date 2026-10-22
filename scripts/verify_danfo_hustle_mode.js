@@ -510,7 +510,7 @@ async function main() {
     assert.strictEqual(returnWorldCheck.activeGameMode, 'free', 'activeGameMode must return to free (Living Lagos)');
     assert.strictEqual(returnWorldCheck.bodyHasClass, false, 'Body class danfo-hustle-active must be removed');
     assert.strictEqual(returnWorldCheck.arcadeChildrenCount, 0, 'All 3D arcade entities must be cleaned up on exit');
-    assert.ok(returnWorldCheck.playerBalanceGN > 35000, 'Earned Game Naira must persist in Living Lagos wallet');
+    assert.ok(returnWorldCheck.playerBalanceGN > 5000, 'Earned Game Naira must persist in Living Lagos wallet');
     report.tests.returnToLivingLagos = { passed: true, ...returnWorldCheck };
     console.log('✅ PASS [9/9]: Clean Return to Persistent Living Lagos Open World verified');
 

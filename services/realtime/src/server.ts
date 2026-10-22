@@ -47,6 +47,7 @@ export interface ExtendedPlayerPresence extends PlayerPresence {
   vehicleOccupancyRole?: 'ON_FOOT' | 'ENTERING_VEHICLE' | 'DRIVER' | 'PASSENGER' | 'CONDUCTOR' | 'EXITING_VEHICLE';
   seatId?: string | null;
   roleTitle?: string;
+  appearance?: Record<string, string> | null;
 }
 
 export interface ExtendedVehicleState extends VehicleState {
@@ -480,7 +481,30 @@ function readJsonBody(req: http.IncomingMessage): Promise<any> {
   });
 }
 
-type AuthenticatedRealtimePlayer = { accountId: string; username: string };
+type AuthenticatedRealtimePlayer = { accountId: string; username: string; appearance?: Record<string, unknown> | null };
+
+const APPEARANCE_STRING_KEYS = [
+  'gender', 'styleSet', 'fabricStyle', 'bodyType', 'skinTone', 'hairStyle', 'outfitPreset',
+  'shoesStyle', 'bagStyle', 'topColor', 'bottomColor', 'hairColor', 'shoeColor', 'bagColor', 'accentColor',
+];
+
+/** Whitelist + length-limit cosmetic appearance fields before broadcasting them to other players. */
+function sanitizePublicAppearance(raw: unknown): Record<string, string> | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const src = raw as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const key of APPEARANCE_STRING_KEYS) {
+    const v = src[key];
+    if (typeof v !== 'string') continue;
+    const trimmed = v.trim().slice(0, 40);
+    if (key.endsWith('Color') || key === 'skinTone') {
+      if (/^#[0-9a-fA-F]{6}$/.test(trimmed)) out[key] = trimmed;
+    } else if (/^[a-z0-9_]+$/i.test(trimmed)) {
+      out[key] = trimmed;
+    }
+  }
+  return Object.keys(out).length ? out : null;
+}
 
 async function resolveRealtimeSession(req: http.IncomingMessage): Promise<AuthenticatedRealtimePlayer | null> {
   const rawToken = req.headers['x-session-token'] ||
@@ -520,6 +544,7 @@ async function resolveRealtimeSession(req: http.IncomingMessage): Promise<Authen
           const player = {
             accountId: String(data.account.accountId),
             username: String(data.account.character?.displayName || data.account.username || 'Lagos Citizen'),
+            appearance: data.account.characterCreated && data.account.character?.appearance ? data.account.character.appearance : null,
           };
           resolve(player);
         } catch {
@@ -756,6 +781,7 @@ const server = http.createServer(async (req, res) => {
       inVehicleId: p.inVehicleId !== undefined ? p.inVehicleId : (prevPresence?.inVehicleId || null),
       isDriving: Boolean(p.isDriving),
       avatarState: p.avatarState || prevPresence?.avatarState || 'idle',
+      appearance: sanitizePublicAppearance(authenticatedPlayer?.appearance) || prevPresence?.appearance || null,
       lastSeen: now,
     };
 

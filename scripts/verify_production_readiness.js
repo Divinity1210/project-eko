@@ -690,6 +690,20 @@ async function main() {
       indexHtml.includes('window.__PROJECT_EKO_TOUCH_LOOK__ = EkoTouchLook'),
       'index.html must support touch drag-to-turn/look and pinch-to-zoom on the 3D view'
     );
+    assert.ok(
+      indexHtml.includes('buildRemoteAvatar(hp)') &&
+      !indexHtml.includes('new THREE.BoxGeometry(0.55, 1.55, 0.35)') &&
+      fs.readFileSync(path.join(ROOT, 'services/realtime/src/server.ts'), 'utf8').includes('sanitizePublicAppearance('),
+      'Remote human players must render as their real (server-stored) avatar, not a placeholder box'
+    );
+    const m47SrcForEconomy = fs.readFileSync(path.join(ROOT, 'services/api/src/m47Engine.ts'), 'utf8');
+    assert.ok(
+      !m47SrcForEconomy.includes('params.acc.gameNairaBalance += 5000') &&
+      m47SrcForEconomy.includes('MAX_JOB_SETTLEMENT_GN') &&
+      indexHtml.includes('persistWalletSnapshotSoon()') &&
+      indexHtml.includes("balance: 5000, // Must match the server's canonical 5,000 GN starter grant"),
+      'Economy guards: no free 5,000 GN top-up, capped/rate-limited job settlements, persisted local wallet, unified 5,000 GN start'
+    );
     console.log('✅ QA Sign-Up, Character Studio, Mobile Viewport Lock, Standalone Per-Account Character Isolation & Driver Avatar Transform Sync Gate verified.');
 
     console.log('\n==============================================================');

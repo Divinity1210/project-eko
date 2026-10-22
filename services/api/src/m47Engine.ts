@@ -1676,14 +1676,25 @@ export function processProgressionEvent(
     acc.onboarding.activeJobId = null;
     acc.onboarding.activeJobCheckpointsDone = 0;
     acc.onboarding.activeJobShift = null;
-    const netPay = Number(meta.netPayGN || 0);
-    if (netPay > 0) {
-      postAccountLedgerTransaction(acc, {
-        idempotencyKey: `idem_job_settle_${acc.accountId}_${meta.shiftId || eventId}`,
-        description: `Verified Job Shift Settlement (${meta.title || meta.jobId || 'Entry Shift'})`,
+    // Client-reported pay is never trusted as-is: it must reference a concrete shift, is capped at the
+    // highest legitimate street-job payout, and settlements are rate-limited per account.
+    const MAX_JOB_SETTLEMENT_GN = 4550;
+    const MIN_SECONDS_BETWEEN_JOB_SETTLEMENTS = 45;
+    const reportedPay = Math.floor(Number(meta.netPayGN || 0));
+    const shiftRef = typeof meta.shiftId === 'string' && meta.shiftId.length >= 4 ? meta.shiftId.slice(0, 96) : null;
+    const lastSettleAt = Number((acc.onboarding as any).lastJobSettlementAt || 0);
+    const tooSoon = Date.now() - lastSettleAt < MIN_SECONDS_BETWEEN_JOB_SETTLEMENTS * 1000;
+    const netPay = Number.isFinite(reportedPay) ? Math.max(0, Math.min(MAX_JOB_SETTLEMENT_GN, reportedPay)) : 0;
+    if (netPay > 0 && shiftRef && !tooSoon) {
+      const posted = postAccountLedgerTransaction(acc, {
+        idempotencyKey: `idem_job_settle_${acc.accountId}_${shiftRef}`,
+        description: `Verified Job Shift Settlement (${String(meta.title || meta.jobId || 'Entry Shift').slice(0, 80)})`,
         amountGN: netPay,
         counterpartyAccount: 'SYS_TREASURY_PAYROLL',
       });
+      if (!posted.duplicate) (acc.onboarding as any).lastJobSettlementAt = Date.now();
+    } else if (netPay > 0) {
+      acc.onboarding.lastBlockedReason = tooSoon ? 'JOB_SETTLEMENT_RATE_LIMITED' : 'JOB_SETTLEMENT_SHIFT_REFERENCE_REQUIRED';
     }
     recordAnalyticsFunnelEvent(acc.accountId, 'FirstSettlementReceived', meta);
   } else if (normalizedEventType === 'ItemPurchased') {
@@ -2538,6 +2549,9 @@ export function resolveAccountBySessionToken(tokenValue: string): M47AccountReco
   return {
     accountId: String(acc.accountId),
     username: String(acc.character?.displayName || acc.username || 'Lagos Citizen'),
+    // Cosmetic-only appearance from the authoritative account record so other players
+    // render this citizen as their real avatar (never trusted from the client heartbeat).
+    appearance: acc.characterCreated && acc.character?.appearance ? { ...acc.character.appearance } : null,
   };
 };
 
@@ -6425,10 +6439,8 @@ export function executeM49VehicleRecoveryOrRepair(params: {
     };
   }
 
-  // Ensure sandbox account has sufficient Game Naira for workshop/tow recovery across repeated test runs
-  if (params.acc.gameNairaBalance < 3500) {
-    params.acc.gameNairaBalance += 5000;
-  }
+  // NOTE: The former "sandbox top-up" (+5,000 GN whenever balance < 3,500) was removed: it silently minted
+  // free Game Naira for every player and made balances appear to snap back to ~5,000.
 
   if (params.action === 'TOW_RECOVERY') {
     const towCostGN = 350;
