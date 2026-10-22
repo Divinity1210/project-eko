@@ -647,7 +647,18 @@ async function main() {
     assert.ok(indexHtml.includes("onColorPickerChanged('bagColor'"), 'index.html must bind live color picker handler for bagColor');
     assert.ok(indexHtml.includes('rotatePreviewAvatar(-45)') && indexHtml.includes('rotatePreviewAvatar(45)') && indexHtml.includes('setPreviewYaw(180)'), 'index.html must support 360° studio & 3D avatar rotation controls');
     assert.ok(indexHtml.includes('geo.computeVertexNormals()') && indexHtml.includes('const jawCheekGeo = new THREE.SphereGeometry') && indexHtml.includes('neckRotY'), 'index.html must use smooth vertex normals, anatomical facial/torso geometry, and head-stabilized human walking gait');
-    console.log('✅ QA Sign-Up, Character Studio (Color Pickers + 360° 3D Rotation + Human Realism) & UX Gate verified.');
+    assert.ok(
+      indexHtml.includes('rebuildHumanoidAnatomy') &&
+      indexHtml.includes('getAnatomicalProportions') &&
+      indexHtml.includes('const pecPlate = new THREE.BoxGeometry') &&
+      indexHtml.includes('const beltGeo = new THREE.CylinderGeometry') &&
+      indexHtml.includes('const mustacheGeo = new THREE.CylinderGeometry') &&
+      indexHtml.includes('const goateeGeo = new THREE.BoxGeometry') &&
+      indexHtml.includes('const bustGeo = new THREE.SphereGeometry') &&
+      indexHtml.includes('const hipCurveGeo = new THREE.SphereGeometry'),
+      'index.html must dynamically rebuild 3D male vs female anatomical geometry, physique proportions, pectorals/belt/beard vs bust/hourglass hips'
+    );
+    console.log('✅ QA Sign-Up, Character Studio (Color Pickers + 360° 3D Rotation + Male/Female 3D Anatomy & Physique) & UX Gate verified.');
 
     console.log('\n==============================================================');
     console.log('ALL PRODUCTION READINESS GATES (PHASES 0–11) PASSED');

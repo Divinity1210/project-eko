@@ -8929,11 +8929,6 @@
 
       applyOutfitToCharacter(charGroup, outfitSpec = {}) {
         if (!charGroup || !charGroup.skinnedMesh) return false;
-        const sm = charGroup.skinnedMesh;
-        const geo = sm.geometry;
-        const colorAttr = geo && geo.attributes && geo.attributes.color;
-        const slots = sm.userData && sm.userData.partSlots;
-        const shades = sm.userData && sm.userData.partShades;
 
         if (!charGroup.userData) charGroup.userData = {};
         if (outfitSpec.skinHex !== undefined) charGroup.userData.skinHex = outfitSpec.skinHex;
@@ -8945,8 +8940,13 @@
         if (outfitSpec.bagHex !== undefined) charGroup.userData.bagHex = outfitSpec.bagHex;
 
         const outfitId = outfitSpec.id || charGroup.activeOutfitId || 'outfit_street_hustler';
-        const isFemale = charGroup.userData.gender === 'female' ||
-          ['outfit_ankara_gown', 'outfit_buba_wrapper', 'outfit_female_corporate', 'outfit_asooke_gown'].includes(outfitId);
+        const explicitGender = charGroup.userData.gender;
+        const isFemale = explicitGender
+          ? explicitGender === 'female'
+          : ['outfit_ankara_gown', 'outfit_buba_wrapper', 'outfit_female_corporate', 'outfit_asooke_gown'].includes(outfitId);
+        const targetGender = isFemale ? 'female' : 'male';
+        const targetBodyType = charGroup.userData.bodyType || 'athletic_lagos';
+
         const topHex = outfitSpec.topHex !== undefined ? outfitSpec.topHex : (isFemale ? 0xEC4899 : 0x10B981);
         const bottomHex = outfitSpec.bottomHex !== undefined ? outfitSpec.bottomHex : 0x1E293B;
         const accentHex = outfitSpec.accentHex !== undefined
@@ -8955,16 +8955,38 @@
         const shoeHex = outfitSpec.shoeHex !== undefined
           ? outfitSpec.shoeHex
           : (outfitId === 'outfit_owambe_agbada' || outfitId === 'outfit_asooke_gown' ? 0xD97706 : (outfitId === 'outfit_corporate_suit' ? 0x0F172A : (outfitId === 'outfit_sunday_senator' ? 0x451A03 : 0xF8FAFC)));
-        const skinHex = charGroup.userData.skinHex;
-        const hairHex = charGroup.userData.hairHex !== undefined ? charGroup.userData.hairHex : 0x1A1110;
-        const bagHex = charGroup.userData.bagHex !== undefined ? charGroup.userData.bagHex : 0xD97706;
+        const skinHex = charGroup.userData.skinHex !== undefined ? charGroup.userData.skinHex : 0x6B3E26;
+        const hairHex = charGroup.userData.hairHex !== undefined ? charGroup.userData.hairHex : 0x141218;
+        const bagHex = charGroup.userData.bagHex !== undefined ? charGroup.userData.bagHex : 0x92400E;
         const hairStyle = charGroup.userData.hairStyle || '';
         const bagStyle = charGroup.userData.bagStyle || 'none';
 
+        // Dynamically rebuild the 3D SkinnedMesh anatomy whenever gender or bodyType changes
+        if (charGroup.userData.builtGender !== targetGender || charGroup.userData.builtBodyType !== targetBodyType) {
+          this.rebuildHumanoidAnatomy(charGroup, {
+            isPlayer: true,
+            gender: targetGender,
+            bodyType: targetBodyType,
+            build: targetBodyType === 'tall_executive' ? (isFemale ? 'female_standard' : 'male_broad') : (isFemale ? 'female_standard' : 'male_standard'),
+            skinCol: skinHex,
+            hairCol: hairHex,
+            topCol: topHex,
+            bottomCol: bottomHex,
+            shoeCol: shoeHex,
+            accentCol: accentHex
+          });
+        }
+
+        const sm = charGroup.skinnedMesh;
+        const geo = sm.geometry;
+        const colorAttr = geo && geo.attributes && geo.attributes.color;
+        const slots = sm.userData && sm.userData.partSlots;
+        const shades = sm.userData && sm.userData.partShades;
+
         if (charGroup.userData.bodyType || charGroup.userData.gender) {
-          const bt = charGroup.userData.bodyType || 'athletic_lagos';
-          const genderScaleY = isFemale ? 0.97 : 1.0;
-          const sx = bt === 'compact_runner' ? 0.94 : (bt === 'tall_executive' ? 1.05 : (isFemale ? 0.96 : 1.0));
+          const bt = targetBodyType;
+          const genderScaleY = isFemale ? 0.96 : 1.02;
+          const sx = bt === 'compact_runner' ? 0.94 : (bt === 'tall_executive' ? 1.06 : (isFemale ? 0.95 : 1.02));
           const sz = bt === 'compact_runner' ? 0.94 : (bt === 'tall_executive' ? 1.04 : 1.0);
           charGroup.scale.set(sx, genderScaleY, sz);
         }
@@ -9015,102 +9037,92 @@
         const spineParts = [];
         const headParts = [];
 
-        // Natural twin anatomical bust contours on Spine bone when female gender is selected
-        if (isFemale) {
-          [-0.048, 0.048].forEach(bx => {
-            const bustCup = new THREE.SphereGeometry(0.068, 12, 10);
-            bustCup.scale(0.96, 0.86, 0.82);
-            bustCup.translate(bx, 0.20, 0.056);
-            spineParts.push({ geo: bustCup, hex: topHex, ao: 1.03 });
-          });
-        }
-
         if (outfitId === 'outfit_ankara_gown') {
           // Vibrant Ankara Flare Dress / Gown + Gold Waist Belt + Patterned Hem
-          const waistBelt = new THREE.CylinderGeometry(0.154, 0.160, 0.050, 14);
-          waistBelt.scale(1.0, 1.0, 0.72);
-          waistBelt.translate(0, 0.02, 0);
+          const waistBelt = new THREE.CylinderGeometry(0.142, 0.148, 0.048, 14);
+          waistBelt.scale(1.0, 1.0, 0.70);
+          waistBelt.translate(0, -0.04, 0);
           spineParts.push({ geo: waistBelt, hex: accentHex, ao: 1.08 });
 
-          const flareSkirt = new THREE.CylinderGeometry(0.158, 0.275, 0.56, 16);
-          flareSkirt.scale(1.02, 1.0, 0.82);
-          flareSkirt.translate(0, -0.27, 0);
+          const flareSkirt = new THREE.CylinderGeometry(0.148, 0.275, 0.56, 16);
+          flareSkirt.scale(1.02, 1.0, 0.80);
+          flareSkirt.translate(0, -0.32, 0);
           spineParts.push({ geo: flareSkirt, hex: topHex, ao: 1.02 });
 
           const hemBorder = new THREE.CylinderGeometry(0.268, 0.284, 0.075, 16);
-          hemBorder.scale(1.02, 1.0, 0.82);
-          hemBorder.translate(0, -0.52, 0);
+          hemBorder.scale(1.02, 1.0, 0.80);
+          hemBorder.translate(0, -0.57, 0);
           spineParts.push({ geo: hemBorder, hex: bottomHex, ao: 1.06 });
         } else if (outfitId === 'outfit_asooke_gown') {
           // Royal Woven Asooke Corset Gown + Ipele Shoulder Sash + Gold Beadwork
-          const corsetBodice = new THREE.CylinderGeometry(0.168, 0.150, 0.25, 14);
-          corsetBodice.scale(1.0, 1.0, 0.72);
-          corsetBodice.translate(0, 0.16, 0.008);
+          const corsetBodice = new THREE.CylinderGeometry(0.158, 0.138, 0.25, 14);
+          corsetBodice.scale(1.0, 1.0, 0.70);
+          corsetBodice.translate(0, 0.14, 0.006);
           spineParts.push({ geo: corsetBodice, hex: topHex, ao: 1.05 });
 
-          const asookeSkirt = new THREE.CylinderGeometry(0.158, 0.245, 0.64, 16);
-          asookeSkirt.scale(1.0, 1.0, 0.78);
-          asookeSkirt.translate(0, -0.31, 0);
+          const asookeSkirt = new THREE.CylinderGeometry(0.148, 0.245, 0.64, 16);
+          asookeSkirt.scale(1.0, 1.0, 0.76);
+          asookeSkirt.translate(0, -0.33, 0);
           spineParts.push({ geo: asookeSkirt, hex: bottomHex, ao: 1.03 });
 
           const ipeleSash = new THREE.CylinderGeometry(0.065, 0.075, 0.26, 12);
           ipeleSash.scale(1.2, 0.45, 1.6);
           ipeleSash.rotateZ(0.18);
-          ipeleSash.translate(-0.115, 0.29, 0);
+          ipeleSash.translate(-0.115, 0.28, 0);
           spineParts.push({ geo: ipeleSash, hex: accentHex, ao: 1.10 });
 
-          const coralNecklace = new THREE.TorusGeometry(0.082, 0.015, 8, 14);
+          const coralNecklace = new THREE.TorusGeometry(0.074, 0.014, 8, 14);
           coralNecklace.rotateX(Math.PI / 2);
-          coralNecklace.translate(0, 0.35, 0.015);
+          coralNecklace.translate(0, 0.34, 0.015);
           spineParts.push({ geo: coralNecklace, hex: 0xDC2626, ao: 1.10 });
         } else if (outfitId === 'outfit_buba_wrapper') {
           // Traditional Lagos Buba Peplum Blouse & Draped Iro Wrapper Skirt
-          const bubaPeplum = new THREE.CylinderGeometry(0.155, 0.208, 0.18, 14);
-          bubaPeplum.scale(1.0, 1.0, 0.74);
-          bubaPeplum.translate(0, -0.02, 0);
+          const bubaPeplum = new THREE.CylinderGeometry(0.142, 0.204, 0.18, 14);
+          bubaPeplum.scale(1.0, 1.0, 0.72);
+          bubaPeplum.translate(0, -0.05, 0);
           spineParts.push({ geo: bubaPeplum, hex: topHex, ao: 1.05 });
 
-          const iroWrapper = new THREE.CylinderGeometry(0.168, 0.212, 0.54, 16);
-          iroWrapper.scale(1.0, 1.0, 0.76);
-          iroWrapper.translate(0, -0.30, 0);
+          const iroWrapper = new THREE.CylinderGeometry(0.165, 0.212, 0.54, 16);
+          iroWrapper.scale(1.0, 1.0, 0.75);
+          iroWrapper.translate(0, -0.33, 0);
           spineParts.push({ geo: iroWrapper, hex: bottomHex, ao: 1.02 });
         } else if (outfitId === 'outfit_female_corporate') {
           // Victoria Island Smart Sheath Dress & Tailored Blazer
-          const blazerLapel = new THREE.CylinderGeometry(0.185, 0.160, 0.28, 14);
-          blazerLapel.scale(1.04, 1.0, 0.72);
-          blazerLapel.translate(0, 0.19, 0);
+          const blazerLapel = new THREE.CylinderGeometry(0.168, 0.145, 0.28, 14);
+          blazerLapel.scale(1.02, 1.0, 0.70);
+          blazerLapel.translate(0, 0.18, 0);
           spineParts.push({ geo: blazerLapel, hex: topHex, ao: 1.04 });
 
-          const innerShell = new THREE.BoxGeometry(0.11, 0.22, 0.025);
-          innerShell.translate(0, 0.21, 0.102);
+          const innerShell = new THREE.BoxGeometry(0.095, 0.21, 0.025);
+          innerShell.translate(0, 0.20, 0.096);
           spineParts.push({ geo: innerShell, hex: 0xF8FAFC, ao: 1.10 });
 
-          const pencilSkirt = new THREE.CylinderGeometry(0.162, 0.178, 0.44, 14);
-          pencilSkirt.scale(1.0, 1.0, 0.74);
-          pencilSkirt.translate(0, -0.23, 0);
+          const pencilSkirt = new THREE.CylinderGeometry(0.155, 0.174, 0.44, 14);
+          pencilSkirt.scale(1.0, 1.0, 0.72);
+          pencilSkirt.translate(0, -0.26, 0);
           spineParts.push({ geo: pencilSkirt, hex: bottomHex, ao: 1.02 });
         } else if (outfitId === 'outfit_owambe_agbada') {
           // Voluminous Royal Gold Aso-Oke Agbada Tunic + Wide Wing Sleeves + Burgundy & Gold Embroidery + Yorùbá Fila Cap
           const wingShoulders = new THREE.CylinderGeometry(0.28, 0.24, 0.34, 14);
-          wingShoulders.scale(1.05, 1.0, 0.52);
+          wingShoulders.scale(1.08, 1.0, 0.54);
           wingShoulders.translate(0, 0.19, 0);
           spineParts.push({ geo: wingShoulders, hex: topHex, ao: 1.05 });
 
           const lowerDrape = new THREE.CylinderGeometry(0.18, 0.22, 0.36, 14);
-          lowerDrape.scale(1.04, 1.0, 0.76);
+          lowerDrape.scale(1.04, 1.0, 0.74);
           lowerDrape.translate(0, -0.18, 0);
           spineParts.push({ geo: lowerDrape, hex: topHex, ao: 1.02 });
 
           const frontEmbroidery = new THREE.BoxGeometry(0.19, 0.28, 0.028);
-          frontEmbroidery.translate(0, 0.18, 0.122);
+          frontEmbroidery.translate(0, 0.18, 0.128);
           spineParts.push({ geo: frontEmbroidery, hex: 0x7F1D1D, ao: 1.06 });
 
           const frontGoldCrest = new THREE.BoxGeometry(0.10, 0.19, 0.032);
-          frontGoldCrest.translate(0, 0.19, 0.128);
+          frontGoldCrest.translate(0, 0.19, 0.134);
           spineParts.push({ geo: frontGoldCrest, hex: 0xFEF08A, ao: 1.10 });
 
           const backEmbroidery = new THREE.BoxGeometry(0.20, 0.30, 0.028);
-          backEmbroidery.translate(0, 0.18, -0.122);
+          backEmbroidery.translate(0, 0.18, -0.128);
           spineParts.push({ geo: backEmbroidery, hex: 0x7F1D1D, ao: 1.06 });
 
           if (!hairStyle || hairStyle === 'fila_kufi_cap') {
@@ -9129,8 +9141,8 @@
           }
         } else if (outfitId === 'outfit_corporate_suit') {
           // Tailored Cobalt/Indigo Executive Work Shirt & Blazer + Crisp White Collar + Crimson Silk Tie
-          const blazerShoulders = new THREE.CylinderGeometry(0.205, 0.175, 0.30, 14);
-          blazerShoulders.scale(1.02, 1.0, 0.68);
+          const blazerShoulders = new THREE.CylinderGeometry(0.228, 0.175, 0.30, 14);
+          blazerShoulders.scale(1.04, 1.0, 0.72);
           blazerShoulders.translate(0, 0.20, 0);
           spineParts.push({ geo: blazerShoulders, hex: topHex, ao: 1.04 });
 
@@ -9139,25 +9151,25 @@
           spineParts.push({ geo: whiteCollar, hex: 0xFFFFFF, ao: 1.10 });
 
           const shirtFront = new THREE.BoxGeometry(0.11, 0.24, 0.025);
-          shirtFront.translate(0, 0.21, 0.106);
+          shirtFront.translate(0, 0.21, 0.118);
           spineParts.push({ geo: shirtFront, hex: 0xF8FAFC, ao: 1.08 });
 
           const silkTie = new THREE.BoxGeometry(0.034, 0.22, 0.030);
-          silkTie.translate(0, 0.19, 0.114);
+          silkTie.translate(0, 0.19, 0.126);
           spineParts.push({ geo: silkTie, hex: 0xDC2626, ao: 1.06 });
         } else if (outfitId === 'outfit_sunday_senator') {
           // Tailored Sky-Blue Nigerian Senator Kaftan Tunic + Gold Chest Pocket & Chain + Navy Senator Fila Cap
-          const senatorTunic = new THREE.CylinderGeometry(0.168, 0.192, 0.34, 14);
+          const senatorTunic = new THREE.CylinderGeometry(0.168, 0.184, 0.34, 14);
           senatorTunic.scale(1.0, 1.0, 0.72);
           senatorTunic.translate(0, -0.17, 0);
           spineParts.push({ geo: senatorTunic, hex: topHex, ao: 1.04 });
 
           const senatorPlacket = new THREE.BoxGeometry(0.038, 0.24, 0.024);
-          senatorPlacket.translate(0, 0.21, 0.108);
+          senatorPlacket.translate(0, 0.21, 0.118);
           spineParts.push({ geo: senatorPlacket, hex: 0xF4B41A, ao: 1.08 });
 
           const senatorPocket = new THREE.BoxGeometry(0.052, 0.038, 0.024);
-          senatorPocket.translate(-0.068, 0.24, 0.106);
+          senatorPocket.translate(-0.072, 0.24, 0.116);
           spineParts.push({ geo: senatorPocket, hex: 0xF4B41A, ao: 1.10 });
 
           if (!hairStyle || hairStyle === 'fila_kufi_cap') {
@@ -9171,44 +9183,30 @@
             headParts.push({ geo: senFilaRim, hex: 0xF4B41A, ao: 1.10 });
           }
         } else {
-          // Subtle Street Hustler Collar Trim & Back Emblem
-          const collarTrim = new THREE.TorusGeometry(0.072, 0.012, 8, 14);
+          // Subtle Crew Collar Trim
+          const collarTrim = new THREE.TorusGeometry(isFemale ? 0.064 : 0.074, 0.011, 8, 14);
           collarTrim.rotateX(Math.PI / 2);
           collarTrim.translate(0, 0.35, 0.005);
-          spineParts.push({ geo: collarTrim, hex: accentHex, ao: 1.06 });
+          spineParts.push({ geo: collarTrim, hex: topHex, ao: 0.92 });
         }
 
-        // Bag / Accessory Overlay on Spine (Positioned cleanly at the side hip, never clipping chest/bust)
+        // Bag / Accessory Overlay on Spine (Sleek side/back placement, never a floating front sphere)
         if (bagStyle === 'duffel_bag') {
-          const duffelBody = new THREE.CylinderGeometry(0.058, 0.058, 0.22, 12);
-          duffelBody.rotateX(Math.PI / 2);
-          duffelBody.translate(-0.175, -0.04, -0.02);
-          spineParts.push({ geo: duffelBody, hex: bagHex, ao: 1.06 });
+          const duffelBody = new THREE.BoxGeometry(0.18, 0.11, 0.095);
+          duffelBody.translate(0, 0.10, -0.125);
+          spineParts.push({ geo: duffelBody, hex: bagHex, ao: 1.04 });
 
-          const duffelCapF = new THREE.SphereGeometry(0.058, 10, 8);
-          duffelCapF.scale(1.0, 1.0, 0.45);
-          duffelCapF.translate(-0.175, -0.04, 0.09);
-          spineParts.push({ geo: duffelCapF, hex: accentHex, ao: 1.08 });
-
-          const shoulderLoop = new THREE.TorusGeometry(0.155, 0.011, 8, 16);
-          shoulderLoop.scale(0.55, 1.15, 0.65);
-          shoulderLoop.rotateY(0.35);
-          shoulderLoop.translate(-0.125, 0.14, -0.01);
-          spineParts.push({ geo: shoulderLoop, hex: 0x1E293B, ao: 1.02 });
+          const duffelFlap = new THREE.BoxGeometry(0.184, 0.035, 0.098);
+          duffelFlap.translate(0, 0.145, -0.125);
+          spineParts.push({ geo: duffelFlap, hex: 0x1E293B, ao: 1.08 });
         } else if (bagStyle === 'mini_bag') {
-          const miniBag = new THREE.BoxGeometry(0.052, 0.105, 0.135);
-          miniBag.translate(0.172, -0.05, 0.01);
+          const miniBag = new THREE.BoxGeometry(0.048, 0.10, 0.13);
+          miniBag.translate(0.165, -0.08, -0.01);
           spineParts.push({ geo: miniBag, hex: bagHex, ao: 1.08 });
 
-          const miniFlap = new THREE.BoxGeometry(0.056, 0.045, 0.138);
-          miniFlap.translate(0.172, -0.015, 0.01);
-          spineParts.push({ geo: miniFlap, hex: accentHex, ao: 1.12 });
-
-          const chainLoop = new THREE.TorusGeometry(0.155, 0.008, 8, 16);
-          chainLoop.scale(0.50, 1.18, 0.62);
-          chainLoop.rotateY(-0.35);
-          chainLoop.translate(0.125, 0.14, 0.005);
-          spineParts.push({ geo: chainLoop, hex: 0xF4B41A, ao: 1.12 });
+          const miniFlap = new THREE.BoxGeometry(0.052, 0.04, 0.134);
+          miniFlap.translate(0.165, -0.045, -0.01);
+          spineParts.push({ geo: miniFlap, hex: 0xF4B41A, ao: 1.12 });
         }
 
         // Explicit Hair & Headpiece Overlays on Head Bone (bHead is at Y=1.60; eyes are at local Y=+0.126, Z=+0.104; forehead hairline is Y=+0.168)
@@ -9304,6 +9302,555 @@
         return true;
       },
 
+      getAnatomicalProportions(cfg = {}) {
+        const gender = cfg.gender || (cfg.hatType === 'gele' || cfg.isFemale ? 'female' : 'male');
+        const build = cfg.build || (gender === 'female' ? 'female_standard' : 'male_standard');
+        const bodyType = cfg.bodyType || 'athletic_lagos';
+        const isFemale = gender === 'female';
+        // Unmistakable sexual dimorphism in skeletal & muscular proportions:
+        // Male: broad V-taper shoulders (sw=1.16..1.22), athletic waist (ww=0.86), narrow straight hips (hw=0.85)
+        // Female: graceful sloped shoulders (sw=0.84), high narrow hourglass waist (ww=0.68), curvy wide hips (hw=1.14)
+        const sw = isFemale
+          ? (bodyType === 'tall_executive' ? 0.88 : 0.84)
+          : (build === 'male_broad' || bodyType === 'tall_executive' ? 1.22 : (bodyType === 'compact_runner' ? 1.10 : 1.16));
+        const ww = build === 'elder' ? 1.04 : (isFemale ? 0.68 : 0.86);
+        const hw = isFemale ? 1.14 : 0.85;
+        const heightScale = cfg.heightScale || (isFemale ? 0.96 : 1.02);
+        return { gender, isFemale, build, bodyType, sw, ww, hw, heightScale };
+      },
+
+      populateHumanoidArrays(arrays, cfg = {}) {
+        const { gender, isFemale, sw, ww, hw } = this.getAnatomicalProportions(cfg);
+        const skinCol = cfg.skinCol || EKO_SKIN_TONES[Math.abs((cfg.name || 'Eko').charCodeAt(0)) % EKO_SKIN_TONES.length];
+        const topCol = cfg.topCol !== undefined ? cfg.topCol : 0x008751;
+        const bottomCol = cfg.bottomCol !== undefined ? cfg.bottomCol : 0x1E293B;
+        const shoeCol = cfg.shoeCol !== undefined ? cfg.shoeCol : 0xF8FAFC;
+        const accentCol = cfg.accentCol !== undefined ? cfg.accentCol : 0xF4B41A;
+        const hairCol = cfg.hairCol !== undefined ? cfg.hairCol : 0x111318;
+
+        const shoulderX = 0.205 * sw;
+        const hipX = 0.102 * hw;
+
+        const sW = cfg.isPlayer ? 14 : 10;
+        const sH = cfg.isPlayer ? 10 : 8;
+        const cS = cfg.isPlayer ? 12 : 8;
+        const smS = cfg.isPlayer ? 8 : 6;
+
+        // 1. PELVIS, HIPS, WAIST & GENDER-SPECIFIC LOWER TORSO ANATOMY (Bones 1 & 2)
+        if (isFemale) {
+          // FEMALE: Narrow high hourglass waist flaring smoothly into curved wide feminine hips & rounded glutes
+          const pelvisGeo = new THREE.CylinderGeometry(0.124 * ww, 0.166 * hw, 0.16, cS);
+          pelvisGeo.scale(1.04, 1.0, 0.68);
+          pelvisGeo.translate(0, 0.89, 0);
+          this.appendSkinnedPart(arrays, pelvisGeo, bottomCol, 1, 1, false, 0.96, 'bottom');
+
+          // Feminine Lateral Hip Curves & Sculpted Glutes
+          [-1, 1].forEach(side => {
+            const hipCurveGeo = new THREE.SphereGeometry(0.086, sW, sH);
+            hipCurveGeo.scale(1.06, 0.94, 0.78);
+            hipCurveGeo.translate(side * 0.076 * hw, 0.875, -0.006);
+            this.appendSkinnedPart(arrays, hipCurveGeo, bottomCol, 1, side > 0 ? 9 : 12, true, 0.98, 'bottom');
+
+            const gluteGeo = new THREE.SphereGeometry(0.068, smS, smS);
+            gluteGeo.scale(0.96, 0.92, 0.88);
+            gluteGeo.translate(side * 0.054 * hw, 0.87, -0.056);
+            this.appendSkinnedPart(arrays, gluteGeo, bottomCol, 1, 1, false, 0.95, 'bottom');
+          });
+
+          const waistGeo = new THREE.CylinderGeometry(0.136 * ww, 0.124 * ww, 0.23, cS);
+          waistGeo.scale(0.96, 1.0, 0.66);
+          waistGeo.translate(0, 1.06, 0);
+          this.appendSkinnedPart(arrays, waistGeo, topCol, 2, 1, true, 0.98, 'top');
+        } else {
+          // MALE: Straight-cut tailored men's trouser pelvis tucked cleanly under a leather belt & athletic waist
+          const pelvisGeo = new THREE.CylinderGeometry(0.148 * ww, 0.148 * hw, 0.14, cS);
+          pelvisGeo.scale(1.0, 1.0, 0.66);
+          pelvisGeo.translate(0, 0.875, 0);
+          this.appendSkinnedPart(arrays, pelvisGeo, bottomCol, 1, 1, false, 0.95, 'bottom');
+
+          // Male Anatomical Groin / Trouser Fly Contour & Firm Masculine Glutes
+          const maleGroinGeo = new THREE.SphereGeometry(0.046, smS, smS);
+          maleGroinGeo.scale(0.86, 1.02, 0.78);
+          maleGroinGeo.translate(0, 0.848, 0.056);
+          this.appendSkinnedPart(arrays, maleGroinGeo, bottomCol, 1, 1, false, 0.93, 'bottom');
+
+          [-1, 1].forEach(side => {
+            const maleGlute = new THREE.SphereGeometry(0.056, smS, smS);
+            maleGlute.scale(0.92, 0.90, 0.75);
+            maleGlute.translate(side * 0.048 * hw, 0.875, -0.048);
+            this.appendSkinnedPart(arrays, maleGlute, bottomCol, 1, 1, false, 0.94, 'bottom');
+          });
+
+          // Tailored Men's Leather Belt & Metallic Buckle at Y=0.938
+          const beltGeo = new THREE.CylinderGeometry(0.154 * ww, 0.152 * ww, 0.036, cS);
+          beltGeo.scale(1.0, 1.0, 0.70);
+          beltGeo.translate(0, 0.938, 0);
+          this.appendSkinnedPart(arrays, beltGeo, 0x111827, 1, 2, true, 0.92, 'fixed');
+
+          const buckleGeo = new THREE.BoxGeometry(0.046, 0.038, 0.020);
+          buckleGeo.translate(0, 0.938, 0.106);
+          this.appendSkinnedPart(arrays, buckleGeo, 0xF4B41A, 1, 2, true, 1.12, 'fixed');
+
+          // Athletic Male Lower Torso & Subtle Abdominal / Oblique Definition
+          const waistGeo = new THREE.CylinderGeometry(0.172 * ww, 0.154 * ww, 0.22, cS);
+          waistGeo.scale(1.0, 1.0, 0.70);
+          waistGeo.translate(0, 1.06, 0);
+          this.appendSkinnedPart(arrays, waistGeo, topCol, 2, 1, true, 0.99, 'top');
+
+          [-0.032, 0.032].forEach(ax => {
+            [1.05, 1.12].forEach(ay => {
+              const abBlock = new THREE.BoxGeometry(0.048, 0.052, 0.022);
+              abBlock.translate(ax, ay, 0.094);
+              this.appendSkinnedPart(arrays, abBlock, topCol, 2, 1, true, 1.03, 'top');
+            });
+          });
+        }
+
+        // 2. UPPER CHEST: FEMALE BREASTS vs. MALE BROAD V-TAPER & FLAT CHISELED PECTORAL PLATES (Bone 2)
+        if (isFemale) {
+          const chestGeo = new THREE.CylinderGeometry(0.156 * sw, 0.136 * ww, 0.29, cS);
+          chestGeo.scale(0.96, 1.0, 0.66);
+          chestGeo.translate(0, 1.305, 0);
+          this.appendSkinnedPart(arrays, chestGeo, topCol, 2, 2, false, 1.02, 'top');
+
+          // Twin Anatomical Female Breasts / Bust Contours
+          [-0.048, 0.048].forEach(bx => {
+            const bustGeo = new THREE.SphereGeometry(0.066, sW, sH);
+            bustGeo.scale(0.95, 0.88, 0.94);
+            bustGeo.translate(bx, 1.315, 0.066);
+            this.appendSkinnedPart(arrays, bustGeo, topCol, 2, 2, false, 1.05, 'top');
+          });
+
+          const trapGeo = new THREE.SphereGeometry(0.152 * sw, sW, sH);
+          trapGeo.scale(1.02, 0.30, 0.62);
+          trapGeo.translate(0, 1.44, 0);
+          this.appendSkinnedPart(arrays, trapGeo, topCol, 2, 3, true, 1.03, 'top');
+        } else {
+          // Broad Masculine V-Taper Upper Chest & Latissimus Dorsi
+          const chestGeo = new THREE.CylinderGeometry(0.206 * sw, 0.172 * ww, 0.31, cS);
+          chestGeo.scale(1.04, 1.0, 0.72);
+          chestGeo.translate(0, 1.31, 0);
+          this.appendSkinnedPart(arrays, chestGeo, topCol, 2, 2, false, 1.02, 'top');
+
+          // Flat, Wide Chiseled Male Pectoral Muscle Plates (Zero round breast spheres!)
+          [-1, 1].forEach(side => {
+            const pecPlate = new THREE.BoxGeometry(0.092 * sw, 0.118, 0.036);
+            pecPlate.rotateY(side * 0.08);
+            pecPlate.translate(side * 0.054 * sw, 1.345, 0.076);
+            this.appendSkinnedPart(arrays, pecPlate, topCol, 2, 2, false, 1.05, 'top');
+          });
+
+          // Broad Muscular Male Trapezius & Shoulder Yoke
+          const trapGeo = new THREE.SphereGeometry(0.184 * sw, sW, sH);
+          trapGeo.scale(1.08, 0.32, 0.66);
+          trapGeo.translate(0, 1.45, -0.004);
+          this.appendSkinnedPart(arrays, trapGeo, topCol, 2, 3, true, 1.04, 'top');
+        }
+
+        // 3. NPC WARDROBE DETAILS ON TORSO
+        const wardrobe = cfg.wardrobe || (cfg.isPlayer ? 'player_custom' : (isFemale && cfg.hatType === 'gele' ? 'buba_wrapper' : 'casual'));
+        if (wardrobe === 'corporate_suit') {
+          const shirtVGeo = new THREE.CylinderGeometry(0.055, 0.02, 0.22, smS);
+          shirtVGeo.scale(1.0, 1.0, 0.35);
+          shirtVGeo.translate(0, 1.35, 0.102);
+          this.appendSkinnedPart(arrays, shirtVGeo, 0xF8FAFC, 2, 2, false, 1.08, 'fixed');
+
+          const tieGeo = new THREE.CylinderGeometry(0.015, 0.022, 0.21, smS);
+          tieGeo.scale(1.0, 1.0, 0.3);
+          tieGeo.translate(0, 1.32, 0.112);
+          this.appendSkinnedPart(arrays, tieGeo, 0xDC2626, 2, 2, false, 1.05, 'fixed');
+        } else if (wardrobe === 'senator_kaftan' || cfg.hatType === 'fila') {
+          const kaftanSkirt = new THREE.CylinderGeometry(0.164 * hw, 0.182 * hw, 0.28, cS);
+          kaftanSkirt.scale(1.0, 1.0, 0.72);
+          kaftanSkirt.translate(0, 0.82, 0);
+          this.appendSkinnedPart(arrays, kaftanSkirt, topCol, 1, 9, true, 0.98, 'top');
+
+          const pocketGold = new THREE.BoxGeometry(0.048, 0.036, 0.022);
+          pocketGold.translate(-0.065, 1.35, 0.104);
+          this.appendSkinnedPart(arrays, pocketGold, accentCol, 2, 2, false, 1.08, 'accent');
+        } else if (wardrobe === 'buba_wrapper') {
+          const wrapperGeo = new THREE.CylinderGeometry(0.166 * hw, 0.198 * hw, 0.46, cS);
+          wrapperGeo.scale(1.0, 1.0, 0.76);
+          wrapperGeo.translate(0, 0.68, 0);
+          this.appendSkinnedPart(arrays, wrapperGeo, bottomCol, 1, 10, true, 0.98, 'bottom');
+        }
+
+        // 4. NECK, SCULPTED HUMAN HEAD & GENDER-DIMORPHIC FACIAL FEATURES (Bones 3 & 4)
+        const neckTopR = isFemale ? 0.041 : 0.055;
+        const neckBotR = isFemale ? 0.047 : 0.064;
+        const neckGeo = new THREE.CylinderGeometry(neckTopR, neckBotR, 0.13, cS);
+        neckGeo.translate(0, 1.545, 0);
+        this.appendSkinnedPart(arrays, neckGeo, skinCol, 3, 4, true, 0.95, 'skin');
+
+        if (!isFemale) {
+          // Subtle Male Adam's Apple Contour on Neck
+          const adamsApple = new THREE.SphereGeometry(0.016, smS, smS);
+          adamsApple.scale(0.85, 0.95, 0.90);
+          adamsApple.translate(0, 1.548, 0.048);
+          this.appendSkinnedPart(arrays, adamsApple, skinCol, 3, 4, true, 0.98, 'skin');
+        }
+
+        // Smooth Oval Human Cranium + Gender-Specific Jawline & Chin
+        const craniumGeo = new THREE.SphereGeometry(0.108, sW, sH);
+        craniumGeo.scale(isFemale ? 0.90 : 0.95, 1.12, 1.02);
+        craniumGeo.translate(0, 1.715, 0.006);
+        this.appendSkinnedPart(arrays, craniumGeo, skinCol, 4, 4, false, 1.03, 'skin');
+
+        const jawCheekGeo = new THREE.SphereGeometry(0.094, sW, sH);
+        jawCheekGeo.scale(isFemale ? 0.84 : 0.94, 0.90, 0.98);
+        jawCheekGeo.translate(0, 1.662, 0.018);
+        this.appendSkinnedPart(arrays, jawCheekGeo, skinCol, 4, 4, false, 1.0, 'skin');
+
+        if (!isFemale) {
+          // Chiseled Square Masculine Mandible / Jaw Angles + Strong Brow Ridge
+          const maleJawBlock = new THREE.BoxGeometry(0.142, 0.068, 0.118);
+          maleJawBlock.translate(0, 1.648, 0.016);
+          this.appendSkinnedPart(arrays, maleJawBlock, skinCol, 4, 4, false, 0.99, 'skin');
+
+          const browRidge = new THREE.BoxGeometry(0.122, 0.018, 0.030);
+          browRidge.translate(0, 1.744, 0.092);
+          this.appendSkinnedPart(arrays, browRidge, skinCol, 4, 4, false, 1.04, 'skin');
+        }
+
+        const chinGeo = new THREE.SphereGeometry(0.048, smS, smS);
+        chinGeo.scale(isFemale ? 0.76 : 1.15, isFemale ? 0.72 : 0.82, 0.92);
+        chinGeo.translate(0, 1.618, 0.052);
+        this.appendSkinnedPart(arrays, chinGeo, skinCol, 4, 4, false, 0.98, 'skin');
+
+        // Sculpted Human Ears (Gold Studs ONLY for Female; Clean Ears for Male)
+        [-0.099, 0.099].forEach(ex => {
+          const earGeo = new THREE.SphereGeometry(0.022, smS, smS);
+          earGeo.scale(0.42, 1.12, 0.72);
+          earGeo.translate(ex, 1.70, -0.004);
+          this.appendSkinnedPart(arrays, earGeo, skinCol, 4, 4, false, 0.93, 'skin');
+
+          if (isFemale) {
+            const studGeo = new THREE.SphereGeometry(0.008, 6, 6);
+            studGeo.translate(ex * 1.04, 1.678, 0.002);
+            this.appendSkinnedPart(arrays, studGeo, 0xF4B41A, 4, 4, false, 1.12, 'fixed');
+          }
+        });
+
+        // Sculpted Nose Bridge & Soft Nose Tip (+Z Front)
+        const noseBridge = new THREE.CylinderGeometry(isFemale ? 0.007 : 0.009, isFemale ? 0.014 : 0.017, 0.042, smS);
+        noseBridge.rotateX(0.24);
+        noseBridge.translate(0, 1.702, 0.108);
+        this.appendSkinnedPart(arrays, noseBridge, skinCol, 4, 4, false, 1.04, 'skin');
+
+        const noseTip = new THREE.SphereGeometry(isFemale ? 0.014 : 0.016, smS, smS);
+        noseTip.scale(1.12, 0.78, 0.90);
+        noseTip.translate(0, 1.682, 0.116);
+        this.appendSkinnedPart(arrays, noseTip, skinCol, 4, 4, false, 1.05, 'skin');
+
+        // Expressive Human Eyes (Sclera + Warm Brown Iris + Dark Pupil + Gender-Specific Eyebrows)
+        [-0.036, 0.036].forEach(eyeX => {
+          const scleraGeo = new THREE.SphereGeometry(0.015, smS, smS);
+          scleraGeo.scale(1.22, 0.82, 0.55);
+          scleraGeo.translate(eyeX, 1.722, 0.099);
+          this.appendSkinnedPart(arrays, scleraGeo, 0xFFFFFF, 4, 4, false, 1.10, 'fixed');
+
+          const irisGeo = new THREE.SphereGeometry(0.0095, smS, smS);
+          irisGeo.scale(1.0, 1.0, 0.55);
+          irisGeo.translate(eyeX, 1.722, 0.106);
+          this.appendSkinnedPart(arrays, irisGeo, 0x3B1E0E, 4, 4, false, 1.02, 'fixed');
+
+          const pupilGeo = new THREE.SphereGeometry(0.0055, smS, smS);
+          pupilGeo.scale(1.0, 1.0, 0.55);
+          pupilGeo.translate(eyeX, 1.722, 0.110);
+          this.appendSkinnedPart(arrays, pupilGeo, 0x090D14, 4, 4, false, 1.0, 'fixed');
+
+          const browRadius = isFemale ? 0.0038 : 0.0062;
+          const browLen = isFemale ? 0.032 : 0.038;
+          const browArch = isFemale ? (eyeX > 0 ? -0.14 : 0.14) : (eyeX > 0 ? -0.02 : 0.02);
+          const browGeo = new THREE.CylinderGeometry(browRadius, browRadius, browLen, smS);
+          browGeo.rotateZ(Math.PI / 2 + browArch);
+          browGeo.translate(eyeX, 1.744, 0.103);
+          this.appendSkinnedPart(arrays, browGeo, hairCol, 4, 4, false, 0.95, 'hair');
+        });
+
+        // Contoured Upper & Lower Lips (Natural Dark Espresso for Male; Rose/Berry for Female)
+        const upperLip = new THREE.SphereGeometry(0.019, smS, smS);
+        upperLip.scale(1.28, 0.32, 0.62);
+        upperLip.translate(0, 1.653, 0.104);
+        this.appendSkinnedPart(arrays, upperLip, isFemale ? 0x9D174D : 0x3B2219, 4, 4, false, 1.0, 'fixed');
+
+        const lowerLip = new THREE.SphereGeometry(0.018, smS, smS);
+        lowerLip.scale(1.18, 0.36, 0.64);
+        lowerLip.translate(0, 1.644, 0.103);
+        this.appendSkinnedPart(arrays, lowerLip, isFemale ? 0xBE185D : 0x4A2C20, 4, 4, false, 1.04, 'fixed');
+
+        // Sculpted Lagos Male Facial Hair (Mustache + Chin Goatee + Jawline Beard Strap)
+        if (!isFemale) {
+          const mustacheGeo = new THREE.CylinderGeometry(0.0055, 0.0055, 0.048, smS);
+          mustacheGeo.rotateZ(Math.PI / 2);
+          mustacheGeo.translate(0, 1.662, 0.106);
+          this.appendSkinnedPart(arrays, mustacheGeo, hairCol, 4, 4, false, 0.92, 'hair');
+
+          const goateeGeo = new THREE.BoxGeometry(0.048, 0.028, 0.026);
+          goateeGeo.translate(0, 1.612, 0.088);
+          this.appendSkinnedPart(arrays, goateeGeo, hairCol, 4, 4, false, 0.92, 'hair');
+
+          [-0.068, 0.068].forEach(bx => {
+            const jawBeard = new THREE.BoxGeometry(0.016, 0.056, 0.072);
+            jawBeard.translate(bx, 1.638, 0.036);
+            this.appendSkinnedPart(arrays, jawBeard, hairCol, 4, 4, false, 0.92, 'hair');
+          });
+        }
+
+        // Hair & Authentic Nigerian Headwear (Bone 4 — kept strictly above forehead Y >= 1.75 in front)
+        const hatType = cfg.hatType || (cfg.isPlayer ? 'low_fade' : (isFemale ? 'braids_updo' : 'low_fade'));
+        if (hatType === 'gele') {
+          const geleBase = new THREE.CylinderGeometry(0.122, 0.112, 0.055, cS);
+          geleBase.scale(1.06, 1.0, 1.04);
+          geleBase.rotateX(-0.18);
+          geleBase.translate(0, 1.788, -0.012);
+          this.appendSkinnedPart(arrays, geleBase, cfg.hatCol || 0xF4B41A, 4, 4, false, 1.06, 'accent');
+
+          const geleCrown = new THREE.TorusGeometry(0.122, 0.040, smS, cS);
+          geleCrown.rotateX(Math.PI / 2 - 0.35);
+          geleCrown.translate(0, 1.832, -0.015);
+          this.appendSkinnedPart(arrays, geleCrown, cfg.hatCol || 0xF4B41A, 4, 4, false, 1.10, 'accent');
+        } else if (hatType === 'fila') {
+          const filaCrown = new THREE.CylinderGeometry(0.112, 0.108, 0.10, cS);
+          filaCrown.rotateZ(0.12);
+          filaCrown.translate(0.008, 1.80, -0.006);
+          this.appendSkinnedPart(arrays, filaCrown, cfg.hatCol || 0x111827, 4, 4, false, 1.04, 'hair');
+
+          const filaRim = new THREE.CylinderGeometry(0.114, 0.114, 0.025, cS);
+          filaRim.translate(0, 1.762, -0.006);
+          this.appendSkinnedPart(arrays, filaRim, accentCol, 4, 4, false, 1.08, 'accent');
+        } else if (hatType === 'cap') {
+          const capDome = new THREE.SphereGeometry(0.112, sW, sH, 0, Math.PI * 2, 0, Math.PI * 0.48);
+          capDome.translate(0, 1.73, -0.004);
+          this.appendSkinnedPart(arrays, capDome, cfg.hatCol || 0x0F172A, 4, 4, false, 1.04, 'hair');
+
+          const visorGeo = new THREE.CylinderGeometry(0.104, 0.104, 0.015, cS, 1, false, -Math.PI * 0.35, Math.PI * 0.7);
+          visorGeo.scale(0.95, 1.0, 1.25);
+          visorGeo.translate(0, 1.758, 0.052);
+          this.appendSkinnedPart(arrays, visorGeo, cfg.hatCol || 0x0F172A, 4, 4, false, 1.02, 'hair');
+        } else if (hatType === 'chef') {
+          const toqueGeo = new THREE.CylinderGeometry(0.122, 0.105, 0.17, cS);
+          toqueGeo.translate(0, 1.835, 0);
+          this.appendSkinnedPart(arrays, toqueGeo, 0xFFFFFF, 4, 4, false, 1.08, 'fixed');
+        } else if (!cfg.isPlayer && (hatType === 'braids_updo' || isFemale)) {
+          const hairCap = new THREE.SphereGeometry(0.112, sW, sH, 0, Math.PI * 2, 0, Math.PI * 0.50);
+          hairCap.scale(0.95, 1.05, 1.04);
+          hairCap.translate(0, 1.725, -0.010);
+          this.appendSkinnedPart(arrays, hairCap, hairCol, 4, 4, false, 0.95, 'hair');
+
+          const bunGeo = new THREE.SphereGeometry(0.068, sW, sH);
+          bunGeo.translate(0, 1.842, -0.035);
+          this.appendSkinnedPart(arrays, bunGeo, hairCol, 4, 4, false, 1.0, 'hair');
+        } else {
+          // Clean Sculpted Scalp / Low-Fade Hair Cap sitting neatly above forehead & temples
+          const fadeHair = new THREE.SphereGeometry(0.111, sW, sH, 0, Math.PI * 2, 0, Math.PI * 0.48);
+          fadeHair.scale(isFemale ? 0.91 : 0.96, 1.06, 1.03);
+          fadeHair.translate(0, 1.724, -0.008);
+          this.appendSkinnedPart(arrays, fadeHair, hairCol, 4, 4, false, 0.94, 'hair');
+
+          const backFade = new THREE.SphereGeometry(0.104, sW, sH);
+          backFade.scale(0.92, 0.95, 0.85);
+          backFade.translate(0, 1.71, -0.028);
+          this.appendSkinnedPart(arrays, backFade, hairCol, 4, 4, false, 0.92, 'hair');
+        }
+
+        // 5. ARTICULATED LEFT (+X) & RIGHT (-X) ARMS (Muscular Male Arms vs. Slender Female Arms)
+        [1, -1].forEach(side => {
+          const bSh = side > 0 ? 5 : 7;
+          const bEl = side > 0 ? 6 : 8;
+          const sx = side * shoulderX;
+          const ex = sx + side * 0.015;
+
+          // Smooth Integrated Deltoid Cap (tucked cleanly into upper arm & chest without protruding balls)
+          const deltR = isFemale ? 0.050 : 0.064;
+          const deltGeo = new THREE.SphereGeometry(deltR, sW, sH);
+          deltGeo.scale(0.94, 0.86, 0.82);
+          deltGeo.translate(sx * 0.94, 1.39, 0);
+          this.appendSkinnedPart(arrays, deltGeo, topCol, bSh, 2, true, 1.01, 'top');
+
+          // Upper Arm + Tailored Sleeve
+          const uArmTopR = isFemale ? 0.045 : 0.060;
+          const uArmBotR = isFemale ? 0.037 : 0.050;
+          const uArmGeo = new THREE.CylinderGeometry(uArmTopR, uArmBotR, 0.26, cS);
+          uArmGeo.translate(sx + side * 0.006, 1.29, 0);
+          this.appendSkinnedPart(arrays, uArmGeo, topCol, bSh, bEl, true, 1.0, 'top');
+
+          // Smooth Elbow Joint
+          const elbowR = isFemale ? 0.036 : 0.048;
+          const elbowSphere = new THREE.SphereGeometry(elbowR, smS, smS);
+          elbowSphere.translate(ex, 1.165, 0);
+          this.appendSkinnedPart(arrays, elbowSphere, skinCol, bEl, bSh, true, 0.98, 'skin');
+
+          // Natural Tapered Forearm & Wrist
+          const fArmTopR = isFemale ? 0.036 : 0.048;
+          const fArmBotR = isFemale ? 0.027 : 0.038;
+          const fArmGeo = new THREE.CylinderGeometry(fArmTopR, fArmBotR, 0.24, cS);
+          fArmGeo.translate(ex, 1.05, 0.01);
+          this.appendSkinnedPart(arrays, fArmGeo, skinCol, bEl, bEl, false, 1.0, 'skin');
+
+          // Left Wristwatch (Dark Band for Male; Gold Bangle for Female)
+          if (side > 0 && (cfg.isPlayer || wardrobe === 'corporate_suit')) {
+            const watchR = isFemale ? 0.030 : 0.040;
+            const watchGeo = new THREE.CylinderGeometry(watchR, watchR, 0.020, smS);
+            watchGeo.translate(ex, 0.95, 0.01);
+            this.appendSkinnedPart(arrays, watchGeo, isFemale ? 0xF4B41A : 0x111827, bEl, bEl, false, 1.08, 'fixed');
+          }
+
+          // Contoured Human Hand, Palm & Thumb Silhouette
+          const handR = isFemale ? 0.032 : 0.041;
+          const handGeo = new THREE.SphereGeometry(handR, smS, smS);
+          handGeo.scale(0.68, 1.28, 0.88);
+          handGeo.translate(ex, 0.895, 0.016);
+          this.appendSkinnedPart(arrays, handGeo, skinCol, bEl, bEl, false, 0.98, 'skin');
+        });
+
+        // 6. ARTICULATED THIGHS, KNEES, CALVES, ANKLES & CONTOURED FOOTWEAR (Left +X: 9,10,11 | Right -X: 12,13,14)
+        [1, -1].forEach(side => {
+          const bHp = side > 0 ? 9 : 12;
+          const bKn = side > 0 ? 10 : 13;
+          const bAn = side > 0 ? 11 : 14;
+          const lx = side * hipX;
+
+          // Hip-to-Thigh Joint (tucked smoothly inside pelvis without bulging)
+          const hipJointGeo = new THREE.SphereGeometry(isFemale ? 0.082 : 0.078, smS, smS);
+          hipJointGeo.scale(0.95, 0.82, 0.76);
+          hipJointGeo.translate(lx, 0.855, 0);
+          this.appendSkinnedPart(arrays, hipJointGeo, bottomCol, bHp, 1, true, 0.96, 'bottom');
+
+          // Tapered Anatomical Thigh (Shapely Feminine Taper vs. Muscular Male Quadriceps)
+          const thighTopR = isFemale ? 0.086 : 0.088;
+          const thighBotR = isFemale ? 0.056 : 0.066;
+          const thighGeo = new THREE.CylinderGeometry(thighTopR, thighBotR, 0.41, cS);
+          thighGeo.translate(lx, 0.695, 0);
+          this.appendSkinnedPart(arrays, thighGeo, bottomCol, bHp, bKn, true, 1.0, 'bottom');
+
+          // Knee Joint
+          const kneeR = isFemale ? 0.053 : 0.062;
+          const kneeGeo = new THREE.SphereGeometry(kneeR, smS, smS);
+          kneeGeo.translate(lx, 0.49, 0.008);
+          this.appendSkinnedPart(arrays, kneeGeo, bottomCol, bKn, bHp, true, 1.02, 'bottom');
+
+          // Sculpted Calf / Shin
+          const calfColor = wardrobe === 'buba_wrapper' ? skinCol : bottomCol;
+          const calfSlot = wardrobe === 'buba_wrapper' ? 'skin' : 'bottom';
+          const calfTopR = isFemale ? 0.056 : 0.065;
+          const calfBotR = isFemale ? 0.038 : 0.046;
+          const calfGeo = new THREE.CylinderGeometry(calfTopR, calfBotR, 0.40, cS);
+          calfGeo.translate(lx, 0.29, 0);
+          this.appendSkinnedPart(arrays, calfGeo, calfColor, bKn, bAn, true, 0.98, calfSlot);
+
+          // Ankle & Contoured Sneaker / Shoe (Facing +Z)
+          const shoeUpper = new THREE.SphereGeometry(isFemale ? 0.056 : 0.064, sW, sH);
+          shoeUpper.scale(0.88, 0.74, 1.85);
+          shoeUpper.translate(lx, 0.048, 0.042);
+          this.appendSkinnedPart(arrays, shoeUpper, shoeCol, bAn, bAn, false, 1.06, 'shoe');
+
+          const shoeSole = new THREE.CylinderGeometry(isFemale ? 0.052 : 0.058, isFemale ? 0.055 : 0.061, 0.022, cS);
+          shoeSole.scale(0.95, 1.0, 1.95);
+          shoeSole.translate(lx, 0.011, 0.042);
+          this.appendSkinnedPart(arrays, shoeSole, 0x0F172A, bAn, bAn, false, 0.90, 'fixed');
+        });
+
+        // 7. ROLE-SPECIFIC CULTURAL & OCCUPATIONAL ACCESSORIES
+        if (cfg.accessory === 'handbag') {
+          const bagGeo = new THREE.CylinderGeometry(0.035, 0.045, 0.22, smS);
+          bagGeo.scale(0.6, 1.0, 2.2);
+          bagGeo.translate(-shoulderX - 0.05, 0.82, 0.04);
+          this.appendSkinnedPart(arrays, bagGeo, accentCol, 8, 8, false, 1.06);
+        } else if (cfg.accessory === 'skewer') {
+          const skewerGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.55, smS);
+          skewerGeo.rotateX(Math.PI / 2);
+          skewerGeo.translate(-shoulderX - 0.02, 1.05, 0.26);
+          this.appendSkinnedPart(arrays, skewerGeo, 0xE2E8F0, 8, 8, false, 1.1);
+        } else if (cfg.accessory === 'tray_gala') {
+          const trayGeo = new THREE.CylinderGeometry(0.26, 0.24, 0.06, cS);
+          trayGeo.scale(1.2, 1.0, 0.85);
+          trayGeo.translate(0, 1.14, 0.28);
+          this.appendSkinnedPart(arrays, trayGeo, 0xF59E0B, 2, 2, false, 1.06);
+        } else if (cfg.accessory === 'tray_water') {
+          const coolerGeo = new THREE.CylinderGeometry(0.22, 0.20, 0.26, cS);
+          coolerGeo.translate(0, 1.98, 0);
+          this.appendSkinnedPart(arrays, coolerGeo, 0x0284C7, 4, 4, false, 1.06);
+        } else if (cfg.accessory === 'vest_conductor' || cfg.accessory === 'vest_agbero') {
+          const vCol = cfg.accessory === 'vest_conductor' ? 0xEA580C : 0x84CC16;
+          const vestGeo = new THREE.CylinderGeometry(0.202 * sw, 0.160 * ww, 0.31, cS);
+          vestGeo.scale(1.0, 1.0, 0.70);
+          vestGeo.translate(0, 1.30, 0);
+          this.appendSkinnedPart(arrays, vestGeo, vCol, 2, 2, false, 1.06);
+        }
+      },
+
+      rebuildHumanoidAnatomy(charGroup, cfg = {}) {
+        if (!charGroup || !charGroup.skinnedMesh || !charGroup.rig) return false;
+        const { gender, bodyType, sw, hw } = this.getAnatomicalProportions(cfg);
+        const skinCol = cfg.skinCol || 0x6B3E26;
+        const topCol = cfg.topCol !== undefined ? cfg.topCol : 0x008751;
+        const bottomCol = cfg.bottomCol !== undefined ? cfg.bottomCol : 0x1E293B;
+        const shoeCol = cfg.shoeCol !== undefined ? cfg.shoeCol : 0xF8FAFC;
+        const accentCol = cfg.accentCol !== undefined ? cfg.accentCol : 0xF4B41A;
+        const hairCol = cfg.hairCol !== undefined ? cfg.hairCol : 0x111318;
+
+        const r = charGroup.rig;
+        const savedRotations = {};
+        Object.keys(r).forEach(k => {
+          if (r[k] && r[k].rotation) {
+            savedRotations[k] = { x: r[k].rotation.x, y: r[k].rotation.y, z: r[k].rotation.z };
+            r[k].rotation.set(0, 0, 0);
+          }
+        });
+        const savedHipsY = r.hips ? r.hips.position.y : 0.92;
+        if (r.hips) r.hips.position.set(0, 0.92, 0);
+
+        const shoulderX = 0.205 * sw;
+        const hipX = 0.102 * hw;
+        if (r.shoulderL) r.shoulderL.position.set(shoulderX, 0.31, 0);
+        if (r.shoulderR) r.shoulderR.position.set(-shoulderX, 0.31, 0);
+        if (r.hipL) r.hipL.position.set(hipX, -0.02, 0);
+        if (r.hipR) r.hipR.position.set(-hipX, -0.02, 0);
+
+        const arrays = {
+          positions: [],
+          normals: [],
+          colors: [],
+          skinIndices: [],
+          skinWeights: [],
+          partSlots: [],
+          partShades: [],
+          slotColors: { skinCol, hairCol, topCol, bottomCol, shoeCol, accentCol }
+        };
+        this.populateHumanoidArrays(arrays, cfg);
+
+        const skinnedGeo = new THREE.BufferGeometry();
+        skinnedGeo.setAttribute('position', new THREE.Float32BufferAttribute(arrays.positions, 3));
+        skinnedGeo.setAttribute('normal', new THREE.Float32BufferAttribute(arrays.normals, 3));
+        skinnedGeo.setAttribute('color', new THREE.Float32BufferAttribute(arrays.colors, 3));
+        skinnedGeo.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(arrays.skinIndices, 4));
+        skinnedGeo.setAttribute('skinWeight', new THREE.Float32BufferAttribute(arrays.skinWeights, 4));
+
+        const sm = charGroup.skinnedMesh;
+        if (sm.geometry) sm.geometry.dispose();
+        sm.geometry = skinnedGeo;
+        sm.userData.partSlots = arrays.partSlots;
+        sm.userData.partShades = arrays.partShades;
+
+        charGroup.updateMatrixWorld(true);
+        if (charGroup.skeleton) {
+          charGroup.skeleton.calculateInverses();
+        }
+
+        Object.keys(savedRotations).forEach(k => {
+          if (r[k] && r[k].rotation) {
+            r[k].rotation.set(savedRotations[k].x, savedRotations[k].y, savedRotations[k].z);
+          }
+        });
+        if (r.hips) r.hips.position.y = savedHipsY;
+
+        if (!charGroup.userData) charGroup.userData = {};
+        charGroup.userData.builtGender = gender;
+        charGroup.userData.builtBodyType = bodyType;
+        return true;
+      },
+
       /**
        * Creates a properly proportioned, 15-Bone rigged 3D Humanoid SkinnedMesh
        * with natural head/face proportions, neck, shoulders, upper/lower torso,
@@ -9311,13 +9858,7 @@
        * Renders in 1 single WebGL draw call via GPU vertex skinning!
        */
       createHumanoid(cfg = {}) {
-        const gender = cfg.gender || (cfg.hatType === 'gele' || cfg.isFemale ? 'female' : 'male');
-        const build = cfg.build || (gender === 'female' ? 'female_standard' : 'male_standard');
-        const heightScale = cfg.heightScale || (gender === 'female' ? 0.96 : 1.0);
-        const sw = build === 'male_broad' ? 1.12 : (gender === 'female' ? 0.92 : 1.04);
-        const ww = build === 'elder' ? 1.04 : (gender === 'female' ? 0.78 : 0.90);
-        const hw = gender === 'female' ? 1.06 : 0.94;
-
+        const { gender, bodyType, sw, hw, heightScale } = this.getAnatomicalProportions(cfg);
         const skinCol = cfg.skinCol || EKO_SKIN_TONES[Math.abs((cfg.name || 'Eko').charCodeAt(0)) % EKO_SKIN_TONES.length];
         const topCol = cfg.topCol !== undefined ? cfg.topCol : 0x008751;
         const bottomCol = cfg.bottomCol !== undefined ? cfg.bottomCol : 0x1E293B;
@@ -9401,327 +9942,7 @@
           slotColors: { skinCol, hairCol, topCol, bottomCol, shoeCol, accentCol }
         };
 
-        // Smooth organic human mesh tessellation (eliminates blocky 4-sided/7-sided facets across player & NPCs)
-        const sW = cfg.isPlayer ? 14 : 10;
-        const sH = cfg.isPlayer ? 10 : 8;
-        const cS = cfg.isPlayer ? 12 : 8;
-        const smS = cfg.isPlayer ? 8 : 6;
-
-        // 1. PELVIS, HIPS & LOWER TORSO (Bones 1 & 2)
-        const pelvisGeo = new THREE.SphereGeometry(0.168 * hw, sW, sH);
-        pelvisGeo.scale(1.02, 0.78, 0.76);
-        pelvisGeo.translate(0, 0.91, 0);
-        this.appendSkinnedPart(arrays, pelvisGeo, bottomCol, 1, 1, false, 0.94, 'bottom');
-
-        const waistGeo = new THREE.CylinderGeometry(0.150 * ww, 0.164 * hw, 0.24, cS);
-        waistGeo.scale(1.0, 1.0, 0.70);
-        waistGeo.translate(0, 1.05, 0);
-        this.appendSkinnedPart(arrays, waistGeo, topCol, 2, 1, true, 0.98, 'top');
-
-        // 2. UPPER CHEST, PECTORALS/BUST & CLAVICLE YOKE (Bone 2)
-        const chestGeo = new THREE.CylinderGeometry(0.194 * sw, 0.150 * ww, 0.30, cS);
-        chestGeo.scale(1.0, 1.0, 0.70);
-        chestGeo.translate(0, 1.30, 0);
-        this.appendSkinnedPart(arrays, chestGeo, topCol, 2, 2, false, 1.02, 'top');
-
-        if (gender === 'female') {
-          [-0.048, 0.048].forEach(bx => {
-            const bustGeo = new THREE.SphereGeometry(0.068, sW, sH);
-            bustGeo.scale(0.96, 0.86, 0.82);
-            bustGeo.translate(bx, 1.32, 0.056);
-            this.appendSkinnedPart(arrays, bustGeo, topCol, 2, 2, false, 1.04, 'top');
-          });
-        } else {
-          [-0.052, 0.052].forEach(px => {
-            const pecGeo = new THREE.SphereGeometry(0.064, smS, smS);
-            pecGeo.scale(1.08, 0.76, 0.55);
-            pecGeo.translate(px, 1.34, 0.058);
-            this.appendSkinnedPart(arrays, pecGeo, topCol, 2, 2, false, 1.03, 'top');
-          });
-        }
-
-        // Smooth Sloped Clavicle / Trapezius Yoke bridging chest to neck & shoulders
-        const trapGeo = new THREE.SphereGeometry(0.175 * sw, sW, sH);
-        trapGeo.scale(1.06, 0.36, 0.66);
-        trapGeo.translate(0, 1.445, 0);
-        this.appendSkinnedPart(arrays, trapGeo, topCol, 2, 3, true, 1.04, 'top');
-
-        // 3. NPC WARDROBE DETAILS ON TORSO
-        const wardrobe = cfg.wardrobe || (cfg.isPlayer ? 'player_custom' : (gender === 'female' && cfg.hatType === 'gele' ? 'buba_wrapper' : 'casual'));
-        if (wardrobe === 'corporate_suit') {
-          const shirtVGeo = new THREE.CylinderGeometry(0.055, 0.02, 0.22, smS);
-          shirtVGeo.scale(1.0, 1.0, 0.35);
-          shirtVGeo.translate(0, 1.35, 0.102);
-          this.appendSkinnedPart(arrays, shirtVGeo, 0xF8FAFC, 2, 2, false, 1.08, 'fixed');
-
-          const tieGeo = new THREE.CylinderGeometry(0.015, 0.022, 0.21, smS);
-          tieGeo.scale(1.0, 1.0, 0.3);
-          tieGeo.translate(0, 1.32, 0.112);
-          this.appendSkinnedPart(arrays, tieGeo, 0xDC2626, 2, 2, false, 1.05, 'fixed');
-        } else if (wardrobe === 'senator_kaftan' || cfg.hatType === 'fila') {
-          const kaftanSkirt = new THREE.CylinderGeometry(0.164 * hw, 0.182 * hw, 0.28, cS);
-          kaftanSkirt.scale(1.0, 1.0, 0.72);
-          kaftanSkirt.translate(0, 0.82, 0);
-          this.appendSkinnedPart(arrays, kaftanSkirt, topCol, 1, 9, true, 0.98, 'top');
-
-          const pocketGold = new THREE.BoxGeometry(0.048, 0.036, 0.022);
-          pocketGold.translate(-0.065, 1.35, 0.104);
-          this.appendSkinnedPart(arrays, pocketGold, accentCol, 2, 2, false, 1.08, 'accent');
-        } else if (wardrobe === 'buba_wrapper') {
-          // Draped Nigerian Iro Wrapper Skirt
-          const wrapperGeo = new THREE.CylinderGeometry(0.166 * hw, 0.198 * hw, 0.46, cS);
-          wrapperGeo.scale(1.0, 1.0, 0.76);
-          wrapperGeo.translate(0, 0.68, 0);
-          this.appendSkinnedPart(arrays, wrapperGeo, bottomCol, 1, 10, true, 0.98, 'bottom');
-        }
-
-        // 4. NECK, SCULPTED HUMAN HEAD & NATURAL FACIAL FEATURES (Bones 3 & 4)
-        const neckGeo = new THREE.CylinderGeometry(0.048, 0.058, 0.13, cS);
-        neckGeo.translate(0, 1.545, 0);
-        this.appendSkinnedPart(arrays, neckGeo, skinCol, 3, 4, true, 0.95, 'skin');
-
-        // Smooth Oval Human Cranium + Soft Zygomatic Cheeks & Rounded Jawline
-        const craniumGeo = new THREE.SphereGeometry(0.108, sW, sH);
-        craniumGeo.scale(0.92, 1.12, 1.02);
-        craniumGeo.translate(0, 1.715, 0.006);
-        this.appendSkinnedPart(arrays, craniumGeo, skinCol, 4, 4, false, 1.03, 'skin');
-
-        const jawCheekGeo = new THREE.SphereGeometry(0.094, sW, sH);
-        jawCheekGeo.scale(0.88, 0.92, 0.98);
-        jawCheekGeo.translate(0, 1.662, 0.018);
-        this.appendSkinnedPart(arrays, jawCheekGeo, skinCol, 4, 4, false, 1.0, 'skin');
-
-        const chinGeo = new THREE.SphereGeometry(0.048, smS, smS);
-        chinGeo.scale(0.95, 0.78, 0.92);
-        chinGeo.translate(0, 1.618, 0.052);
-        this.appendSkinnedPart(arrays, chinGeo, skinCol, 4, 4, false, 0.98, 'skin');
-
-        // Sculpted Human Ears (+ Gold Studs for Female)
-        [-0.099, 0.099].forEach(ex => {
-          const earGeo = new THREE.SphereGeometry(0.022, smS, smS);
-          earGeo.scale(0.42, 1.12, 0.72);
-          earGeo.translate(ex, 1.70, -0.004);
-          this.appendSkinnedPart(arrays, earGeo, skinCol, 4, 4, false, 0.93, 'skin');
-
-          if (gender === 'female') {
-            const studGeo = new THREE.SphereGeometry(0.008, 6, 6);
-            studGeo.translate(ex * 1.04, 1.678, 0.002);
-            this.appendSkinnedPart(arrays, studGeo, 0xF4B41A, 4, 4, false, 1.12, 'accent');
-          }
-        });
-
-        // Sculpted Nose Bridge & Soft Nose Tip (+Z Front)
-        const noseBridge = new THREE.CylinderGeometry(0.008, 0.015, 0.042, smS);
-        noseBridge.rotateX(0.24);
-        noseBridge.translate(0, 1.702, 0.108);
-        this.appendSkinnedPart(arrays, noseBridge, skinCol, 4, 4, false, 1.04, 'skin');
-
-        const noseTip = new THREE.SphereGeometry(0.015, smS, smS);
-        noseTip.scale(1.12, 0.78, 0.90);
-        noseTip.translate(0, 1.682, 0.116);
-        this.appendSkinnedPart(arrays, noseTip, skinCol, 4, 4, false, 1.05, 'skin');
-
-        // Expressive Human Eyes (Sclera + Warm Brown Iris + Dark Pupil + Arched Eyebrows)
-        [-0.036, 0.036].forEach(eyeX => {
-          const scleraGeo = new THREE.SphereGeometry(0.015, smS, smS);
-          scleraGeo.scale(1.22, 0.82, 0.55);
-          scleraGeo.translate(eyeX, 1.722, 0.099);
-          this.appendSkinnedPart(arrays, scleraGeo, 0xFFFFFF, 4, 4, false, 1.10, 'fixed');
-
-          const irisGeo = new THREE.SphereGeometry(0.0095, smS, smS);
-          irisGeo.scale(1.0, 1.0, 0.55);
-          irisGeo.translate(eyeX, 1.722, 0.106);
-          this.appendSkinnedPart(arrays, irisGeo, 0x3B1E0E, 4, 4, false, 1.02, 'fixed');
-
-          const pupilGeo = new THREE.SphereGeometry(0.0055, smS, smS);
-          pupilGeo.scale(1.0, 1.0, 0.55);
-          pupilGeo.translate(eyeX, 1.722, 0.110);
-          this.appendSkinnedPart(arrays, pupilGeo, 0x090D14, 4, 4, false, 1.0, 'fixed');
-
-          const browGeo = new THREE.CylinderGeometry(0.0045, 0.0045, 0.032, smS);
-          browGeo.rotateZ(Math.PI / 2 + (eyeX > 0 ? -0.08 : 0.08));
-          browGeo.translate(eyeX, 1.744, 0.102);
-          this.appendSkinnedPart(arrays, browGeo, hairCol, 4, 4, false, 0.95, 'hair');
-        });
-
-        // Contoured Upper & Lower Lips (+Z Front)
-        const upperLip = new THREE.SphereGeometry(0.019, smS, smS);
-        upperLip.scale(1.28, 0.32, 0.62);
-        upperLip.translate(0, 1.653, 0.104);
-        this.appendSkinnedPart(arrays, upperLip, gender === 'female' ? 0x9D174D : 0x3A1F18, 4, 4, false, 1.0, 'fixed');
-
-        const lowerLip = new THREE.SphereGeometry(0.018, smS, smS);
-        lowerLip.scale(1.18, 0.36, 0.64);
-        lowerLip.translate(0, 1.644, 0.103);
-        this.appendSkinnedPart(arrays, lowerLip, gender === 'female' ? 0xBE185D : 0x4A2820, 4, 4, false, 1.04, 'fixed');
-
-        // Hair & Authentic Nigerian Headwear (Bone 4 — kept strictly above forehead Y >= 1.75 in front)
-        const hatType = cfg.hatType || (cfg.isPlayer ? 'low_fade' : (gender === 'female' ? 'braids_updo' : 'low_fade'));
-        if (hatType === 'gele') {
-          const geleBase = new THREE.CylinderGeometry(0.122, 0.112, 0.055, cS);
-          geleBase.scale(1.06, 1.0, 1.04);
-          geleBase.rotateX(-0.18);
-          geleBase.translate(0, 1.788, -0.012);
-          this.appendSkinnedPart(arrays, geleBase, cfg.hatCol || 0xF4B41A, 4, 4, false, 1.06, 'accent');
-
-          const geleCrown = new THREE.TorusGeometry(0.122, 0.040, smS, cS);
-          geleCrown.rotateX(Math.PI / 2 - 0.35);
-          geleCrown.translate(0, 1.832, -0.015);
-          this.appendSkinnedPart(arrays, geleCrown, cfg.hatCol || 0xF4B41A, 4, 4, false, 1.10, 'accent');
-        } else if (hatType === 'fila') {
-          const filaCrown = new THREE.CylinderGeometry(0.112, 0.108, 0.10, cS);
-          filaCrown.rotateZ(0.12);
-          filaCrown.translate(0.008, 1.80, -0.006);
-          this.appendSkinnedPart(arrays, filaCrown, cfg.hatCol || 0x111827, 4, 4, false, 1.04, 'hair');
-
-          const filaRim = new THREE.CylinderGeometry(0.114, 0.114, 0.025, cS);
-          filaRim.translate(0, 1.762, -0.006);
-          this.appendSkinnedPart(arrays, filaRim, accentCol, 4, 4, false, 1.08, 'accent');
-        } else if (hatType === 'cap') {
-          const capDome = new THREE.SphereGeometry(0.112, sW, sH, 0, Math.PI * 2, 0, Math.PI * 0.48);
-          capDome.translate(0, 1.73, -0.004);
-          this.appendSkinnedPart(arrays, capDome, cfg.hatCol || 0x0F172A, 4, 4, false, 1.04, 'hair');
-
-          const visorGeo = new THREE.CylinderGeometry(0.104, 0.104, 0.015, cS, 1, false, -Math.PI * 0.35, Math.PI * 0.7);
-          visorGeo.scale(0.95, 1.0, 1.25);
-          visorGeo.translate(0, 1.758, 0.052);
-          this.appendSkinnedPart(arrays, visorGeo, cfg.hatCol || 0x0F172A, 4, 4, false, 1.02, 'hair');
-        } else if (hatType === 'chef') {
-          const toqueGeo = new THREE.CylinderGeometry(0.122, 0.105, 0.17, cS);
-          toqueGeo.translate(0, 1.835, 0);
-          this.appendSkinnedPart(arrays, toqueGeo, 0xFFFFFF, 4, 4, false, 1.08, 'fixed');
-        } else if (!cfg.isPlayer && (hatType === 'braids_updo' || gender === 'female')) {
-          const hairCap = new THREE.SphereGeometry(0.112, sW, sH, 0, Math.PI * 2, 0, Math.PI * 0.50);
-          hairCap.scale(0.95, 1.05, 1.04);
-          hairCap.translate(0, 1.725, -0.010);
-          this.appendSkinnedPart(arrays, hairCap, hairCol, 4, 4, false, 0.95, 'hair');
-
-          const bunGeo = new THREE.SphereGeometry(0.068, sW, sH);
-          bunGeo.translate(0, 1.842, -0.035);
-          this.appendSkinnedPart(arrays, bunGeo, hairCol, 4, 4, false, 1.0, 'hair');
-        } else {
-          // Clean Sculpted Scalp / Low-Fade Hair Cap sitting neatly above forehead & temples
-          const fadeHair = new THREE.SphereGeometry(0.111, sW, sH, 0, Math.PI * 2, 0, Math.PI * 0.48);
-          fadeHair.scale(0.94, 1.06, 1.03);
-          fadeHair.translate(0, 1.724, -0.008);
-          this.appendSkinnedPart(arrays, fadeHair, hairCol, 4, 4, false, 0.94, 'hair');
-
-          const backFade = new THREE.SphereGeometry(0.104, sW, sH);
-          backFade.scale(0.92, 0.95, 0.85);
-          backFade.translate(0, 1.71, -0.028);
-          this.appendSkinnedPart(arrays, backFade, hairCol, 4, 4, false, 0.92, 'hair');
-        }
-
-        // 5. ARTICULATED LEFT (+X) & RIGHT (-X) ARMS (Shoulders 5/7 -> Elbows/Forearms/Hands 6/8)
-        [1, -1].forEach(side => {
-          const bSh = side > 0 ? 5 : 7;
-          const bEl = side > 0 ? 6 : 8;
-          const sx = side * shoulderX;
-          const ex = sx + side * 0.015;
-
-          // Smooth Deltoid Shoulder Cap bridging seamlessly into upper chest
-          const deltGeo = new THREE.SphereGeometry(0.068, sW, sH);
-          deltGeo.scale(1.05, 1.08, 0.96);
-          deltGeo.translate(sx * 0.94, 1.425, 0);
-          this.appendSkinnedPart(arrays, deltGeo, topCol, bSh, 2, true, 1.02, 'top');
-
-          // Upper Arm + Tailored Sleeve
-          const uArmGeo = new THREE.CylinderGeometry(0.058, 0.048, 0.26, cS);
-          uArmGeo.translate(sx + side * 0.006, 1.30, 0);
-          this.appendSkinnedPart(arrays, uArmGeo, topCol, bSh, bEl, true, 1.0, 'top');
-
-          // Smooth Elbow Joint
-          const elbowSphere = new THREE.SphereGeometry(0.046, smS, smS);
-          elbowSphere.translate(ex, 1.17, 0);
-          this.appendSkinnedPart(arrays, elbowSphere, skinCol, bEl, bSh, true, 0.98, 'skin');
-
-          // Natural Tapered Forearm & Wrist
-          const fArmGeo = new THREE.CylinderGeometry(0.046, 0.035, 0.24, cS);
-          fArmGeo.translate(ex, 1.05, 0.01);
-          this.appendSkinnedPart(arrays, fArmGeo, skinCol, bEl, bEl, false, 1.0, 'skin');
-
-          // Left Wristwatch (+X Left Arm)
-          if (side > 0 && (cfg.isPlayer || wardrobe === 'corporate_suit')) {
-            const watchGeo = new THREE.CylinderGeometry(0.038, 0.038, 0.022, smS);
-            watchGeo.translate(ex, 0.95, 0.01);
-            this.appendSkinnedPart(arrays, watchGeo, accentCol, bEl, bEl, false, 1.1, 'accent');
-          }
-
-          // Contoured Human Hand, Palm & Thumb Silhouette
-          const handGeo = new THREE.SphereGeometry(0.039, smS, smS);
-          handGeo.scale(0.68, 1.28, 0.88);
-          handGeo.translate(ex, 0.895, 0.016);
-          this.appendSkinnedPart(arrays, handGeo, skinCol, bEl, bEl, false, 0.98, 'skin');
-        });
-
-        // 6. ARTICULATED THIGHS, KNEES, CALVES, ANKLES & CONTOURED FOOTWEAR (Left +X: 9,10,11 | Right -X: 12,13,14)
-        [1, -1].forEach(side => {
-          const bHp = side > 0 ? 9 : 12;
-          const bKn = side > 0 ? 10 : 13;
-          const bAn = side > 0 ? 11 : 14;
-          const lx = side * hipX;
-
-          // Hip-to-Thigh Joint Sphere (eliminates gap between pelvis and upper leg)
-          const hipJointGeo = new THREE.SphereGeometry(0.088 * hw, smS, smS);
-          hipJointGeo.translate(lx, 0.88, 0);
-          this.appendSkinnedPart(arrays, hipJointGeo, bottomCol, bHp, 1, true, 0.96, 'bottom');
-
-          // Tapered Anatomical Thigh
-          const thighGeo = new THREE.CylinderGeometry(0.088 * hw, 0.064, 0.41, cS);
-          thighGeo.translate(lx, 0.695, 0);
-          this.appendSkinnedPart(arrays, thighGeo, bottomCol, bHp, bKn, true, 1.0, 'bottom');
-
-          // Knee Joint
-          const kneeGeo = new THREE.SphereGeometry(0.060, smS, smS);
-          kneeGeo.translate(lx, 0.49, 0.008);
-          this.appendSkinnedPart(arrays, kneeGeo, bottomCol, bKn, bHp, true, 1.02, 'bottom');
-
-          // Sculpted Calf / Shin
-          const calfColor = wardrobe === 'buba_wrapper' ? skinCol : bottomCol;
-          const calfSlot = wardrobe === 'buba_wrapper' ? 'skin' : 'bottom';
-          const calfGeo = new THREE.CylinderGeometry(0.062, 0.044, 0.40, cS);
-          calfGeo.translate(lx, 0.29, 0);
-          this.appendSkinnedPart(arrays, calfGeo, calfColor, bKn, bAn, true, 0.98, calfSlot);
-
-          // Ankle & Contoured Sneaker / Shoe (Facing +Z)
-          const shoeUpper = new THREE.SphereGeometry(0.062, sW, sH);
-          shoeUpper.scale(0.88, 0.74, 1.85);
-          shoeUpper.translate(lx, 0.048, 0.042);
-          this.appendSkinnedPart(arrays, shoeUpper, shoeCol, bAn, bAn, false, 1.06, 'shoe');
-
-          const shoeSole = new THREE.CylinderGeometry(0.056, 0.059, 0.022, cS);
-          shoeSole.scale(0.95, 1.0, 1.95);
-          shoeSole.translate(lx, 0.011, 0.042);
-          this.appendSkinnedPart(arrays, shoeSole, 0x0F172A, bAn, bAn, false, 0.90, 'fixed');
-        });
-
-        // 7. ROLE-SPECIFIC CULTURAL & OCCUPATIONAL ACCESSORIES
-        if (cfg.accessory === 'handbag') {
-          const bagGeo = new THREE.CylinderGeometry(0.035, 0.045, 0.22, smS);
-          bagGeo.scale(0.6, 1.0, 2.2);
-          bagGeo.translate(-shoulderX - 0.05, 0.82, 0.04);
-          this.appendSkinnedPart(arrays, bagGeo, accentCol, 8, 8, false, 1.06);
-        } else if (cfg.accessory === 'skewer') {
-          const skewerGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.55, smS);
-          skewerGeo.rotateX(Math.PI / 2);
-          skewerGeo.translate(-shoulderX - 0.02, 1.05, 0.26);
-          this.appendSkinnedPart(arrays, skewerGeo, 0xE2E8F0, 8, 8, false, 1.1);
-        } else if (cfg.accessory === 'tray_gala') {
-          const trayGeo = new THREE.CylinderGeometry(0.26, 0.24, 0.06, cS);
-          trayGeo.scale(1.2, 1.0, 0.85);
-          trayGeo.translate(0, 1.14, 0.28);
-          this.appendSkinnedPart(arrays, trayGeo, 0xF59E0B, 2, 2, false, 1.06);
-        } else if (cfg.accessory === 'tray_water') {
-          const coolerGeo = new THREE.CylinderGeometry(0.22, 0.20, 0.26, cS);
-          coolerGeo.translate(0, 1.98, 0);
-          this.appendSkinnedPart(arrays, coolerGeo, 0x0284C7, 4, 4, false, 1.06);
-        } else if (cfg.accessory === 'vest_conductor' || cfg.accessory === 'vest_agbero') {
-          const vCol = cfg.accessory === 'vest_conductor' ? 0xEA580C : 0x84CC16;
-          const vestGeo = new THREE.CylinderGeometry(0.202 * sw, 0.160 * ww, 0.31, cS);
-          vestGeo.scale(1.0, 1.0, 0.70);
-          vestGeo.translate(0, 1.30, 0);
-          this.appendSkinnedPart(arrays, vestGeo, vCol, 2, 2, false, 1.06);
-        }
+        this.populateHumanoidArrays(arrays, cfg);
 
         // Build Final Skinned BufferGeometry (1 Draw Call per Character!)
         const skinnedGeo = new THREE.BufferGeometry();
@@ -9746,6 +9967,14 @@
         skinnedMesh.frustumCulled = false;
 
         const charGroup = new THREE.Group();
+        charGroup.userData = {
+          gender,
+          bodyType,
+          builtGender: gender,
+          builtBodyType: bodyType,
+          skinHex: skinCol,
+          hairHex: hairCol
+        };
         skinnedMesh.add(bRoot);
         charGroup.add(skinnedMesh);
 
@@ -10375,16 +10604,16 @@
       return EkoHumanCharacterSystem.createHumanoid({
         name: 'Amaka Driver',
         isPlayer: true,
-        gender: 'female',
-        build: 'female_standard',
+        gender: 'male',
+        build: 'male_standard',
         wardrobe: 'ankara_jacket',
-        skinCol: 0x4A2C1D,
-        topCol: 0x008751,
-        bottomCol: 0x253B56,
+        skinCol: 0x6B3E26,
+        topCol: 0x0D9488,
+        bottomCol: 0x1E293B,
         shoeCol: 0xF8FAFC,
         accentCol: 0xF4B41A,
-        hatType: 'braids_fila',
-        heightScale: 1.0
+        hatType: 'low_fade',
+        heightScale: 1.02
       });
     }
 
@@ -26315,7 +26544,7 @@
         fabricStyle: 'ankara',
         bodyType: 'athletic_lagos',
         skinTone: '#6B3E26',
-        hairStyle: 'braids_classic',
+        hairStyle: 'low_fade',
         shoesStyle: 'white_sneakers',
         bagStyle: 'none',
         topColor: '#10B981',
@@ -28594,17 +28823,8 @@
               if (data.lastFirstWeekSimResult) this.lastFirstWeekSimResult = data.lastFirstWeekSimResult;
               if (data.lastConductorCoOpReceipt) this.lastConductorCoOpReceipt = data.lastConductorCoOpReceipt;
               setTimeout(() => {
-                if (typeof playerAvatar !== 'undefined' && playerAvatar && typeof EkoHumanCharacterSystem !== 'undefined') {
-                  const fit = this.outfits.find(o => o.id === this.currentOutfitId) || this.outfits[0];
-                  const app = this.characterAppearance || {};
-                  if (fit) {
-                    EkoHumanCharacterSystem.applyOutfitToCharacter(playerAvatar, {
-                      ...fit,
-                      skinHex: app.skinHex,
-                      hairHex: app.hairHex,
-                      bodyType: app.bodyType
-                    });
-                  }
+                if (typeof playerAvatar !== 'undefined' && playerAvatar) {
+                  this.equipOutfit(this.currentOutfitId || 'outfit_street_hustler', { silent: true, useCustomPalette: true });
                 }
               }, 80);
             }
@@ -34805,18 +35025,34 @@
         if (!el) return;
         const life = window.__PROJECT_EKO_LIFE__;
         if (!life) return;
+        const auth = window.__PROJECT_EKO_AUTH__;
+        const curGender = (auth && auth.charForm && auth.charForm.gender) || (life.characterAppearance && life.characterAppearance.gender) || 'male';
+        const isFemale = curGender === 'female';
         const owned = Array.isArray(life.ownedOutfitIds) ? life.ownedOutfitIds : ['outfit_street_hustler', 'outfit_sunday_senator'];
         const curFitId = life.currentOutfitId || 'outfit_street_hustler';
         const curFit = life.outfits.find(o => o.id === curFitId) || life.outfits[0];
 
         el.innerHTML = `
-          <div style="background:#0F172A;border:1px solid rgba(244,180,26,0.55);border-radius:16px;max-width:680px;width:94%;max-height:88vh;overflow-y:auto;padding:18px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.82);">
+          <div style="background:#0F172A;border:1px solid rgba(244,180,26,0.55);border-radius:16px;max-width:720px;width:94%;max-height:88vh;overflow-y:auto;padding:18px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.82);">
             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:12px;">
               <div>
-                <div style="font-size:11px;font-weight:800;color:#F4B41A;letter-spacing:0.06em;">FIRST-CLASS LAGOS WARDROBE & 3D AVATAR STYLING</div>
-                <div style="font-size:16px;font-weight:900;">👗 Your Owned Wardrobe & Shop Outfits</div>
+                <div style="font-size:11px;font-weight:800;color:#F4B41A;letter-spacing:0.06em;">FIRST-CLASS LAGOS WARDROBE, BODY ANATOMY & 3D AVATAR STYLING</div>
+                <div style="font-size:16px;font-weight:900;">👗 Your Owned Wardrobe, Gender Physique & Outfits</div>
               </div>
               <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.closeWardrobeModal()" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer;">✕ Close</button>
+            </div>
+
+            <!-- Instant Gender Physique (Male vs Female) & Studio Customizer Bar -->
+            <div style="background:rgba(30,41,59,0.85);border:1px solid rgba(56,189,248,0.4);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+              <div>
+                <div style="font-size:10px;font-weight:800;color:#38BDF8;">🧬 3D BODY PHYSIQUE & GENDER ANATOMY</div>
+                <div style="font-size:12px;font-weight:800;color:#F8FAFC;">${isFemale ? '👩 Female Hourglass Physique (Bust, Curved Hips & Soft Jaw)' : '👨 Male V-Taper Athletic Physique (Broad Chest, Pectorals, Belt & Square Jaw/Beard)'}</div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" id="m47-wardrobe-gender-male" onclick="if(window.__PROJECT_EKO_AUTH__){window.__PROJECT_EKO_AUTH__.setGenderSelection('male',true);}window.__PROJECT_EKO_GUIDE__.renderWardrobeModal();" style="background:${!isFemale ? '#10B981' : '#1E293B'};color:${!isFemale ? '#052E16' : '#CBD5E1'};border:1px solid ${!isFemale ? '#10B981' : 'rgba(255,255,255,0.2)'};border-radius:7px;padding:7px 11px;font-size:11px;font-weight:900;cursor:pointer;">👨 Male Physique</button>
+                <button type="button" id="m47-wardrobe-gender-female" onclick="if(window.__PROJECT_EKO_AUTH__){window.__PROJECT_EKO_AUTH__.setGenderSelection('female',true);}window.__PROJECT_EKO_GUIDE__.renderWardrobeModal();" style="background:${isFemale ? '#EC4899' : '#1E293B'};color:${isFemale ? '#FFFFFF' : '#CBD5E1'};border:1px solid ${isFemale ? '#EC4899' : 'rgba(255,255,255,0.2)'};border-radius:7px;padding:7px 11px;font-size:11px;font-weight:900;cursor:pointer;">👩 Female Physique</button>
+                <button type="button" id="m47-wardrobe-open-studio-btn" onclick="window.__PROJECT_EKO_GUIDE__.closeWardrobeModal();if(window.__PROJECT_EKO_AUTH__){window.__PROJECT_EKO_AUTH__.openModal('character');}" style="background:rgba(244,180,26,0.18);color:#F4B41A;border:1px solid rgba(244,180,26,0.5);border-radius:7px;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer;">🎨 Full Body & Colour Studio</button>
+              </div>
             </div>
 
             <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.38);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
@@ -35122,7 +35358,7 @@
         fabricStyle: 'ankara',
         bodyType: 'athletic_lagos',
         skinTone: '#6B3E26',
-        hairStyle: 'braids_classic',
+        hairStyle: 'low_fade',
         outfitPreset: 'smart_ankara_casual',
         shoesStyle: 'white_sneakers',
         bagStyle: 'none',
@@ -35676,16 +35912,33 @@
           `;
         } else {
           const tunicHeight = isSenator ? 74 : 52;
-          garmentSvg = `
-            <!-- Male/Unisex Torso Shirt / Senator Kaftan / Blazer -->
-            <rect x="${isFemale ? 75 : 70}" y="86" width="${isFemale ? 50 : 60}" height="${tunicHeight}" rx="10" fill="${top}"/>
-            <rect x="${isFemale ? 75 : 70}" y="86" width="${isFemale ? 50 : 60}" height="${tunicHeight}" rx="10" fill="url(#ekoFabricPat)"/>
-            ${isFemale && !isBackView ? `<ellipse cx="${91 + sinY * 5}" cy="104" rx="7.5" ry="6" fill="${top}" stroke="rgba(255,255,255,0.22)" stroke-width="1"/><ellipse cx="${109 + sinY * 5}" cy="104" rx="7.5" ry="6" fill="${top}" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>` : ''}
+          garmentSvg = isFemale ? `
+            <!-- Female Hourglass Silhouette: Tapered Waist, Anatomical Bust & Flared Hips -->
+            <path d="M 76 86 L 124 86 L 116 116 L 128 138 L 72 138 L 84 116 Z" fill="${top}"/>
+            <path d="M 76 86 L 124 86 L 116 116 L 128 138 L 72 138 L 84 116 Z" fill="url(#ekoFabricPat)"/>
+            ${!isBackView ? `<ellipse cx="${91 + sinY * 5}" cy="103" rx="8.2" ry="6.6" fill="${top}" stroke="rgba(255,255,255,0.28)" stroke-width="1.2"/><ellipse cx="${109 + sinY * 5}" cy="103" rx="8.2" ry="6.6" fill="${top}" stroke="rgba(255,255,255,0.28)" stroke-width="1.2"/>` : ''}
+            ${isSuit && !isBackView ? `<polygon points="${92 + sinY * 6},86 ${108 + sinY * 6},86 ${100 + sinY * 6},122" fill="#F8FAFC"/>` : ''}
+            <!-- Female Curvy Hip & Tapered Trousers -->
+            <path d="M 72 136 Q 68 154 78 216 L 95 216 L 98 154 L 102 154 L 105 216 L 122 216 Q 132 154 128 136 Z" fill="${bot}"/>
+          ` : `
+            <!-- Male Broad V-Taper Athletic Torso, Chiseled Pectoral Plates, Leather Belt & Straight Trousers -->
+            <path d="M 64 86 L 136 86 L 123 ${86 + tunicHeight} L 77 ${86 + tunicHeight} Z" fill="${top}"/>
+            <path d="M 64 86 L 136 86 L 123 ${86 + tunicHeight} L 77 ${86 + tunicHeight} Z" fill="url(#ekoFabricPat)"/>
+            ${!isBackView && !isSenator && !isSuit ? `
+              <!-- Chiseled Male Pectoral Plate Definition & Sternum Line -->
+              <path d="M ${76 + sinY * 5} 106 L ${96 + sinY * 5} 106 L ${98 + sinY * 5} 92" fill="none" stroke="rgba(0,0,0,0.26)" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M ${124 + sinY * 5} 106 L ${104 + sinY * 5} 106 L ${102 + sinY * 5} 92" fill="none" stroke="rgba(0,0,0,0.26)" stroke-width="1.6" stroke-linecap="round"/>
+              <line x1="${100 + sinY * 5}" y1="108" x2="${100 + sinY * 5}" y2="132" stroke="rgba(0,0,0,0.18)" stroke-width="1.3"/>
+            ` : ''}
             ${isSenator && !isBackView ? `<rect x="${97 + sinY * 6}" y="88" width="6" height="40" fill="#F4B41A"/><rect x="${108 + sinY * 6}" y="102" width="12" height="10" rx="2" fill="#F4B41A"/>` : ''}
             ${isSuit && !isBackView ? `<polygon points="${92 + sinY * 6},86 ${108 + sinY * 6},86 ${100 + sinY * 6},122" fill="#F8FAFC"/><rect x="${98 + sinY * 6}" y="92" width="4" height="28" fill="#DC2626"/>` : ''}
-            <!-- Trousers -->
-            <rect x="77" y="136" width="19" height="80" rx="7" fill="${bot}"/>
-            <rect x="104" y="136" width="19" height="80" rx="7" fill="${bot}"/>
+            <!-- Men's Leather Belt & Gold Buckle -->
+            ${!isSenator ? `<rect x="76" y="135" width="48" height="6" rx="2" fill="#18181B"/><rect x="${96 + sinY * 5}" y="134.5" width="8" height="7" rx="1.5" fill="none" stroke="#F4B41A" stroke-width="1.6"/>` : ''}
+            <!-- Straight Masculine Trousers & Fly Seam -->
+            <rect x="76" y="140" width="21" height="76" rx="5" fill="${bot}"/>
+            <rect x="103" y="140" width="21" height="76" rx="5" fill="${bot}"/>
+            <rect x="77" y="139" width="46" height="16" rx="3" fill="${bot}"/>
+            ${!isBackView && !isSenator ? `<line x1="${100 + sinY * 4}" y1="141" x2="${100 + sinY * 4}" y2="155" stroke="rgba(0,0,0,0.32)" stroke-width="1.5"/>` : ''}
           `;
         }
 
@@ -35710,18 +35963,31 @@
         const faceFeaturesSvg = isBackView
           ? ''
           : `
-            <!-- Eyebrows, Expressive Eyes (Sclera + Iris + Pupil), Nose & Contoured Lips -->
+            <!-- Eyebrows, Expressive Eyes (Sclera + Iris + Pupil), Nose, Lips & Male Facial Hair -->
             <g transform="translate(${faceOffsetX.toFixed(1)}, 0)">
-              <path d="M 86 49 Q 91 46.5 96 49" fill="none" stroke="${hairCol}" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M 104 49 Q 109 46.5 114 49" fill="none" stroke="${hairCol}" stroke-width="1.8" stroke-linecap="round"/>
+              ${isFemale ? `
+                <path d="M 86 48.5 Q 91 45.2 96 48.5" fill="none" stroke="${hairCol}" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M 104 48.5 Q 109 45.2 114 48.5" fill="none" stroke="${hairCol}" stroke-width="1.7" stroke-linecap="round"/>
+              ` : `
+                <rect x="85" y="47" width="11.5" height="2.6" rx="1.2" fill="${hairCol}"/>
+                <rect x="103.5" y="47" width="11.5" height="2.6" rx="1.2" fill="${hairCol}"/>
+              `}
               <ellipse cx="91" cy="54" rx="4.2" ry="2.8" fill="#FFFFFF"/>
               <ellipse cx="109" cy="54" rx="4.2" ry="2.8" fill="#FFFFFF"/>
               <circle cx="91" cy="54" r="2.2" fill="#3B1E0E"/>
               <circle cx="109" cy="54" r="2.2" fill="#3B1E0E"/>
               <circle cx="91" cy="54" r="1.1" fill="#090D14"/>
               <circle cx="109" cy="54" r="1.1" fill="#090D14"/>
-              <path d="M 100 53 L ${100 + sinY * 2.5} 61 L 98 62" fill="none" stroke="rgba(0,0,0,0.32)" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M 93 66.5 Q 100 ${isFemale ? 71.5 : 69.5} 107 66.5" fill="none" stroke="${isFemale ? '#BE185D' : '#3A1F18'}" stroke-width="${isFemale ? 2.8 : 2.2}" stroke-linecap="round"/>
+              <path d="M 100 53 L ${100 + sinY * 2.5} 61 L 97.5 62" fill="none" stroke="rgba(0,0,0,0.34)" stroke-width="${isFemale ? 1.4 : 1.9}" stroke-linecap="round"/>
+              ${isFemale ? `
+                <path d="M 93 66.5 Q 100 71.5 107 66.5" fill="none" stroke="#BE185D" stroke-width="2.9" stroke-linecap="round"/>
+              ` : `
+                <!-- Male Mustache, Neutral Espresso Lip & Sculpted Chin Goatee -->
+                <path d="M 91.5 64.5 Q 100 62.2 108.5 64.5" fill="none" stroke="${hairCol}" stroke-width="2.4" stroke-linecap="round"/>
+                <line x1="93.5" y1="67.2" x2="106.5" y2="67.2" stroke="#3B2219" stroke-width="2.1" stroke-linecap="round"/>
+                <path d="M 82 63 Q 84 78 100 79.5 Q 116 78 118 63" fill="none" stroke="${hairCol}" stroke-width="2.6" stroke-linecap="round"/>
+                <rect x="95.5" y="72.5" width="9" height="5.5" rx="2.5" fill="${hairCol}"/>
+              `}
             </g>
           `;
 
@@ -35733,27 +35999,30 @@
             <circle cx="${100 + sinY * 54}" cy="${232 + cosY * 10}" r="4" fill="#F4B41A"/>
             <g transform="translate(100,125) scale(${torsoScaleX.toFixed(3)},1) translate(-100,-125)">
               ${backHairUnderlaySvg}
-              <!-- Arms & Tailored Sleeves -->
-              <rect x="${55 - sinY * 4}" y="90" width="13" height="58" rx="6.5" fill="${skin}"/>
-              <rect x="${132 - sinY * 4}" y="90" width="13" height="58" rx="6.5" fill="${skin}"/>
-              <rect x="${54 - sinY * 4}" y="87" width="15" height="26" rx="6.5" fill="${top}"/>
-              <rect x="${131 - sinY * 4}" y="87" width="15" height="26" rx="6.5" fill="${top}"/>
+              <!-- Arms & Tailored Sleeves (Muscular Male Biceps vs Slender Female Arms) -->
+              <rect x="${(isFemale ? 58 : 49) - sinY * 4}" y="90" width="${isFemale ? 11.5 : 16}" height="58" rx="${isFemale ? 5.5 : 7.5}" fill="${skin}"/>
+              <rect x="${(isFemale ? 130.5 : 135) - sinY * 4}" y="90" width="${isFemale ? 11.5 : 16}" height="58" rx="${isFemale ? 5.5 : 7.5}" fill="${skin}"/>
+              <rect x="${(isFemale ? 57 : 48) - sinY * 4}" y="86" width="${isFemale ? 13.5 : 18}" height="27" rx="6.5" fill="${top}"/>
+              <rect x="${(isFemale ? 129.5 : 134) - sinY * 4}" y="86" width="${isFemale ? 13.5 : 18}" height="27" rx="6.5" fill="${top}"/>
               <!-- Lower Legs -->
-              <rect x="81" y="185" width="12" height="36" rx="6" fill="${isDress ? skin : bot}"/>
-              <rect x="107" y="185" width="12" height="36" rx="6" fill="${isDress ? skin : bot}"/>
+              <rect x="81" y="185" width="${isFemale ? 11.5 : 14}" height="36" rx="6" fill="${isDress ? skin : bot}"/>
+              <rect x="107" y="185" width="${isFemale ? 11.5 : 14}" height="36" rx="6" fill="${isDress ? skin : bot}"/>
               ${garmentSvg}
               ${bagSvg}
               <!-- Contoured Shoes -->
               <rect x="${75 + sinY * 3}" y="216" width="22" height="12" rx="6" fill="${shoeCol}" stroke="#0F172A" stroke-width="1"/>
               <rect x="${103 + sinY * 3}" y="216" width="22" height="12" rx="6" fill="${shoeCol}" stroke="#0F172A" stroke-width="1"/>
-              <!-- Neck & Contoured Oval Human Head -->
-              <rect x="93" y="73" width="14" height="16" rx="5" fill="${skin}"/>
-              <ellipse cx="100" cy="56" rx="22" ry="25" fill="${skin}"/>
+              <!-- Neck & Head (Male Thick Neck + Square Jaw vs Female Slender Neck + Soft Oval Face) -->
+              <rect x="${isFemale ? 94 : 91}" y="72" width="${isFemale ? 12 : 18}" height="16" rx="5" fill="${skin}"/>
+              ${isFemale
+                ? `<ellipse cx="100" cy="56" rx="21.5" ry="25" fill="${skin}"/>`
+                : `<rect x="78" y="32" width="44" height="47" rx="14" fill="${skin}"/>`
+              }
               ${isFemale ? `<circle cx="${77 - sinY * 2}" cy="59" r="2.6" fill="#F4B41A"/><circle cx="${123 - sinY * 2}" cy="59" r="2.6" fill="#F4B41A"/>` : ''}
               ${faceFeaturesSvg}
               ${headwearSvg}
             </g>
-            <text x="10" y="16" fill="#A7F3D0" font-size="9.2" font-weight="bold" font-family="monospace">${isFemale ? '👩🏾 FEMALE' : '👨🏾 MALE'} • ${yawLabel}</text>
+            <text x="10" y="16" fill="#A7F3D0" font-size="9.2" font-weight="bold" font-family="monospace">${isFemale ? '👩🏾 FEMALE PHYSIQUE' : '👨🏾 MALE PHYSIQUE'} • ${yawLabel}</text>
           </svg>
         `;
       },
