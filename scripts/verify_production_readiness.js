@@ -677,6 +677,19 @@ async function main() {
       indexHtml.includes('if (typeof followCamYaw !== \'undefined\') followCamYaw = Math.PI;'),
       'index.html must isolate per-account character/life state, lock mobile viewport against off-screen EkoPhone overflow, and frame full character at starter home porch'
     );
+    assert.ok(
+      indexHtml.includes('sm.bind(charGroup.skeleton);') &&
+      !/rebuildHumanoidAnatomy[\s\S]{0,2600}charGroup\.skeleton\.calculateInverses\(\)/.test(indexHtml) &&
+      indexHtml.includes('new THREE.Color(colorHex).convertSRGBToLinear()'),
+      'index.html must re-bind the rebuilt skinned avatar at its current world matrix (body must not render at world origin) and linearize avatar vertex colours'
+    );
+    assert.ok(
+      indexHtml.includes('const EkoTouchLook = {') &&
+      indexHtml.includes('EkoTouchLook.bind(canvasEl)') &&
+      indexHtml.includes('applyPinch(') &&
+      indexHtml.includes('window.__PROJECT_EKO_TOUCH_LOOK__ = EkoTouchLook'),
+      'index.html must support touch drag-to-turn/look and pinch-to-zoom on the 3D view'
+    );
     console.log('✅ QA Sign-Up, Character Studio, Mobile Viewport Lock, Standalone Per-Account Character Isolation & Driver Avatar Transform Sync Gate verified.');
 
     console.log('\n==============================================================');

@@ -8854,7 +8854,9 @@
         const nonIndexed = geo.index ? geo.toNonIndexed() : geo;
         const pos = nonIndexed.attributes.position;
         const norm = nonIndexed.attributes.normal;
-        const col = new THREE.Color(colorHex);
+        // Convert authored sRGB hex into linear space: renderer.outputEncoding = sRGBEncoding re-encodes on output,
+        // so raw hex vertex colours would otherwise render washed-out (e.g. deep brown skin appearing beige).
+        const col = new THREE.Color(colorHex).convertSRGBToLinear();
 
         let slot = explicitSlot;
         if (!slot && targetArrays.slotColors) {
@@ -8923,7 +8925,7 @@
           const g = pt.geo.index ? pt.geo.toNonIndexed() : pt.geo;
           const pos = g.attributes.position;
           const norm = g.attributes.normal;
-          col.setHex(pt.hex);
+          col.setHex(pt.hex).convertSRGBToLinear();
           const ao = pt.ao || 1.0;
           for (let i = 0; i < pos.count; i++) {
             const nx = norm ? norm.getX(i) : 0;
@@ -9015,12 +9017,12 @@
         }
 
         if (colorAttr && Array.isArray(slots) && Array.isArray(shades)) {
-          const cTop = new THREE.Color(topHex);
-          const cBot = new THREE.Color(bottomHex);
-          const cAcc = new THREE.Color(accentHex);
-          const cShoe = new THREE.Color(shoeHex);
-          const cSkin = skinHex !== undefined ? new THREE.Color(skinHex) : null;
-          const cHair = hairHex !== undefined ? new THREE.Color(hairHex) : null;
+          const cTop = new THREE.Color(topHex).convertSRGBToLinear();
+          const cBot = new THREE.Color(bottomHex).convertSRGBToLinear();
+          const cAcc = new THREE.Color(accentHex).convertSRGBToLinear();
+          const cShoe = new THREE.Color(shoeHex).convertSRGBToLinear();
+          const cSkin = skinHex !== undefined ? new THREE.Color(skinHex).convertSRGBToLinear() : null;
+          const cHair = hairHex !== undefined ? new THREE.Color(hairHex).convertSRGBToLinear() : null;
           for (let i = 0; i < slots.length; i++) {
             const sl = slots[i];
             const sh = shades[i] || 1.0;
@@ -9858,7 +9860,11 @@
 
         charGroup.updateMatrixWorld(true);
         if (charGroup.skeleton) {
-          charGroup.skeleton.calculateInverses();
+          // Re-bind against the mesh's CURRENT world matrix (not the original origin bind matrix).
+          // Calling skeleton.calculateInverses() alone while the avatar stands elsewhere in the world
+          // leaves a stale bindMatrix, which renders the skinned body back at world origin and makes
+          // only the bone-attached garment/hair overlays visible around the player.
+          sm.bind(charGroup.skeleton);
         }
 
         Object.keys(savedRotations).forEach(k => {
@@ -15729,6 +15735,162 @@
             if (typeof syncCityOverviewHUDState === 'function') syncCityOverviewHUDState(false);
           }
         }, { passive: false });
+
+        // ===================================================================
+        // TOUCH-SCREEN DRAG-TO-LOOK / DRAG-TO-TURN + PINCH-TO-ZOOM
+        // One finger dragging anywhere on the open 3D view (not on HUD buttons):
+        //   • On foot (street or home exploration): horizontal drag turns the character
+        //     and the follow camera together; vertical drag tilts the camera.
+        //   • Driving / passenger / front-view / planner / city overview: orbits the camera.
+        // Two fingers: pinch to zoom the camera in/out.
+        // Works alongside the joystick (left thumb moves, right thumb looks).
+        // ===================================================================
+        const EkoTouchLook = {
+          activePointers: new Map(),
+          lookPointerId: null,
+          lastX: 0,
+          lastY: 0,
+          travelPx: 0,
+          pinchStartSpread: 0,
+          pinchStartDist: 0,
+          dragsProcessed: 0,
+          pinchesProcessed: 0,
+          headingSensitivity: 0.0085,
+          orbitSensitivity: 0.0080,
+          pitchSensitivity: 0.0055,
+
+          isOnFootTurnMode() {
+            const life = window.__PROJECT_EKO_LIFE__;
+            const insideHome = Boolean(life && life.isInsideHomeInterior);
+            if (typeof isDriving !== 'undefined' && isDriving) return false;
+            const vState = window.__PROJECT_EKO_VEHICLE_STATE__;
+            if (vState && (vState.state === 'PASSENGER' || vState.state === 'CONDUCTOR')) return false;
+            if (insideHome) return (life.homeCameraMode || 'exploration') !== 'planner';
+            if (typeof isCityOverviewMode !== 'undefined' && (isCityOverviewMode || cameraOrbitDist > 14)) return false;
+            if ((typeof isFrontViewMode !== 'undefined' && isFrontViewMode) || cameraMode === 'front' || cameraMode === 'portrait') return false;
+            return true;
+          },
+
+          applyDrag(dx, dy) {
+            this.dragsProcessed++;
+            if (this.isOnFootTurnMode() && typeof playerHeading === 'number') {
+              const dYaw = -dx * this.headingSensitivity; // finger right -> turn right
+              playerHeading += dYaw;
+              while (playerHeading > Math.PI) playerHeading -= Math.PI * 2;
+              while (playerHeading < -Math.PI) playerHeading += Math.PI * 2;
+              if (typeof followCamYaw === 'number') followCamYaw += dYaw;
+              if (typeof playerAvatar !== 'undefined' && playerAvatar) playerAvatar.rotation.y = playerHeading;
+            } else {
+              cameraOrbitYaw -= dx * this.orbitSensitivity;
+              while (cameraOrbitYaw > Math.PI) cameraOrbitYaw -= Math.PI * 2;
+              while (cameraOrbitYaw < -Math.PI) cameraOrbitYaw += Math.PI * 2;
+            }
+            cameraOrbitPitch = Math.max(-0.12, Math.min(1.08, cameraOrbitPitch + dy * this.pitchSensitivity));
+          },
+
+          applyPinch(spread) {
+            if (this.pinchStartSpread <= 0 || spread <= 0) return;
+            this.pinchesProcessed++;
+            const ratio = this.pinchStartSpread / spread;
+            cameraOrbitDist = Math.max(1.8, Math.min(195, this.pinchStartDist * ratio));
+            if (cameraOrbitDist >= 24) {
+              if (typeof syncCityOverviewHUDState === 'function') syncCityOverviewHUDState(true);
+            } else if (typeof isCityOverviewMode !== 'undefined' && isCityOverviewMode && cameraOrbitDist < 18) {
+              if (typeof syncCityOverviewHUDState === 'function') syncCityOverviewHUDState(false);
+            }
+          },
+
+          currentSpread() {
+            const pts = Array.from(this.activePointers.values());
+            if (pts.length < 2) return 0;
+            return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          },
+
+          endPointer(e) {
+            if (!this.activePointers.has(e.pointerId)) return;
+            this.activePointers.delete(e.pointerId);
+            if (this.lookPointerId === e.pointerId) this.lookPointerId = null;
+            if (this.activePointers.size === 1) {
+              // Pinch ended with one finger still down: resume single-finger look from its position
+              const [id, pt] = Array.from(this.activePointers.entries())[0];
+              this.lookPointerId = id;
+              this.lastX = pt.x;
+              this.lastY = pt.y;
+              this.pinchStartSpread = 0;
+            }
+            if (this.activePointers.size === 0) {
+              this.pinchStartSpread = 0;
+              isMouseDraggingCamera = false;
+            }
+          },
+
+          bind(el) {
+            el.style.touchAction = 'none';
+            el.addEventListener('pointerdown', (e) => {
+              if (e.pointerType === 'mouse') return;
+              this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+              try { el.setPointerCapture(e.pointerId); } catch (_) {}
+              if (this.activePointers.size === 1) {
+                this.lookPointerId = e.pointerId;
+                this.lastX = e.clientX;
+                this.lastY = e.clientY;
+                this.travelPx = 0;
+              } else if (this.activePointers.size === 2) {
+                this.lookPointerId = null;
+                this.pinchStartSpread = this.currentSpread();
+                this.pinchStartDist = cameraOrbitDist;
+              }
+              isMouseDraggingCamera = true;
+            }, { passive: true });
+
+            el.addEventListener('pointermove', (e) => {
+              if (e.pointerType === 'mouse' || !this.activePointers.has(e.pointerId)) return;
+              this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+              if (this.activePointers.size >= 2) {
+                this.applyPinch(this.currentSpread());
+                return;
+              }
+              if (e.pointerId !== this.lookPointerId) return;
+              const dx = e.clientX - this.lastX;
+              const dy = e.clientY - this.lastY;
+              this.lastX = e.clientX;
+              this.lastY = e.clientY;
+              this.travelPx += Math.abs(dx) + Math.abs(dy);
+              if (this.travelPx < 4) return; // ignore tiny jitter from plain taps
+              this.applyDrag(dx, dy);
+            }, { passive: true });
+
+            ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(evt => {
+              el.addEventListener(evt, (e) => { if (e.pointerType !== 'mouse') this.endPointer(e); }, { passive: true });
+            });
+          },
+
+          maybeShowHint() {
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+            if (!isTouch) return;
+            try {
+              if (localStorage.getItem('__PROJECT_EKO_TOUCH_LOOK_HINT_V1__')) return;
+              localStorage.setItem('__PROJECT_EKO_TOUCH_LOOK_HINT_V1__', '1');
+            } catch (_) {}
+            setTimeout(() => {
+              if (typeof showToast === 'function') {
+                showToast('👆 Drag anywhere on the screen to turn & look around • Pinch with two fingers to zoom', '👆');
+              }
+            }, 7000);
+          },
+
+          getDiagnostics() {
+            return {
+              activePointers: this.activePointers.size,
+              dragsProcessed: this.dragsProcessed,
+              pinchesProcessed: this.pinchesProcessed,
+              onFootTurnMode: this.isOnFootTurnMode()
+            };
+          }
+        };
+        EkoTouchLook.bind(canvasEl);
+        EkoTouchLook.maybeShowHint();
+        window.__PROJECT_EKO_TOUCH_LOOK__ = EkoTouchLook;
       }
 
       window.__PROJECT_EKO_KEYBOARD_HELD__ = window.__PROJECT_EKO_KEYBOARD_HELD__ || {
