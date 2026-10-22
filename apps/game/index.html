@@ -126,6 +126,8 @@
     }
 
     html, body {
+      position: fixed;
+      inset: 0;
       background-color: var(--eko-charcoal);
       color: var(--eko-text-white);
       font-family: 'Inter', sans-serif;
@@ -139,7 +141,8 @@
     }
 
     #canvas-container {
-      position: absolute;
+      position: fixed;
+      inset: 0;
       top: 0;
       left: 0;
       width: 100%;
@@ -158,7 +161,8 @@
     /* HUD — PREMIUM EDITORIAL AFRICAN URBAN UI  */
     /* ========================================= */
     #hud-overlay {
-      position: absolute;
+      position: fixed;
+      inset: 0;
       top: 0;
       left: 0;
       width: 100%;
@@ -541,7 +545,7 @@
     /* IN-GAME EKOPHONE MOBILE OS                */
     /* ========================================= */
     #eko-phone-container {
-      position: absolute;
+      position: fixed;
       bottom: 20px;
       right: 24px;
       width: 330px;
@@ -556,12 +560,15 @@
       flex-direction: column;
       overflow: hidden;
       transform: translateY(125%);
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: auto;
+      visibility: hidden;
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
     }
 
     #eko-phone-container.active {
       transform: translateY(0);
+      visibility: visible;
+      pointer-events: auto;
     }
 
     .phone-inner-screen {
@@ -4655,7 +4662,7 @@
       <div id="phone-home-view">
         <div class="phone-welcome-card">
           <div class="greeting">Citizen OS • Lagos</div>
-          <div class="user-name">Amaka Driver</div>
+          <div id="phone-citizen-name" class="user-name">Lagos Citizen</div>
         </div>
 
         <div class="phone-grid-apps">
@@ -8690,23 +8697,39 @@
           renderDealershipAndGarageUI();
         }
 
-        // Inject 3D Citizen Avatar into EkoPhone Welcome Header
-        const welcomeCard = document.querySelector('.phone-welcome-card');
-        if (welcomeCard && portraits.avatar && portraits.sedan) {
+        // Inject 3D Citizen Avatar & Dynamic Citizen Identity into EkoPhone Welcome Header
+        window.syncEkoPhoneCitizenHeader = function() {
+          const welcomeCard = document.querySelector('.phone-welcome-card');
+          const pMap = window.__EKO_3D_PORTRAITS__ || portraits || {};
+          if (!welcomeCard) return;
+          const authObj = window.__PROJECT_EKO_AUTH__;
+          const citizenName = (authObj && authObj.username)
+            ? String(authObj.username).replace(/_/g, ' ')
+            : 'Lagos Citizen';
+          const ownedVehs = (typeof player !== 'undefined' && player && Array.isArray(player.ownedVehicles))
+            ? player.ownedVehicles
+            : [];
+          const hasCar = ownedVehs.length > 0;
+          const activeVehKey = (typeof activeVehicleKey !== 'undefined' && ownedVehs.includes(activeVehicleKey))
+            ? activeVehicleKey
+            : (ownedVehs[0] || 'sedan');
+          const vehSrc = pMap[activeVehKey] || pMap.sedan || '';
           welcomeCard.style.display = 'flex';
           welcomeCard.style.justifyContent = 'space-between';
           welcomeCard.style.alignItems = 'center';
           welcomeCard.innerHTML = `
             <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${portraits.avatar}" style="width:44px; height:44px; object-fit:cover; border-radius:12px; border:1.5px solid var(--eko-gold); background:#061318;">
+              ${pMap.avatar ? `<img src="${pMap.avatar}" style="width:44px; height:44px; object-fit:cover; border-radius:12px; border:1.5px solid var(--eko-gold); background:#061318;">` : ''}
               <div>
                 <div class="greeting">Citizen OS • Lagos</div>
-                <div class="user-name" style="font-size:18px;">Amaka Driver</div>
+                <div id="phone-citizen-name" class="user-name" style="font-size:18px;">${citizenName}</div>
               </div>
             </div>
-            <img id="phone-active-veh-thumb" src="${portraits.sedan}" style="width:62px; height:42px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(0,0,0,0.35);" title="Active Vehicle 3D Render">
+            <img id="phone-active-veh-thumb" src="${vehSrc}" style="width:62px; height:42px; object-fit:contain; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(0,0,0,0.35); display:${hasCar ? 'block' : 'none'};" title="Active Vehicle 3D Render">
+            <span id="phone-no-veh-badge" style="display:${hasCar ? 'none' : 'inline-flex'}; align-items:center; padding:5px 8px; border-radius:8px; background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.45); color:#A7F3D0; font-size:10px; font-weight:800;">👟 On Foot (0 Cars)</span>
           `;
-        }
+        };
+        window.syncEkoPhoneCitizenHeader();
       } catch (err) {
         console.warn('3D portrait render skipped:', err);
       }
@@ -18676,6 +18699,9 @@
     ];
 
     function renderDealershipAndGarageUI() {
+      if (typeof window.syncEkoPhoneCitizenHeader === 'function') {
+        window.syncEkoPhoneCitizenHeader();
+      }
       const portraits = window.__EKO_3D_PORTRAITS__ || {};
       const garageList = document.getElementById('dealership-garage-list');
       const countEl = document.getElementById('garage-owned-count');
@@ -28705,6 +28731,100 @@
       // =======================================================================
       // MASTER VISION BIBLE PERSISTENCE, 3D HOME INTERIOR & VERTICAL SLICE ACTIONS
       // =======================================================================
+      getStorageAccountId() {
+        try {
+          const authObj = typeof window !== 'undefined' ? window.__PROJECT_EKO_AUTH__ : null;
+          if (authObj && authObj.accountId && authObj.accountId !== 'usr_eko_hustler_01') {
+            return authObj.accountId;
+          }
+          if (typeof localStorage !== 'undefined') {
+            const rawSess = localStorage.getItem('__PROJECT_EKO_M47_SESSION__');
+            if (rawSess) {
+              const parsedSess = JSON.parse(rawSess);
+              if (parsedSess && parsedSess.accountId) return parsedSess.accountId;
+            }
+          }
+          if (authObj && authObj.accountId) return authObj.accountId;
+        } catch (_) {}
+        return 'usr_eko_hustler_01';
+      },
+
+      resetStateForIsolatedAccount(accountId = 'usr_eko_hustler_01') {
+        this.starterProfileId = 'profile_new_arrival';
+        this.currentHousingTier = 1;
+        this.currentResidenceId = 'res_marina_selfcon';
+        this.ownedResidenceIds = ['res_marina_selfcon'];
+        this.currentOutfitId = 'outfit_street_hustler';
+        this.ownedOutfitIds = ['outfit_street_hustler', 'outfit_sunday_senator'];
+        this.characterAppearance = {
+          gender: 'male',
+          styleSet: 'casual',
+          fabricStyle: 'ankara',
+          bodyType: 'athletic_lagos',
+          skinTone: '#6B3E26',
+          hairStyle: 'low_fade',
+          shoesStyle: 'white_sneakers',
+          bagStyle: 'none',
+          topColor: '#10B981',
+          bottomColor: '#1E293B',
+          hairColor: '#1A1110',
+          shoeColor: '#F8FAFC',
+          bagColor: '#D97706',
+          customOutfitId: 'outfit_street_hustler',
+          skinHex: 0x6B3E26,
+          hairHex: 0x1A1110,
+          topHex: 0x10B981,
+          bottomHex: 0x1E293B,
+          shoeHex: 0xF8FAFC,
+          bagHex: 0xD97706
+        };
+        this.activeJobShift = null;
+        this.completedJobReceipts = [];
+        this.isInsideHomeInterior = false;
+        this.homeCameraMode = 'exploration';
+        this.homePantryServings = 3;
+        this.householdCyclesPaidCount = 0;
+        this.lastObligationReceipt = null;
+        this.energy = 88;
+        this.grace = 60;
+        this.vibes = 70;
+        this.clout = 120;
+        this.needsState = {
+          ...this.needsState,
+          hunger: 84,
+          energy: 88,
+          hygiene: 86,
+          social: 75,
+          recreation: 72,
+          comfort: 80,
+          health: 94,
+          connectivity: 90,
+          offlineDecayDisabled: true
+        };
+        this.ownedItems = [
+          { instanceId: 'own_starter_bed', itemId: 'itm_mattress_starter', condition: 100, placed: true },
+          { instanceId: 'own_starter_fan', itemId: 'itm_standing_fan', condition: 100, placed: true },
+          { instanceId: 'own_starter_wardrobe', itemId: 'itm_wardrobe_rack', condition: 100, placed: true },
+          { instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', condition: 100, placed: true },
+          { instanceId: 'own_starter_stove', itemId: 'itm_table_stove', condition: 100, placed: true },
+          { instanceId: 'own_starter_desk', itemId: 'itm_study_desk', condition: 100, placed: true }
+        ];
+        this.placedFurniture = [
+          { placementId: 'plc_starter_bed', instanceId: 'own_starter_bed', itemId: 'itm_mattress_starter', name: 'Starter Foam Mattress & Frame', roomZone: 'sleep_zone', x: -2.6, y: 0, z: -2.5, rotY: 0, w: 1.8, d: 2.0, h: 0.55, hex: 0x38BDF8 },
+          { placementId: 'plc_starter_fan', instanceId: 'own_starter_fan', itemId: 'itm_standing_fan', name: 'Ox Breeze Standing Fan', roomZone: 'utility_corner', x: 2.8, y: 0, z: 2.4, rotY: 0, w: 0.6, d: 0.6, h: 1.35, hex: 0x94A3B8 },
+          { placementId: 'plc_starter_wardrobe', instanceId: 'own_starter_wardrobe', itemId: 'itm_wardrobe_rack', name: 'Starter Wood Wardrobe & Storage', roomZone: 'storage_zone', x: 0.0, y: 0, z: -3.1, rotY: 0, w: 1.2, d: 0.7, h: 1.85, hex: 0xB45309 },
+          { placementId: 'plc_starter_wash', instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', name: 'Ceramic Wash & Hygiene Station', roomZone: 'hygiene_zone', x: 2.6, y: 0, z: -2.6, rotY: 0, w: 0.8, d: 0.8, h: 1.1, hex: 0xE2E8F0 },
+          { placementId: 'plc_starter_stove', instanceId: 'own_starter_stove', itemId: 'itm_table_stove', name: 'Tabletop Gas Burner & Jollof Pot', roomZone: 'cooking_zone', x: 2.6, y: 0, z: 0.0, rotY: 0, w: 0.9, d: 0.7, h: 0.85, hex: 0xF97316 },
+          { placementId: 'plc_starter_desk', instanceId: 'own_starter_desk', itemId: 'itm_study_desk', name: 'Starter Study & JobHub Work Desk', roomZone: 'work_study_zone', x: -2.6, y: 0, z: 0.5, rotY: 0, w: 1.3, d: 0.75, h: 0.82, hex: 0x10B981 }
+        ];
+        this.syncHomeBodyClass();
+        this.syncExteriorHouseShellVisibility();
+        if (this.homeInteriorGroup) this.homeInteriorGroup.visible = false;
+        this.syncActiveJobBeacon3D();
+        this.updateActiveJobHUD();
+        return { ok: true, accountId };
+      },
+
       saveMasterBibleStateToStorage() {
         try {
           if (typeof localStorage !== 'undefined') {
@@ -28717,8 +28837,9 @@
               };
             }
             const authObj = typeof window !== 'undefined' ? window.__PROJECT_EKO_AUTH__ : null;
+            const resolvedAccId = this.getStorageAccountId();
             const payload = {
-              accountId: (authObj && authObj.accountId) ? authObj.accountId : 'usr_eko_hustler_01',
+              accountId: resolvedAccId,
               starterProfileId: this.starterProfileId,
               currentHousingTier: this.currentHousingTier,
               currentResidenceId: this.currentResidenceId,
@@ -28758,7 +28879,9 @@
               lastFirstWeekSimResult: this.lastFirstWeekSimResult,
               lastConductorCoOpReceipt: this.lastConductorCoOpReceipt
             };
-            localStorage.setItem('__PROJECT_EKO_MASTER_BIBLE_V1__', JSON.stringify(payload));
+            const serialized = JSON.stringify(payload);
+            localStorage.setItem(`__PROJECT_EKO_MASTER_BIBLE_V1__:${resolvedAccId}`, serialized);
+            localStorage.setItem('__PROJECT_EKO_MASTER_BIBLE_V1__', serialized);
             if (authObj && authObj.sessionToken && typeof fetch !== 'undefined') {
               fetch('http://localhost:3001/api/v1/journey/sync-state', {
                 method: 'POST',
@@ -28779,12 +28902,25 @@
         }
       },
 
-      loadMasterBibleStateFromStorage() {
+      loadMasterBibleStateFromStorage(explicitAccountId = null) {
         try {
           if (typeof localStorage !== 'undefined') {
-            const raw = localStorage.getItem('__PROJECT_EKO_MASTER_BIBLE_V1__');
+            const targetAccountId = explicitAccountId || this.getStorageAccountId();
+            let raw = localStorage.getItem(`__PROJECT_EKO_MASTER_BIBLE_V1__:${targetAccountId}`);
+            if (!raw) {
+              const fallbackRaw = localStorage.getItem('__PROJECT_EKO_MASTER_BIBLE_V1__');
+              if (fallbackRaw) {
+                const candidate = JSON.parse(fallbackRaw);
+                if (!candidate.accountId || candidate.accountId === targetAccountId) {
+                  raw = fallbackRaw;
+                }
+              }
+            }
             if (raw) {
               const data = JSON.parse(raw);
+              if (data.accountId && data.accountId !== targetAccountId) {
+                return false;
+              }
               if (data.starterProfileId) this.starterProfileId = data.starterProfileId;
               if (typeof data.currentHousingTier === 'number') this.currentHousingTier = data.currentHousingTier;
               if (data.currentResidenceId) this.currentResidenceId = data.currentResidenceId;
@@ -30206,9 +30342,13 @@
           playerAvatar.rotation.y = playerHeading;
           playerAvatar.visible = true;
         }
+        if (typeof followCamYaw !== 'undefined') followCamYaw = Math.PI;
+        if (typeof frontCamYaw !== 'undefined') frontCamYaw = Math.PI;
+        if (typeof cameraOrbitYaw !== 'undefined') cameraOrbitYaw = 0;
+        if (typeof cameraOrbitPitch !== 'undefined') cameraOrbitPitch = 0.22;
         if (typeof camera !== 'undefined' && camera) {
-          camera.position.set(-61.2, 2.35, -140.2);
-          camera.lookAt(-62, 1.45, -148.0);
+          camera.position.set(-61.2, 2.35, -140.8);
+          camera.lookAt(-62, 1.35, -145.4);
         }
         showToast('🏠 Standing at Marina Palm Courts Front Entrance! Walk up to the mahogany front door and press [E] to step inside.', '🚪');
         return {
@@ -34713,28 +34853,61 @@
         this.renderHud();
       },
 
-      loadLocalState() {
+      getStorageAccountId(explicitAccountId) {
+        if (explicitAccountId) return String(explicitAccountId);
+        if (window.__PROJECT_EKO_AUTH__ && window.__PROJECT_EKO_AUTH__.accountId) {
+          return String(window.__PROJECT_EKO_AUTH__.accountId);
+        }
         try {
-          const raw = localStorage.getItem(this.STORAGE_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
+          const sessRaw = localStorage.getItem('__PROJECT_EKO_M47_SESSION_V1__');
+          if (sessRaw) {
+            const parsed = JSON.parse(sessRaw);
+            if (parsed && parsed.accountId) return String(parsed.accountId);
+          }
+        } catch (_) {}
+        return 'usr_eko_hustler_01';
+      },
+
+      loadLocalState(explicitAccountId) {
+        const targetAccId = this.getStorageAccountId(explicitAccountId);
+        try {
+          const scopedRaw = localStorage.getItem(`${this.STORAGE_KEY}:${targetAccId}`);
+          const fallbackRaw = localStorage.getItem(this.STORAGE_KEY);
+          let parsed = null;
+          if (scopedRaw) {
+            parsed = JSON.parse(scopedRaw);
+          } else if (fallbackRaw) {
+            const candidate = JSON.parse(fallbackRaw);
+            if (candidate && (!candidate.accountId || candidate.accountId === targetAccId)) {
+              parsed = candidate;
+            }
+          }
+          if (parsed) {
             if (Array.isArray(parsed.completedObjectiveIds)) {
               this.completedObjectiveIds = parsed.completedObjectiveIds;
             }
             this.tutorialSkipped = Boolean(parsed.tutorialSkipped);
             this.tutorialCompleted = Boolean(parsed.tutorialCompleted);
+          } else if (explicitAccountId) {
+            this.completedObjectiveIds = [];
+            this.tutorialSkipped = false;
+            this.tutorialCompleted = false;
           }
         } catch (_) {}
       },
 
-      saveLocalState() {
+      saveLocalState(explicitAccountId) {
+        const targetAccId = this.getStorageAccountId(explicitAccountId);
         try {
-          localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+          const payload = JSON.stringify({
+            accountId: targetAccId,
             completedObjectiveIds: this.completedObjectiveIds,
             tutorialSkipped: this.tutorialSkipped,
             tutorialCompleted: this.tutorialCompleted,
             updatedAt: Date.now()
-          }));
+          });
+          localStorage.setItem(`${this.STORAGE_KEY}:${targetAccId}`, payload);
+          localStorage.setItem(this.STORAGE_KEY, payload);
         } catch (_) {}
       },
 
@@ -35495,6 +35668,14 @@
       },
 
       async init() {
+        document.addEventListener('focusout', () => {
+          setTimeout(() => this.resetMobileViewportScroll(), 90);
+        });
+        if (window.visualViewport && typeof window.visualViewport.addEventListener === 'function') {
+          window.visualViewport.addEventListener('resize', () => {
+            this.resetMobileViewportScroll();
+          });
+        }
         const restored = await this.restoreExistingSession();
         const params = new URLSearchParams(window.location.search);
         if (!restored) {
@@ -35540,6 +35721,8 @@
       },
 
       applyAccountState(acc, guideState) {
+        const previousAccountId = this.accountId;
+        const isSwitchingAccount = Boolean(previousAccountId && previousAccountId !== acc.accountId);
         this.accountId = acc.accountId;
         this.username = (acc.character && acc.character.displayName) || acc.username;
         this.isGuest = Boolean(acc.isGuest);
@@ -35616,6 +35799,15 @@
         }
         if (window.__PROJECT_EKO_LIFE__) {
           const life = window.__PROJECT_EKO_LIFE__;
+          // Ensure strict per-account character & life state isolation:
+          if (isSwitchingAccount || !acc.characterCreated) {
+            if (typeof life.resetStateForIsolatedAccount === 'function') {
+              life.resetStateForIsolatedAccount(acc.accountId);
+            }
+          }
+          if (acc.characterCreated && typeof life.loadMasterBibleStateFromStorage === 'function') {
+            life.loadMasterBibleStateFromStorage(acc.accountId);
+          }
           if (acc.onboarding && Array.isArray(acc.onboarding.ownedOutfits) && acc.onboarding.ownedOutfits.length > 0) {
             life.ownedOutfitIds = [...acc.onboarding.ownedOutfits];
           }
@@ -35634,11 +35826,12 @@
             life.saveMasterBibleStateToStorage();
           }
         }
+        EkoGuideEngine.loadLocalState(acc.accountId);
         if (acc.onboarding && Array.isArray(acc.onboarding.completedObjectiveIds)) {
           EkoGuideEngine.completedObjectiveIds = [...acc.onboarding.completedObjectiveIds];
           EkoGuideEngine.tutorialSkipped = Boolean(acc.onboarding.tutorialSkipped);
           EkoGuideEngine.tutorialCompleted = Boolean(acc.onboarding.tutorialCompleted);
-          EkoGuideEngine.saveLocalState();
+          EkoGuideEngine.saveLocalState(acc.accountId);
         }
         if (guideState) {
           EkoGuideEngine.applyServerGuideState(guideState);
@@ -36236,10 +36429,23 @@
 
       updateTopBadge() {
         const badge = document.getElementById('m47-citizen-auth-pill');
-        if (!badge) return;
-        badge.innerText = this.isGuest
-          ? `👤 ${this.username} (Guest • Promote)`
-          : `👤 ${this.username} (${this.starterProfileTitle.split(' ')[0]})`;
+        if (badge) {
+          badge.innerText = this.isGuest
+            ? `👤 ${this.username} (Guest • Promote)`
+            : `👤 ${this.username} (${this.starterProfileTitle.split(' ')[0]})`;
+        }
+        if (typeof window.syncEkoPhoneCitizenHeader === 'function') {
+          window.syncEkoPhoneCitizenHeader();
+        }
+      },
+
+      resetMobileViewportScroll() {
+        try {
+          window.scrollTo(0, 0);
+          if (document.documentElement) document.documentElement.scrollTop = 0;
+          if (document.body) document.body.scrollTop = 0;
+          if (typeof onWindowResize === 'function') onWindowResize();
+        } catch (_) {}
       },
 
       openModal(view = 'entry') {
@@ -36249,6 +36455,7 @@
         if (!modal) return;
         modal.style.display = 'flex';
         this.renderModal();
+        this.resetMobileViewportScroll();
         setTimeout(() => {
           const focusId = view === 'register'
             ? 'm47-reg-username'
@@ -36259,16 +36466,32 @@
                 : view === 'character'
                   ? 'm47-char-displayname'
                   : null;
-          if (focusId) {
+          // Auto-focus only on desktop so mobile keyboards don't push the viewport on modal open
+          if (focusId && window.innerWidth > 900) {
             const fEl = document.getElementById(focusId);
-            if (fEl && typeof fEl.focus === 'function') fEl.focus();
+            if (fEl && typeof fEl.focus === 'function') {
+              try {
+                fEl.focus({ preventScroll: true });
+              } catch (_) {
+                fEl.focus();
+              }
+            }
           }
         }, 40);
       },
 
       closeModal() {
         const modal = document.getElementById('m47-auth-modal');
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+          try {
+            if (document.activeElement && modal.contains(document.activeElement) && typeof document.activeElement.blur === 'function') {
+              document.activeElement.blur();
+            }
+          } catch (_) {}
+          modal.style.display = 'none';
+        }
+        this.resetMobileViewportScroll();
+        setTimeout(() => this.resetMobileViewportScroll(), 120);
       },
 
       async startGuestJourney() {
@@ -36415,8 +36638,13 @@
           localStorage.removeItem(this.SESSION_KEY);
         } catch (_) {}
         this.sessionToken = null;
+        this.accountId = 'usr_eko_hustler_01';
+        this.username = 'New_Citizen';
         this.isGuest = false;
         this.characterCreated = false;
+        if (window.__PROJECT_EKO_LIFE__ && typeof window.__PROJECT_EKO_LIFE__.resetStateForIsolatedAccount === 'function') {
+          window.__PROJECT_EKO_LIFE__.resetStateForIsolatedAccount('usr_eko_hustler_01');
+        }
         this.updateTopBadge();
         this.openModal('entry');
         showToast('🔒 Logged out safely. Sign in or start a new journey anytime.', '🔒');

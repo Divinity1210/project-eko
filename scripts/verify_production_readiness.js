@@ -79,7 +79,7 @@ async function waitForHealth(port, healthPath = '/health') {
 }
 
 function startNodeService(scriptRelPath, extraEnv = {}) {
-  return spawn(process.execPath, [path.join(ROOT, scriptRelPath)], {
+  const child = spawn(process.execPath, [path.join(ROOT, scriptRelPath)], {
     cwd: ROOT,
     env: {
       ...process.env,
@@ -95,6 +95,9 @@ function startNodeService(scriptRelPath, extraEnv = {}) {
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+  if (child.stdout) child.stdout.resume();
+  if (child.stderr) child.stderr.resume();
+  return child;
 }
 
 async function stopService(child) {
@@ -666,7 +669,15 @@ async function main() {
       indexHtml.includes("playerAvatar.visible = (this.currentVehicleKey === 'okada' && cameraMode !== 'cockpit')"),
       'index.html must sync driver avatar position every frame while driving and enforce 0-vehicle ownership for newly created citizens'
     );
-    console.log('✅ QA Sign-Up, Character Studio, New-Citizen 0-Car Ownership & Driver Avatar Transform Sync Gate verified.');
+    assert.ok(
+      indexHtml.includes('resetStateForIsolatedAccount(') &&
+      indexHtml.includes('__PROJECT_EKO_MASTER_BIBLE_V1__:${resolvedAccId}') &&
+      indexHtml.includes('window.syncEkoPhoneCitizenHeader = function') &&
+      indexHtml.includes('resetMobileViewportScroll()') &&
+      indexHtml.includes('if (typeof followCamYaw !== \'undefined\') followCamYaw = Math.PI;'),
+      'index.html must isolate per-account character/life state, lock mobile viewport against off-screen EkoPhone overflow, and frame full character at starter home porch'
+    );
+    console.log('✅ QA Sign-Up, Character Studio, Mobile Viewport Lock, Standalone Per-Account Character Isolation & Driver Avatar Transform Sync Gate verified.');
 
     console.log('\n==============================================================');
     console.log('ALL PRODUCTION READINESS GATES (PHASES 0–11) PASSED');
