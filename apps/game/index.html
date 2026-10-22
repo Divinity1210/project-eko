@@ -3647,14 +3647,14 @@
     #ekolife-modal {
       position: fixed;
       inset: 0;
-      z-index: 258;
-      background: rgba(4, 9, 17, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      z-index: 3200;
+      background: rgba(4, 9, 17, 0.84);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 14px;
+      padding: 10px;
       pointer-events: auto;
       color: #F8FAFC;
     }
@@ -3666,58 +3666,74 @@
     .ekolife-shell {
       width: 100%;
       max-width: 1080px;
-      max-height: calc(100dvh - 28px);
+      height: min(92dvh, 860px);
+      max-height: calc(100dvh - 16px);
       background: linear-gradient(160deg, rgba(10, 18, 32, 0.98) 0%, rgba(6, 34, 26, 0.97) 100%);
       border: 2px solid var(--eko-gold);
-      border-radius: 22px;
+      border-radius: 20px;
       box-shadow: 0 28px 90px rgba(0, 0, 0, 0.92), 0 0 36px rgba(16, 185, 129, 0.25);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
 
     .ekolife-header {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 12px 18px;
-      background: rgba(5, 11, 20, 0.95);
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(5, 11, 20, 0.96);
       border-bottom: 1px solid rgba(244, 180, 26, 0.32);
+      flex-shrink: 0;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    .ekolife-header:active {
+      cursor: grabbing;
     }
 
     .ekolife-meters-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      padding: 10px 18px;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 8px;
+      padding: 6px 14px;
       background: rgba(11, 23, 38, 0.92);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
     }
 
-    @media (max-width: 720px) {
-      .ekolife-meters-strip {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .ekolife-meters-strip::-webkit-scrollbar {
+      display: none;
     }
 
     .ekolife-meter-card {
+      flex: 1 0 135px;
       background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 12px;
-      padding: 8px 12px;
+      border-radius: 10px;
+      padding: 5px 10px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
     }
 
     .ekolife-meter-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11px;
+      gap: 6px;
+      font-size: 10.5px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .ekolife-meter-label {
@@ -3730,7 +3746,7 @@
     }
 
     .ekolife-meter-bar {
-      height: 7px;
+      height: 5px;
       background: rgba(255, 255, 255, 0.12);
       border-radius: 999px;
       overflow: hidden;
@@ -3744,21 +3760,31 @@
 
     .ekolife-tabs {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 10px 18px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 6px;
+      padding: 6px 14px;
       background: rgba(7, 15, 28, 0.94);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .ekolife-tabs::-webkit-scrollbar {
+      display: none;
     }
 
     .ekolife-tab-btn {
+      flex: 0 0 auto;
+      white-space: nowrap;
       background: rgba(30, 41, 59, 0.85);
       color: #CBD5E1;
       border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 10px;
-      padding: 7px 14px;
+      border-radius: 9px;
+      padding: 6px 11px;
       font-family: var(--eko-font-display);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -3777,22 +3803,93 @@
     }
 
     .ekolife-body {
-      padding: 14px 18px 18px 18px;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 12px 14px 18px 14px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .ekolife-hero-banner {
       border: 1.5px solid rgba(56, 189, 248, 0.45);
-      border-radius: 14px;
-      padding: 12px 16px;
+      border-radius: 12px;
+      padding: 9px 13px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .ekolife-storefronts-strip {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      gap: 8px;
+      padding-bottom: 6px;
+      flex-shrink: 0;
+    }
+
+    .ekolife-storefront-chip {
+      flex: 0 0 220px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 10px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    @media (max-width: 900px) {
+      #ekolife-modal {
+        padding: 6px;
+      }
+      .ekolife-shell {
+        height: calc(100dvh - 12px);
+        max-height: calc(100dvh - 12px);
+        border-radius: 16px;
+      }
+      .ekolife-header {
+        padding: 6px 10px;
+      }
+      #ekolife-active-buff-banner {
+        display: none !important;
+      }
+      .ekolife-meters-strip {
+        padding: 4px 10px;
+        gap: 6px;
+      }
+      .ekolife-meter-card {
+        flex: 0 0 auto;
+        min-width: 112px;
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+      .ekolife-meter-bar {
+        height: 4px;
+      }
+      .ekolife-tabs {
+        padding: 5px 10px;
+        gap: 5px;
+      }
+      .ekolife-tab-btn {
+        padding: 5px 9px;
+        font-size: 10.5px;
+      }
+      .ekolife-body {
+        padding: 8px 10px 16px 10px;
+        gap: 8px;
+      }
+      .ekolife-hero-banner {
+        padding: 7px 10px;
+      }
     }
 
     .ekolife-grid {
@@ -4596,12 +4693,15 @@
 
   <!-- Interactive NPC Dialogue Modal -->
   <div id="npc-dialogue-modal">
-    <div class="npc-dialogue-header">
-      <div id="dialogue-avatar" class="npc-avatar-badge">👤</div>
-      <div class="npc-meta">
-        <h3 id="dialogue-name">Sister Blessing</h3>
-        <p id="dialogue-role">Commuter • Marina</p>
+    <div class="npc-dialogue-header" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="dialogue-avatar" class="npc-avatar-badge">👤</div>
+        <div class="npc-meta">
+          <h3 id="dialogue-name">Sister Blessing</h3>
+          <p id="dialogue-role">Commuter • Marina</p>
+        </div>
       </div>
+      <button type="button" class="btn-dialog-cancel" style="padding:4px 10px; font-weight:900;" onclick="closeNPCDialogue()" aria-label="Close Dialogue">✕</button>
     </div>
     <div id="dialogue-text" class="npc-speech-bubble">
       "Good afternoon o! You dey go Tafawa Balewa Square?"
@@ -5141,7 +5241,11 @@
   </div>
 
   <!-- Trip Celebration Modal -->
-  <div id="celebration-modal">
+  <div id="celebration-modal" style="position:fixed;">
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:4px;">
+      <span style="font-size:10px; color:#94A3B8; font-weight:800;">⋮⋮ DRAG TO MOVE</span>
+      <button type="button" class="btn-dialog-cancel" style="padding:4px 10px; font-weight:900;" onclick="dismissCelebrationModal()" aria-label="Close">✕</button>
+    </div>
     <h2>JOURNEY COMPLETED!</h2>
     <div class="stars-display">★★★★★</div>
     <div class="trip-receipt-box">
@@ -5317,7 +5421,7 @@
         <button id="btn-home-planner-toggle" class="dh-ctrl-btn" style="padding:4px 8px; font-size:9.5px;" onclick="window.__PROJECT_EKO_LIFE__.toggleHomePlannerDrawer()">🛋️ Furniture ▾</button>
         <button id="btn-home-hud-catalog" class="dh-ctrl-btn" style="padding:4px 8px; font-size:9.5px;" onclick="openEkoLifeModal('home')">📋 Catalog [L]</button>
         <button id="btn-home-hud-minimize" class="dh-ctrl-btn" style="padding:4px 8px; font-size:9.5px; border-color:rgba(56,189,248,0.55); color:#BAE6FD;" title="Minimize or Expand Home Control Panel" onclick="window.__PROJECT_EKO_LIFE__.toggleHomeHudMinimized()">➖ Minimize</button>
-        <button id="btn-home-hud-exit" class="dh-ctrl-btn warn" style="padding:4px 9px; font-size:9.5px;" onclick="window.__PROJECT_EKO_LIFE__.exitHomeInterior()">🚪 Exit [H]</button>
+        <button id="btn-home-hud-exit" class="dh-ctrl-btn warn" style="padding:4px 9px; font-size:9.5px;" onclick="window.__PROJECT_EKO_LIFE__.exitHomeInterior()">✕ Exit [H]</button>
       </div>
     </div>
     <div id="home-hud-contextual-prompt" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; background:rgba(30,41,59,0.88); border:1px solid rgba(244,180,26,0.38); border-radius:10px; padding:5px 10px; margin-bottom:6px;">
@@ -5584,65 +5688,66 @@
        ========================================================================== -->
   <div id="ekolife-modal" role="dialog" aria-modal="true" aria-label="EkoLife Lagos Way of Life Hub">
     <div class="ekolife-shell">
-      <div class="ekolife-header">
-        <div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:20px;">🌴</span>
-            <h2 style="margin:0; font-family:var(--eko-font-display); font-size:16px; font-weight:900; color:#FFF; letter-spacing:0.5px;">EKOLIFE — LAGOS WAY OF LIFE & SOCIAL STATUS</h2>
-            <span id="ekolife-rank-pill" style="background:rgba(244,180,26,0.2); border:1px solid var(--eko-gold); color:var(--eko-gold); font-size:10px; font-weight:900; padding:2px 8px; border-radius:999px;">STREET HUSTLER</span>
+      <div class="ekolife-header" data-eko-drag-handle="true">
+        <div style="min-width:0; flex:1;">
+          <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+            <span class="eko-drag-grip" title="Drag to move dialog" style="font-size:12px; color:#94A3B8; font-weight:900; letter-spacing:-1px; cursor:grab;">⋮⋮</span>
+            <span style="font-size:17px;">🌴</span>
+            <h2 style="margin:0; font-family:var(--eko-font-display); font-size:14px; font-weight:900; color:#FFF; letter-spacing:0.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">EKOLIFE — LAGOS WAY OF LIFE</h2>
+            <span id="ekolife-rank-pill" style="background:rgba(244,180,26,0.2); border:1px solid var(--eko-gold); color:var(--eko-gold); font-size:9.5px; font-weight:900; padding:2px 7px; border-radius:999px; white-space:nowrap; flex-shrink:0;">STREET HUSTLER</span>
           </div>
-          <div id="ekolife-active-buff-banner" style="font-size:11px; color:#A7F3D0; margin-top:3px;">
+          <div id="ekolife-active-buff-banner" style="font-size:10.5px; color:#A7F3D0; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
             ✨ Balance your Hustle, Home, Sunday Grace, and Saturday Owambe Vibes to unlock Lagos Clout & earnings multipliers!
           </div>
         </div>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <button class="btn-veh-switch" style="border-color:#38BDF8; color:#BAE6FD; font-size:10px; padding:5px 10px;" onclick="closeEkoLifeModal(); toggleCityOverviewCamera(true);">🦅 3D City Zoom (Z)</button>
-          <button id="btn-ekolife-close" class="btn-dialog-cancel" style="padding:5px 12px; font-size:11px;" onclick="closeEkoLifeModal()">✕ Close (ESC)</button>
+        <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+          <button class="btn-veh-switch" style="border-color:#38BDF8; color:#BAE6FD; font-size:10px; padding:4px 8px; white-space:nowrap;" onclick="closeEkoLifeModal(); toggleCityOverviewCamera(true);">🦅 3D Zoom</button>
+          <button id="btn-ekolife-close" class="btn-dialog-cancel" style="padding:5px 11px; font-size:12px; font-weight:900; background:rgba(239,68,68,0.22); border:1px solid rgba(239,68,68,0.6); color:#FECACA; border-radius:8px; min-height:30px; cursor:pointer;" onclick="closeEkoLifeModal()" aria-label="Close EkoLife">✕</button>
         </div>
       </div>
 
-      <!-- 4 Live Way-of-Life Meters -->
+      <!-- 4 Live Way-of-Life Meters (Compact Horizontal Strip) -->
       <div class="ekolife-meters-strip">
         <div class="ekolife-meter-card">
           <div class="ekolife-meter-top">
-            <span class="ekolife-meter-label">⚡ Energy & Rest</span>
+            <span class="ekolife-meter-label">⚡ Energy</span>
             <span id="ekolife-val-energy" class="ekolife-meter-val" style="color:#34D399;">88%</span>
           </div>
           <div class="ekolife-meter-bar"><div id="ekolife-bar-energy" class="ekolife-meter-fill" style="width:88%; background:linear-gradient(90deg,#059669,#34D399);"></div></div>
         </div>
         <div class="ekolife-meter-card">
           <div class="ekolife-meter-top">
-            <span class="ekolife-meter-label">🙏 Grace & Favour</span>
+            <span class="ekolife-meter-label">🙏 Grace</span>
             <span id="ekolife-val-grace" class="ekolife-meter-val" style="color:#FDE68A;">70%</span>
           </div>
           <div class="ekolife-meter-bar"><div id="ekolife-bar-grace" class="ekolife-meter-fill" style="width:70%; background:linear-gradient(90deg,#D97706,#FBBF24);"></div></div>
         </div>
         <div class="ekolife-meter-card">
           <div class="ekolife-meter-top">
-            <span class="ekolife-meter-label">🎉 Owambe Vibes</span>
+            <span class="ekolife-meter-label">🎉 Vibes</span>
             <span id="ekolife-val-vibes" class="ekolife-meter-val" style="color:#F472B6;">65%</span>
           </div>
           <div class="ekolife-meter-bar"><div id="ekolife-bar-vibes" class="ekolife-meter-fill" style="width:65%; background:linear-gradient(90deg,#DB2777,#F472B6);"></div></div>
         </div>
         <div class="ekolife-meter-card">
           <div class="ekolife-meter-top">
-            <span class="ekolife-meter-label">👑 Lagos Clout</span>
+            <span class="ekolife-meter-label">👑 Clout</span>
             <span id="ekolife-val-clout" class="ekolife-meter-val" style="color:#38BDF8;">120 PTS</span>
           </div>
           <div class="ekolife-meter-bar"><div id="ekolife-bar-clout" class="ekolife-meter-fill" style="width:24%; background:linear-gradient(90deg,#0284C7,#38BDF8);"></div></div>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
+      <!-- Navigation Tabs (Single Horizontal Swipeable Strip) -->
       <div class="ekolife-tabs">
-        <button id="ekolife-tab-home" class="ekolife-tab-btn active" onclick="switchEkoLifeTab('home')">🏠 Home, 3D Interior & Needs</button>
-        <button id="ekolife-tab-jobs" class="ekolife-tab-btn" onclick="switchEkoLifeTab('jobs')">💼 JobsHub (11 Jobs & Skills)</button>
-        <button id="ekolife-tab-shops" class="ekolife-tab-btn" onclick="switchEkoLifeTab('shops')">🛋️ Shops & 3D Placement</button>
-        <button id="ekolife-tab-economy" class="ekolife-tab-btn" onclick="switchEkoLifeTab('economy')">📊 Budget, Chains & Labour</button>
-        <button id="ekolife-tab-districts" class="ekolife-tab-btn" onclick="switchEkoLifeTab('districts')">🌍 8 Districts & 9-Class Fleet</button>
-        <button id="ekolife-tab-church" class="ekolife-tab-btn" onclick="switchEkoLifeTab('church')">⛪ Grace Cathedral (Church)</button>
-        <button id="ekolife-tab-party" class="ekolife-tab-btn" onclick="switchEkoLifeTab('party')">🎉 Owambe Party & Lounge</button>
-        <button id="ekolife-tab-billboards" class="ekolife-tab-btn" onclick="switchEkoLifeTab('billboards')">📢 3D Billboards & Ads</button>
+        <button id="ekolife-tab-home" class="ekolife-tab-btn active" onclick="switchEkoLifeTab('home')">🏠 Home & Needs</button>
+        <button id="ekolife-tab-jobs" class="ekolife-tab-btn" onclick="switchEkoLifeTab('jobs')">💼 JobsHub (11 Jobs)</button>
+        <button id="ekolife-tab-shops" class="ekolife-tab-btn" onclick="switchEkoLifeTab('shops')">🛋️ Shops & Items</button>
+        <button id="ekolife-tab-economy" class="ekolife-tab-btn" onclick="switchEkoLifeTab('economy')">📊 Budget & Chains</button>
+        <button id="ekolife-tab-districts" class="ekolife-tab-btn" onclick="switchEkoLifeTab('districts')">🌍 8 Districts & Fleet</button>
+        <button id="ekolife-tab-church" class="ekolife-tab-btn" onclick="switchEkoLifeTab('church')">⛪ Grace Cathedral</button>
+        <button id="ekolife-tab-party" class="ekolife-tab-btn" onclick="switchEkoLifeTab('party')">🎉 Owambe Party</button>
+        <button id="ekolife-tab-billboards" class="ekolife-tab-btn" onclick="switchEkoLifeTab('billboards')">📢 3D Billboards</button>
       </div>
 
       <!-- Body Content Container (Rendered Dynamically by EkoLifeSystem) -->
@@ -5808,6 +5913,10 @@
   <!-- Danfo Hustle Run Results & Settlement Summary Modal -->
   <div id="danfo-hustle-results-modal" class="dh-modal-backdrop" role="dialog" aria-label="Danfo Hustle Run Results">
     <div class="dh-modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:10px; color:#94A3B8; font-weight:800;">⋮⋮ DRAG TO MOVE</span>
+        <button type="button" class="dh-ctrl-btn warn" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.closeResultsAndOpenHub()" aria-label="Close Results">✕</button>
+      </div>
       <div style="text-align:center;">
         <div style="font-size:11px; font-weight:800; color:var(--eko-gold); letter-spacing:1px;">DANFO HUSTLE • RUN COMPLETE</div>
         <h2 id="dh-res-title" style="font-family:var(--eko-font-display); font-size:22px; font-weight:900; color:#FFF; margin:2px 0;">CMS PASSENGER RUSH</h2>
@@ -34094,13 +34203,10 @@
         } else if (this.activeTab === 'shops') {
           const unplacedOwned = this.ownedItems.filter(o => !o.placed);
           body.innerHTML = `
-            <div class="ekolife-hero-banner" style="background:linear-gradient(135deg, rgba(124,58,237,0.45), rgba(15,23,42,0.95)); border-color:rgba(168,85,247,0.5);">
+            <div class="ekolife-hero-banner" style="background:linear-gradient(135deg, rgba(124,58,237,0.42), rgba(15,23,42,0.95)); border-color:rgba(168,85,247,0.5);">
               <div>
-                <div style="font-size:10px; font-weight:900; color:#E9D5FF; letter-spacing:0.8px;">🛍️ 8 SHOP CATEGORIES & 19 CANONICAL ITEMS • COLLISION-SAFE 3D PLACEMENT</div>
-                <div style="font-family:var(--eko-font-display); font-size:18px; font-weight:900; color:#FFF; margin-top:2px;">Buy Food, Furniture, Appliances, Tools & Place in Your 3D Home</div>
-                <div style="font-size:11.5px; color:#DDD6FE; margin-top:4px;">
-                  Every furniture and appliance placement validates starter room wall bounds (<code>-3.85m..+3.85m</code>), front doorway clearance, and AABB overlap before updating the 3D interior mesh.
-                </div>
+                <div style="font-size:9.5px; font-weight:900; color:#E9D5FF; letter-spacing:0.6px;">🛍️ 8 SHOP CATEGORIES & 19 CANONICAL ITEMS • COLLISION-SAFE 3D PLACEMENT</div>
+                <div style="font-family:var(--eko-font-display); font-size:14.5px; font-weight:900; color:#FFF; margin-top:1px;">Buy Food, Furniture, Appliances, Tools & Place in Your 3D Home</div>
               </div>
             </div>
 
@@ -34137,31 +34243,7 @@
               </div>
             ` : ''}
 
-            <div style="font-family:var(--eko-font-display); font-size:12px; font-weight:900; color:#A855F7;">🏪 8 PHYSICAL 3D STREET STOREFRONTS (WALK UP TO COUNTER & BROWSE IN 3D)</div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(225px, 1fr)); gap:8px; margin-bottom:6px;">
-              ${this.shopsCatalog.map(sh => {
-                const shopImg = this.getShopImage(sh.id);
-                return `
-                  <div style="background:rgba(15,23,42,0.88); border:1px solid ${this.activeShopCounterId === sh.id ? '#A855F7' : 'rgba(168,85,247,0.35)'}; border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; gap:6px;">
-                    <div class="eko-product-media-row">
-                      <img class="eko-product-thumb" src="${shopImg}" alt="${sh.name}" />
-                      <div style="flex:1; min-width:0;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
-                          <span style="font-size:11px; font-weight:900; color:#FFF;">${sh.icon || '🏪'} ${sh.name}</span>
-                        </div>
-                        <div style="font-size:9px; color:#DDD6FE; font-weight:800; margin-top:2px;">📍 ${sh.district}</div>
-                        <div style="font-size:10px; color:#CBD5E1; margin-top:2px;">Keeper: <strong>${sh.keeperName || 'Shopkeeper'}</strong></div>
-                      </div>
-                    </div>
-                    <button id="btn-visit-shop-3d-${sh.id}" class="dh-ctrl-btn primary" style="margin-top:auto; padding:4px 8px; font-size:10px;" onclick="window.__PROJECT_EKO_LIFE__.visitShopCounter3D('${sh.id}')">
-                      🏪 Walk Up to 3D Counter
-                    </button>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-
-            <div style="font-family:var(--eko-font-display); font-size:12px; font-weight:900; color:var(--eko-gold);">🏪 LAGOS SHOPS & ITEM CATALOG (19 ITEMS ACROSS ALL 12 CATEGORIES)</div>
+            <div style="font-family:var(--eko-font-display); font-size:12px; font-weight:900; color:var(--eko-gold);">🛍️ LAGOS SHOPS & ITEM CATALOG (19 ITEMS — SCROLL DOWN & TAP TO BUY)</div>
             <div class="ekolife-grid">
               ${this.itemDefinitions.map(item => {
                 const itemImg = this.getItemImage(item.itemId);
@@ -34192,6 +34274,30 @@
                         </button>
                       ` : ''}
                     </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <div style="font-family:var(--eko-font-display); font-size:11.5px; font-weight:900; color:#A855F7; margin-top:4px;">🏪 8 PHYSICAL 3D STREET STOREFRONTS (SWIPE HORIZONTALLY OR WALK UP IN 3D)</div>
+            <div class="ekolife-storefronts-strip">
+              ${this.shopsCatalog.map(sh => {
+                const shopImg = this.getShopImage(sh.id);
+                return `
+                  <div class="ekolife-storefront-chip" style="border:1px solid ${this.activeShopCounterId === sh.id ? '#A855F7' : 'rgba(168,85,247,0.35)'};">
+                    <div class="eko-product-media-row">
+                      <img class="eko-product-thumb" src="${shopImg}" alt="${sh.name}" />
+                      <div style="flex:1; min-width:0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+                          <span style="font-size:10.5px; font-weight:900; color:#FFF;">${sh.icon || '🏪'} ${sh.name}</span>
+                        </div>
+                        <div style="font-size:8.5px; color:#DDD6FE; font-weight:800; margin-top:2px;">📍 ${sh.district}</div>
+                        <div style="font-size:9.5px; color:#CBD5E1; margin-top:1px;">Keeper: <strong>${sh.keeperName || 'Shopkeeper'}</strong></div>
+                      </div>
+                    </div>
+                    <button id="btn-visit-shop-3d-${sh.id}" class="dh-ctrl-btn primary" style="margin-top:auto; padding:4px 8px; font-size:9.5px;" onclick="window.__PROJECT_EKO_LIFE__.visitShopCounter3D('${sh.id}')">
+                      🏪 Walk Up to 3D Counter
+                    </button>
                   </div>
                 `;
               }).join('')}
@@ -35720,6 +35826,24 @@
 
       toggleMinimize() {
         this.minimized = !this.minimized;
+        this.closed = false;
+        this.renderHud();
+      },
+
+      closeHud() {
+        this.closed = true;
+        const hud = document.getElementById('m47-ekoguide-hud');
+        if (hud) hud.style.display = 'none';
+        const restoreBtn = document.getElementById('m47-ekoguide-restore-pill');
+        if (restoreBtn) restoreBtn.style.display = 'inline-flex';
+      },
+
+      restoreHud() {
+        this.closed = false;
+        const hud = document.getElementById('m47-ekoguide-hud');
+        if (hud) hud.style.display = 'block';
+        const restoreBtn = document.getElementById('m47-ekoguide-restore-pill');
+        if (restoreBtn) restoreBtn.style.display = 'none';
         this.renderHud();
       },
 
@@ -35737,14 +35861,23 @@
       renderHud() {
         let hud = document.getElementById('m47-ekoguide-hud');
         if (!hud) return;
+        const restoreBtn = document.getElementById('m47-ekoguide-restore-pill');
+        if (this.closed) {
+          hud.style.display = 'none';
+          if (restoreBtn) restoreBtn.style.display = 'inline-flex';
+          return;
+        }
+        hud.style.display = 'block';
+        if (restoreBtn) restoreBtn.style.display = 'none';
         const evalState = this.getCurrentEvaluation();
         const completedCount = this.completedObjectiveIds.length;
         const pct = Math.min(100, Math.round((completedCount / this.steps.length) * 100));
 
         if (this.minimized) {
           hud.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+            <div data-eko-drag-handle="true" style="display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:grab;touch-action:none;">
               <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
+                <span title="Drag to move" style="font-size:11px;color:#94A3B8;font-weight:900;letter-spacing:-1px;">⋮⋮</span>
                 <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:900;color:#10B981;white-space:nowrap;">🧭 ${completedCount}/${this.steps.length}</span>
                 <span id="m47-guide-primary-title" style="font-size:11px;font-weight:800;color:#F8FAFC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${evalState.title}</span>
               </div>
@@ -35752,6 +35885,7 @@
                 <button type="button" id="m47-guide-primary-action-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="background:#10B981;color:#052E16;border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:900;cursor:pointer;">▶ Go</button>
                 <button type="button" id="m47-what-next-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:#0F172A;color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:4px 7px;font-size:10px;font-weight:700;cursor:pointer;">📋</button>
                 <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" title="Expand EkoGuide" style="background:rgba(255,255,255,0.12);color:#F8FAFC;border:none;border-radius:6px;padding:4px 7px;font-size:10px;cursor:pointer;">▲</button>
+                <button type="button" id="m47-guide-close-btn" onclick="window.__PROJECT_EKO_GUIDE__.closeHud()" title="Close EkoGuide" aria-label="Close EkoGuide" style="background:rgba(239,68,68,0.22);color:#FECACA;border:1px solid rgba(239,68,68,0.5);border-radius:6px;padding:4px 7px;font-size:10px;font-weight:900;cursor:pointer;">✕</button>
               </div>
             </div>
           `;
@@ -35759,14 +35893,15 @@
         }
 
         hud.innerHTML = `
-          <div class="m47-guide-header-row" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px;">
-            <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:800;color:#10B981;letter-spacing:0.03em;white-space:nowrap;">🧭 EKOGUIDE • STEP ${completedCount}/${this.steps.length} (${pct}%)</span>
+          <div class="m47-guide-header-row" data-eko-drag-handle="true" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px;cursor:grab;touch-action:none;">
+            <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:800;color:#10B981;letter-spacing:0.03em;white-space:nowrap;"><span style="color:#94A3B8;margin-right:4px;">⋮⋮</span>🧭 EKOGUIDE • STEP ${completedCount}/${this.steps.length} (${pct}%)</span>
             <div style="display:flex;gap:4px;flex-shrink:0;">
               <button type="button" id="m47-what-next-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:rgba(56,189,248,0.16);color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;">
                 <span class="m47-desktop-label">What should I do next?</span>
                 <span class="m47-mobile-label">📋 Steps</span>
               </button>
               <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" title="Minimise Next Step" style="background:rgba(255,255,255,0.1);color:#CBD5E1;border:none;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:900;cursor:pointer;">—</button>
+              <button type="button" id="m47-guide-close-btn" onclick="window.__PROJECT_EKO_GUIDE__.closeHud()" title="Close EkoGuide" aria-label="Close EkoGuide" style="background:rgba(239,68,68,0.22);color:#FECACA;border:1px solid rgba(239,68,68,0.5);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:900;cursor:pointer;">✕</button>
             </div>
           </div>
           <div id="m47-guide-overall-journey-line" class="m47-guide-journey-line" style="font-size:9.5px;font-weight:700;color:#6EE7B7;margin-bottom:3px;">OVERALL JOURNEY: ${evalState.overallJourneyLabel || `First Day in Lagos — Step ${completedCount} of ${this.steps.length}`}</div>
@@ -37116,7 +37251,10 @@
             <div style="background:#0F172A;border:1px solid rgba(56,189,248,0.5);border-radius:16px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:11px;font-weight:800;color:#38BDF8;">CREATE CITIZEN ACCOUNT</span>
-                <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+                  <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" aria-label="Close" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:900;cursor:pointer;">✕</button>
+                </div>
               </div>
               <p style="margin:0 0 12px 0;font-size:11px;color:#94A3B8;">Saves your 3D home, Game Naira balance, and multiplayer crew identity. No payment details ever required.</p>
               ${errHtml}
@@ -37149,7 +37287,10 @@
             <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:460px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:11px;font-weight:800;color:#10B981;">RETURNING CITIZEN LOG IN</span>
-                <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+                  <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" aria-label="Close" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:900;cursor:pointer;">✕</button>
+                </div>
               </div>
               <p style="margin:0 0 12px 0;font-size:11px;color:#94A3B8;">Restores your saved profile, 3D home layout, Game Naira balance, and active EkoGuide objective.</p>
               ${errHtml}
@@ -37176,7 +37317,10 @@
             <div style="background:#0F172A;border:1px solid rgba(244,180,26,0.55);border-radius:16px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:11px;font-weight:800;color:#F4B41A;">✨ PROMOTE GUEST TO PERMANENT CITIZEN ACCOUNT</span>
-                <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+                  <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" aria-label="Close" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:900;cursor:pointer;">✕</button>
+                </div>
               </div>
               <p style="margin:0 0 12px 0;font-size:11px;color:#CBD5E1;">Upgrades your current guest session (<code>${this.escapeAttr(this.accountId)}</code>) into a permanent citizen account while keeping 100% of your Game Naira, 3D home items, and EkoGuide progress.</p>
               ${errHtml}
@@ -38375,7 +38519,190 @@
         proxBar.style.cssText = 'display:none;position:fixed;bottom:calc(env(safe-area-inset-bottom, 0px) + 74px);left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.92);border:1px solid rgba(244,180,26,0.55);border-radius:12px;padding:8px 12px;z-index:2550;color:#F8FAFC;box-shadow:0 10px 26px rgba(0,0,0,0.6);backdrop-filter:blur(8px);pointer-events:auto;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;';
         document.body.appendChild(proxBar);
       }
+
+      if (!document.getElementById('m47-ekoguide-restore-pill')) {
+        const restorePill = document.createElement('button');
+        restorePill.id = 'm47-ekoguide-restore-pill';
+        restorePill.type = 'button';
+        restorePill.title = 'Reopen EkoGuide';
+        restorePill.setAttribute('aria-label', 'Reopen EkoGuide');
+        restorePill.onclick = () => {
+          if (window.__PROJECT_EKO_GUIDE__ && typeof window.__PROJECT_EKO_GUIDE__.restoreHud === 'function') {
+            window.__PROJECT_EKO_GUIDE__.restoreHud();
+          }
+        };
+        restorePill.style.cssText = 'display:none;position:fixed;top:calc(env(safe-area-inset-top, 0px) + 64px);right:10px;z-index:1250;background:rgba(15,23,42,0.92);border:1px solid #10B981;color:#34D399;border-radius:999px;padding:5px 11px;font-size:11px;font-weight:900;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.45);align-items:center;gap:5px;pointer-events:auto;';
+        restorePill.innerHTML = '<span>🧭</span><span>Guide</span>';
+        document.body.appendChild(restorePill);
+      }
+
+      EkoDraggableDialogSystem.init();
     }
+
+    // =========================================================================
+    // UNIVERSAL TOUCH & MOUSE DRAGGABLE DIALOG / FLOATING HUD SYSTEM
+    // =========================================================================
+    const EkoDraggableDialogSystem = {
+      initialized: false,
+      activeDrag: null,
+
+      resolveMovableTarget(startEl) {
+        if (!startEl || typeof startEl.closest !== 'function') return null;
+        if (startEl.closest('button, a, input, select, textarea, label, .ekolife-tabs, .ekolife-meters-strip, .ekolife-storefronts-strip, .ekoatlas-tabs, #ekoatlas-canvas')) {
+          return null;
+        }
+        const pairs = [
+          { handle: '.ekolife-header', box: '.ekolife-shell', mode: 'transform' },
+          { handle: '.ekoatlas-topbar', box: '.ekoatlas-shell', mode: 'transform' },
+          { handle: '#m47-ekoguide-hud', box: '#m47-ekoguide-hud', mode: 'fixed' },
+          { handle: '#home-hud-header-row', box: '#home-interior-hud-bar', mode: 'fixed' },
+          { handle: '#jobshub-active-shift-hud > div:first-child', box: '#jobshub-active-shift-hud', mode: 'fixed' },
+          { handle: '#m6-shop-counter-hud > div:first-child', box: '#m6-shop-counter-hud', mode: 'fixed' },
+          { handle: '#m7-transit-fleet-hud > div:first-child', box: '#m7-transit-fleet-hud', mode: 'fixed' },
+          { handle: '#m8-business-supply-hud > div:first-child', box: '#m8-business-supply-hud', mode: 'fixed' },
+          { handle: '#m9-social-culture-hud > div:first-child', box: '#m9-social-culture-hud', mode: 'fixed' },
+          { handle: '#m10-district-streaming-hud > div:first-child', box: '#m10-district-streaming-hud', mode: 'fixed' },
+          { handle: '#m11-compliance-ops-hud > div:first-child', box: '#m11-compliance-ops-hud', mode: 'fixed' },
+          { handle: '#m48-passenger-hud', box: '#m48-passenger-hud', mode: 'fixed' },
+          { handle: '#m481-conductor-hud', box: '#m481-conductor-hud', mode: 'fixed' },
+          { handle: '#m481-vehicle-proximity-bar', box: '#m481-vehicle-proximity-bar', mode: 'fixed' },
+          { handle: '.npc-dialogue-header', box: '#npc-dialogue-modal', mode: 'fixed' },
+          { handle: '.minigame-header', box: '#minigame-modal', mode: 'fixed' },
+          { handle: '#eko-flex-modal > div:first-child', box: '#eko-flex-modal', mode: 'fixed' },
+          { handle: '#celebration-modal > div:first-child, #celebration-modal > h2', box: '#celebration-modal', mode: 'fixed' },
+          { handle: '.phone-top-status, .phone-speaker-notch', box: '#eko-phone-container', mode: 'fixed' },
+          { handle: '#eko-radio-tuner-popover > div:first-child', box: '#eko-radio-tuner-popover', mode: 'fixed' },
+          { handle: '.dh-modal-card > div:first-child', box: '.dh-modal-card', mode: 'transform' },
+          { handle: '#m47-ekoguide-modal > div > div:first-child', box: '#m47-ekoguide-modal > div', mode: 'transform' },
+          { handle: '#m47-multiplayer-modal > div > div:first-child', box: '#m47-multiplayer-modal > div', mode: 'transform' },
+          { handle: '#m47-progress-modal > div > div:first-child', box: '#m47-progress-modal > div', mode: 'transform' },
+          { handle: '#m47-wardrobe-modal > div > div:first-child', box: '#m47-wardrobe-modal > div', mode: 'transform' },
+          { handle: '#m48-qualification-modal > div > div:first-child', box: '#m48-qualification-modal > div', mode: 'transform' },
+          { handle: '#m481-danfo-boarding-modal > div > div:first-child', box: '#m481-danfo-boarding-modal > div', mode: 'transform' },
+          { handle: '#m47-auth-modal > div > div:first-child', box: '#m47-auth-modal > div', mode: 'transform' }
+        ];
+        for (const p of pairs) {
+          const handleEl = startEl.closest(p.handle);
+          if (handleEl) {
+            const boxEl = handleEl.closest(p.box) || document.querySelector(p.box);
+            if (boxEl) return { handleEl, boxEl, mode: p.mode };
+          }
+        }
+        return null;
+      },
+
+      init() {
+        if (this.initialized) return;
+        this.initialized = true;
+
+        const onPointerDown = (e) => {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          const match = this.resolveMovableTarget(e.target);
+          if (!match) return;
+          const { boxEl, mode } = match;
+          const rect = boxEl.getBoundingClientRect();
+          this.activeDrag = {
+            pointerId: e.pointerId,
+            boxEl,
+            mode,
+            startX: e.clientX,
+            startY: e.clientY,
+            startLeft: rect.left,
+            startTop: rect.top,
+            width: rect.width,
+            height: rect.height,
+            baseDx: Number(boxEl.dataset.dragDx || 0),
+            baseDy: Number(boxEl.dataset.dragDy || 0),
+            moved: false
+          };
+        };
+
+        const onPointerMove = (e) => {
+          const d = this.activeDrag;
+          if (!d || (d.pointerId !== undefined && e.pointerId !== d.pointerId)) return;
+          const deltaX = e.clientX - d.startX;
+          const deltaY = e.clientY - d.startY;
+          if (!d.moved && Math.hypot(deltaX, deltaY) < 5) return;
+          d.moved = true;
+          if (e.cancelable) e.preventDefault();
+
+          const vw = window.innerWidth || 390;
+          const vh = window.innerHeight || 844;
+
+          if (d.mode === 'fixed') {
+            const minLeft = Math.min(4, vw - d.width - 4);
+            const maxLeft = Math.max(4, vw - Math.min(d.width, 80));
+            const nextLeft = Math.max(minLeft, Math.min(maxLeft, d.startLeft + deltaX));
+            const nextTop = Math.max(4, Math.min(vh - 48, d.startTop + deltaY));
+            d.boxEl.style.left = `${Math.round(nextLeft)}px`;
+            d.boxEl.style.top = `${Math.round(nextTop)}px`;
+            d.boxEl.style.right = 'auto';
+            d.boxEl.style.bottom = 'auto';
+            d.boxEl.style.transform = 'none';
+            d.boxEl.style.margin = '0';
+          } else {
+            const maxX = Math.max(60, Math.round(vw * 0.45));
+            const maxY = Math.max(60, Math.round(vh * 0.45));
+            const nextDx = Math.max(-maxX, Math.min(maxX, d.baseDx + deltaX));
+            const nextDy = Math.max(-maxY, Math.min(maxY, d.baseDy + deltaY));
+            d.boxEl.dataset.dragDx = String(Math.round(nextDx));
+            d.boxEl.dataset.dragDy = String(Math.round(nextDy));
+            d.boxEl.style.transform = `translate3d(${Math.round(nextDx)}px, ${Math.round(nextDy)}px, 0)`;
+          }
+        };
+
+        const onPointerUp = (e) => {
+          if (!this.activeDrag) return;
+          if (this.activeDrag.pointerId !== undefined && e.pointerId !== undefined && e.pointerId !== this.activeDrag.pointerId) return;
+          this.activeDrag = null;
+        };
+
+        window.addEventListener('pointerdown', onPointerDown, { passive: true });
+        window.addEventListener('pointermove', onPointerMove, { passive: false });
+        window.addEventListener('pointerup', onPointerUp, { passive: true });
+        window.addEventListener('pointercancel', onPointerUp, { passive: true });
+
+        window.addEventListener('touchstart', (e) => {
+          if (this.activeDrag || !e.touches || e.touches.length !== 1) return;
+          const t = e.touches[0];
+          onPointerDown({
+            target: e.target,
+            pointerType: 'touch',
+            pointerId: 'touch',
+            clientX: t.clientX,
+            clientY: t.clientY,
+            button: 0
+          });
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+          if (!this.activeDrag || this.activeDrag.pointerId !== 'touch' || !e.touches || !e.touches.length) return;
+          const t = e.touches[0];
+          onPointerMove({
+            pointerId: 'touch',
+            clientX: t.clientX,
+            clientY: t.clientY,
+            cancelable: e.cancelable,
+            preventDefault: () => e.preventDefault()
+          });
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+          if (this.activeDrag && this.activeDrag.pointerId === 'touch') {
+            this.activeDrag = null;
+          }
+        }, { passive: true });
+      },
+
+      resetPosition(boxEl) {
+        if (!boxEl) return;
+        delete boxEl.dataset.dragDx;
+        delete boxEl.dataset.dragDy;
+        boxEl.style.transform = '';
+      }
+    };
+    window.__PROJECT_EKO_DRAGGABLE_DIALOGS__ = EkoDraggableDialogSystem;
+    EkoDraggableDialogSystem.init();
 
     // =========================================================================
     // M4.8.1 CENTRAL KEYBINDING REGISTRY & EXCLUSIVE INPUT CONTEXT RESOLVER
@@ -40867,8 +41194,9 @@
 
         pHud.style.display = 'block';
         pHud.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+          <div data-eko-drag-handle="true" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;cursor:grab;touch-action:none;">
             <div>
+              <span style="color:#94A3B8;font-weight:900;margin-right:4px;">⋮⋮</span>
               <span style="background:rgba(56,189,248,0.2);border:1px solid #38BDF8;color:#7DD3FC;font-size:10px;font-weight:900;padding:3px 8px;border-radius:999px;">
                 🪑 PASSENGER • ${this.currentSeatLabel || 'Passenger Seat'}
               </span>
@@ -40876,8 +41204,11 @@
                 Driver Controls Disabled
               </span>
             </div>
-            <div style="font-size:11px;font-weight:800;color:${isMoving ? '#34D399' : '#FDE047'};">
-              🚍 ${vRec.label} • ${Math.round(this.shuttleSpeedKmh || 0)} km/h ${isMoving ? '(In Transit)' : '(Stationary at Stop)'}
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;font-weight:800;color:${isMoving ? '#34D399' : '#FDE047'};">
+                🚍 ${vRec.label} • ${Math.round(this.shuttleSpeedKmh || 0)} km/h ${isMoving ? '(In Transit)' : '(Stationary at Stop)'}
+              </span>
+              <button type="button" onclick="window.__PROJECT_EKO_VEHICLE_STATE__.exitVehicleToOnFoot()" title="Close / Exit Vehicle" aria-label="Close Passenger HUD" style="background:rgba(239,68,68,0.22);color:#FECACA;border:1px solid rgba(239,68,68,0.55);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:900;cursor:pointer;">✕</button>
             </div>
           </div>
           ${isDanfo ? `
@@ -40934,13 +41265,16 @@
 
         cHud.style.display = 'block';
         cHud.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+          <div data-eko-drag-handle="true" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;cursor:grab;touch-action:none;">
             <span style="background:rgba(245,158,11,0.22);border:1px solid #F59E0B;color:#FDE047;font-size:10px;font-weight:900;padding:3px 9px;border-radius:999px;">
-              🎫 HUMAN CONDUCTOR • ${this.currentSeatLabel} • Split: ${curSplit} (${st.conductorSharePct || 30}% Yours)
+              <span style="color:#FDE68A;margin-right:4px;">⋮⋮</span>🎫 HUMAN CONDUCTOR • ${this.currentSeatLabel} • Split: ${curSplit} (${st.conductorSharePct || 30}% Yours)
             </span>
-            <span style="font-size:11px;font-weight:800;color:#34D399;">
-              🪑 ${st.boardedPassengersThisTrip || 0}/${cap.passengerSeatCapacity} Boarded (${unpaidPax} Unpaid) • 💼 Bus Purse: ₦${purseGross.toLocaleString()} GN
-            </span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;font-weight:800;color:#34D399;">
+                🪑 ${st.boardedPassengersThisTrip || 0}/${cap.passengerSeatCapacity} Boarded (${unpaidPax} Unpaid) • 💼 Bus Purse: ₦${purseGross.toLocaleString()} GN
+              </span>
+              <button type="button" onclick="window.__PROJECT_EKO_VEHICLE_STATE__.exitVehicleToOnFoot({ forceExit: true, settlePurseOnExit: true })" title="Close / Step Down" aria-label="Close Conductor HUD" style="background:rgba(239,68,68,0.22);color:#FECACA;border:1px solid rgba(239,68,68,0.55);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:900;cursor:pointer;">✕</button>
+            </div>
           </div>
           <div style="background:rgba(15,23,42,0.88);border:1px solid rgba(245,158,11,0.4);border-radius:8px;padding:6px 9px;margin-bottom:7px;font-size:10.5px;color:#F8FAFC;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
             <div>
