@@ -836,6 +836,7 @@ interface M47PersistentStoreData {
   firstActionTimestamps: Record<string, { signupStartedAt: number; firstMeaningfulActionAt: number | null }>;
   staffAuditLogs?: StaffModerationAuditLogEntry[];
   settledCoopCheckpointTokens?: string[];
+  revokedTokens?: Record<string, number>;
 }
 
 const defaultStore: M47PersistentStoreData = {
@@ -2369,23 +2370,125 @@ function extractHeaderSessionToken(req: http.IncomingMessage): string {
   return '';
 }
 
+const SESSION_HMAC_SECRET = String(
+  process.env.PROJECT_EKO_SESSION_SECRET ||
+    process.env.PROJECT_EKO_EVIDENCE_HMAC_KEY ||
+    'project_eko_stateless_session_hmac_secret_2026'
+);
+
+function issueSignedSessionToken(acc: M47AccountRecord, expiresInMs: number, prefix = 'tok'): string {
+  const nonce = crypto.randomBytes(12).toString('hex');
+  const expiresAt = Date.now() + expiresInMs;
+  const payloadB64 = Buffer.from(
+    JSON.stringify({
+      a: acc.accountId,
+      u: acc.username,
+      e: acc.email,
+      g: Boolean(acc.isGuest),
+      x: expiresAt,
+      n: nonce,
+    }),
+    'utf8'
+  ).toString('base64url');
+  const sig = crypto.createHmac('sha256', SESSION_HMAC_SECRET).update(`${prefix}.${payloadB64}`).digest('base64url');
+  return `${prefix}.${payloadB64}.${sig}`;
+}
+
+function verifySignedSessionToken(tokenValue: string): null | {
+  accountId: string;
+  username: string;
+  email: string;
+  isGuest: boolean;
+  expiresAt: number;
+} {
+  const parts = String(tokenValue || '').split('.');
+  if (parts.length !== 3) return null;
+  const [prefix, payloadB64, sig] = parts;
+  if (!prefix.startsWith('tok')) return null;
+  const expectedSig = crypto.createHmac('sha256', SESSION_HMAC_SECRET).update(`${prefix}.${payloadB64}`).digest('base64url');
+  const sigBuf = Buffer.from(sig);
+  const expBuf = Buffer.from(expectedSig);
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
+    if (!parsed || typeof parsed.a !== 'string' || typeof parsed.x !== 'number') return null;
+    if (parsed.x <= Date.now()) return null;
+    return {
+      accountId: parsed.a,
+      username: String(parsed.u || 'Lagos_Citizen'),
+      email: String(parsed.e || `${parsed.a}@eko.lagos`),
+      isGuest: Boolean(parsed.g),
+      expiresAt: parsed.x,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function resolveAccountBySessionToken(tokenValue: string): M47AccountRecord | null {
+  if (!tokenValue) return null;
+  if (store.revokedTokens && store.revokedTokens[tokenValue]) return null;
+
+  const sess = store.sessions[tokenValue];
+  if (sess) {
+    if (sess.expiresAt <= Date.now()) {
+      delete store.sessions[tokenValue];
+      saveStore();
+      return null;
+    }
+    const acc = store.accounts[sess.accountId] || null;
+    if (!acc || acc.deletedAt) return null;
+    return acc;
+  }
+
+  // On serverless cold starts (e.g. Vercel), rehydrate valid HMAC-signed session tokens
+  if (process.env.VERCEL === '1' || process.env.PROJECT_EKO_SERVERLESS === '1') {
+    const verified = verifySignedSessionToken(tokenValue);
+    if (verified) {
+      let acc = store.accounts[verified.accountId];
+      if (acc && acc.deletedAt) return null;
+      if (!acc) {
+        const { hash, salt } = hashPassword(`rehydrated_${verified.accountId}`);
+        acc = createAccountRecord({
+          accountId: verified.accountId,
+          username: verified.username,
+          email: verified.email,
+          passwordHash: hash,
+          passwordSalt: salt,
+          isGuest: verified.isGuest,
+          privacyConsentAccepted: true,
+        });
+        store.accounts[verified.accountId] = acc;
+      }
+      store.sessions[tokenValue] = {
+        sessionToken: tokenValue,
+        accountId: verified.accountId,
+        createdAt: Date.now(),
+        expiresAt: verified.expiresAt,
+      };
+      saveStore();
+      return acc;
+    }
+  }
+  return null;
+}
+
+(global as any).__PROJECT_EKO_RESOLVE_SESSION__ = (tokenValue: string) => {
+  const acc = resolveAccountBySessionToken(tokenValue);
+  if (!acc) return null;
+  return {
+    accountId: String(acc.accountId),
+    username: String(acc.character?.displayName || acc.username || 'Lagos Citizen'),
+  };
+};
+
 export function resolveAccountFromRequest(_url: URL, req: http.IncomingMessage, _body: any = {}): M47AccountRecord | null {
   // Security Invariant (Phase 2): Session tokens are NEVER accepted from URL query strings
   // or request bodies to prevent token leakage in logs and cross-account body forgery.
   const tokenValue = extractHeaderSessionToken(req);
-  if (!tokenValue) return null;
-
-  const sess = store.sessions[tokenValue];
-  if (!sess || sess.expiresAt <= Date.now()) {
-    if (sess) {
-      delete store.sessions[tokenValue];
-      saveStore();
-    }
-    return null;
-  }
-  const acc = store.accounts[sess.accountId] || null;
-  if (!acc || acc.deletedAt) return null;
-  return acc;
+  return resolveAccountBySessionToken(tokenValue);
 }
 
 function requireAccountFromRequest(
@@ -2508,7 +2611,7 @@ export async function handleM47ApiRoutes(
     acc.role = 'PLAYER';
     store.accounts[accountId] = acc;
 
-    const sessionToken = `tok_${crypto.randomBytes(18).toString('hex')}`;
+    const sessionToken = issueSignedSessionToken(acc, 7 * 24 * 3600 * 1000, 'tok');
     store.sessions[sessionToken] = {
       sessionToken,
       accountId,
@@ -2563,7 +2666,7 @@ export async function handleM47ApiRoutes(
     }
 
     acc.lastLoginAt = Date.now();
-    const sessionToken = `tok_${crypto.randomBytes(18).toString('hex')}`;
+    const sessionToken = issueSignedSessionToken(acc, 7 * 24 * 3600 * 1000, 'tok');
     store.sessions[sessionToken] = {
       sessionToken,
       accountId: acc.accountId,
@@ -2590,16 +2693,22 @@ export async function handleM47ApiRoutes(
     const acc = requireAccountFromRequest(url, req, res, body);
     if (!acc) return true;
     const currentToken = extractHeaderSessionToken(req);
+    if (!store.revokedTokens) store.revokedTokens = {};
     let revokedCount = 0;
     if (body.revokeAll === true) {
       for (const [tok, sess] of Object.entries(store.sessions)) {
         if (sess.accountId === acc.accountId) {
+          store.revokedTokens[tok] = Date.now();
           delete store.sessions[tok];
           revokedCount += 1;
         }
       }
-    } else if (currentToken && store.sessions[currentToken]) {
-      delete store.sessions[currentToken];
+      if (currentToken) store.revokedTokens[currentToken] = Date.now();
+    } else if (currentToken) {
+      store.revokedTokens[currentToken] = Date.now();
+      if (store.sessions[currentToken]) {
+        delete store.sessions[currentToken];
+      }
       revokedCount = 1;
     }
     saveStore();
@@ -2640,7 +2749,7 @@ export async function handleM47ApiRoutes(
     });
     store.accounts[accountId] = acc;
 
-    const sessionToken = `tok_guest_${crypto.randomBytes(16).toString('hex')}`;
+    const sessionToken = issueSignedSessionToken(acc, 48 * 3600 * 1000, 'tok_guest');
     store.sessions[sessionToken] = {
       sessionToken,
       accountId,
@@ -2774,8 +2883,12 @@ export async function handleM47ApiRoutes(
     const acc = requireAccountFromRequest(url, req, res, body);
     if (!acc) return true;
     const deletedAccountId = acc.accountId;
+    const currentToken = extractHeaderSessionToken(req);
+    if (!store.revokedTokens) store.revokedTokens = {};
+    if (currentToken) store.revokedTokens[currentToken] = Date.now();
     for (const [tok, sess] of Object.entries(store.sessions)) {
       if (sess.accountId === deletedAccountId) {
+        store.revokedTokens[tok] = Date.now();
         delete store.sessions[tok];
       }
     }

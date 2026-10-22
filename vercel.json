@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build && node scripts/prepare_vercel_public.js",
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "infra/database/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/config.js", "destination": "/api/index.js" },
+    { "source": "/health", "destination": "/api/index.js" },
+    { "source": "/readyz", "destination": "/api/index.js" },
+    { "source": "/metrics", "destination": "/api/index.js" },
+    { "source": "/rt/:path*", "destination": "/api/index.js" },
+    { "source": "/api/:path*", "destination": "/api/index.js" }
+  ]
+}

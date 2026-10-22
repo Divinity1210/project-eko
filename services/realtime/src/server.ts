@@ -17,6 +17,7 @@ const ALLOWED_REALTIME_CORS_ORIGINS = (process.env.PROJECT_EKO_CORS_ORIGINS || '
 function isAllowedRealtimeCorsOrigin(origin: string | undefined): boolean {
   if (!origin) return false;
   if (ALLOWED_REALTIME_CORS_ORIGINS.includes(origin)) return true;
+  if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
   if (process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
     return true;
   }
@@ -387,7 +388,7 @@ function checkModerationText(text: string): { allowed: boolean; reason?: string 
 }
 
 // 20 Hz Tick Loop (50ms)
-setInterval(() => {
+const tickInterval = setInterval(() => {
   tickCount++;
   const now = Date.now();
 
@@ -415,6 +416,9 @@ setInterval(() => {
     }
   }
 }, 50);
+if (typeof (tickInterval as any).unref === 'function') {
+  (tickInterval as any).unref();
+}
 
 function getClassifiedEntities(viewerId?: string | null, interestRadiusMeters: number = 450) {
   const allPlayers = Array.from(zonePlayers.values());
@@ -483,6 +487,17 @@ async function resolveRealtimeSession(req: http.IncomingMessage): Promise<Authen
     (req.headers.authorization ? String(req.headers.authorization).replace(/^Bearer\s+/i, '') : '');
   const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
   if (!token) return null;
+
+  const inProcessResolver = (global as any).__PROJECT_EKO_RESOLVE_SESSION__;
+  if (typeof inProcessResolver === 'function') {
+    const resolved = inProcessResolver(String(token));
+    if (resolved && resolved.accountId) {
+      return resolved;
+    }
+    if (process.env.VERCEL === '1' || process.env.PROJECT_EKO_SERVERLESS === '1') {
+      return null;
+    }
+  }
 
   return new Promise((resolve) => {
     const validation = http.get({
@@ -1736,6 +1751,10 @@ const server = http.createServer(async (req, res) => {
   res.end(JSON.stringify({ error: 'Not found' }));
 });
 
-server.listen(PORT, () => {
-  console.log(`[Project Eko Realtime] Zone Worker (${ZONE_ID}) running on http://localhost:${PORT}`);
-});
+export { server as realtimeServer };
+
+if (process.env.VERCEL !== '1' && process.env.PROJECT_EKO_SERVERLESS !== '1') {
+  server.listen(PORT, () => {
+    console.log(`[Project Eko Realtime] Zone Worker (${ZONE_ID}) running on http://localhost:${PORT}`);
+  });
+}

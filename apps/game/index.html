@@ -7,17 +7,34 @@
   <script src="/config.js"></script>
   <script>
     (function initProjectEkoRuntimeEndpoints() {
+      const isRemoteHost = Boolean(
+        window.location &&
+        window.location.hostname &&
+        !['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+        window.location.protocol.startsWith('http')
+      );
+      const defaultApiBase = isRemoteHost ? window.location.origin : 'http://localhost:3001';
+      const defaultRtBase = isRemoteHost ? (window.location.origin + '/rt') : 'http://localhost:3002';
       const cfg = Object.assign({
-        environment: 'development',
-        apiBaseUrl: 'http://localhost:3001',
-        realtimeBaseUrl: 'http://localhost:3002',
-        liveFiatPayoutsEnabled: false
+        environment: isRemoteHost ? 'production' : 'development',
+        apiBaseUrl: defaultApiBase,
+        realtimeBaseUrl: defaultRtBase,
+        liveFiatPayoutsEnabled: false,
+        fiatRewardsEnabled: false
       }, window.__PROJECT_EKO_CONFIG__ || {});
+      if (isRemoteHost) {
+        if (!cfg.apiBaseUrl || cfg.apiBaseUrl.includes('localhost') || cfg.apiBaseUrl.includes('127.0.0.1')) {
+          cfg.apiBaseUrl = defaultApiBase;
+        }
+        if (!cfg.realtimeBaseUrl || cfg.realtimeBaseUrl.includes('localhost') || cfg.realtimeBaseUrl.includes('127.0.0.1')) {
+          cfg.realtimeBaseUrl = defaultRtBase;
+        }
+      }
       window.__PROJECT_EKO_CONFIG__ = cfg;
       window.resolveProjectEkoUrl = function(rawUrl) {
         if (typeof rawUrl !== 'string') return rawUrl;
-        const apiBase = String(cfg.apiBaseUrl || 'http://localhost:3001').replace(/\/+$/, '');
-        const rtBase = String(cfg.realtimeBaseUrl || 'http://localhost:3002').replace(/\/+$/, '');
+        const apiBase = String(cfg.apiBaseUrl || defaultApiBase).replace(/\/+$/, '');
+        const rtBase = String(cfg.realtimeBaseUrl || defaultRtBase).replace(/\/+$/, '');
         if (rawUrl.startsWith('http://localhost:3001')) return apiBase + rawUrl.slice('http://localhost:3001'.length);
         if (rawUrl.startsWith('http://127.0.0.1:3001')) return apiBase + rawUrl.slice('http://127.0.0.1:3001'.length);
         if (rawUrl.startsWith('http://localhost:3002')) return rtBase + rawUrl.slice('http://localhost:3002'.length);

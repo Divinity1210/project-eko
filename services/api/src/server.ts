@@ -310,6 +310,7 @@ const ALLOWED_API_CORS_ORIGINS = (process.env.PROJECT_EKO_CORS_ORIGINS || 'http:
 function isAllowedApiCorsOrigin(origin: string | undefined): boolean {
   if (!origin) return false;
   if (ALLOWED_API_CORS_ORIGINS.includes(origin)) return true;
+  if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
   if (process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
     return true;
   }
@@ -4759,7 +4760,11 @@ const server = http.createServer(async (req, res) => {
 
 
 
-server.listen(PORT, () => {
-  console.log(`[Project Eko API] Domain API running on http://localhost:${PORT}`);
-});
+export { server as apiServer };
+
+if (process.env.VERCEL !== '1' && process.env.PROJECT_EKO_SERVERLESS !== '1') {
+  server.listen(PORT, () => {
+    console.log(`[Project Eko API] Domain API running on http://localhost:${PORT}`);
+  });
+}
 
