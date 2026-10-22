@@ -1145,7 +1145,9 @@
       font-size: 11.5px;
       font-weight: 800;
       white-space: nowrap;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
+      touch-action: manipulation;
       display: none;
       align-items: center;
       gap: 7px;
@@ -4187,7 +4189,7 @@
 
   <!-- Peer Overhead Badges & Chat Layer -->
   <div id="peer-overhead-layer">
-    <div id="world-objective-pin"><span id="world-objective-pin-icon">🎯</span><span id="world-objective-pin-text">OBJECTIVE</span></div>
+    <div id="world-objective-pin" onclick="if (typeof triggerActiveObjectiveAction === 'function') triggerActiveObjectiveAction();" title="Tap to interact or face objective"><span id="world-objective-pin-icon">🎯</span><span id="world-objective-pin-text">OBJECTIVE</span></div>
     <div id="badge-suya-stock" class="badge-economic-anchor badge-retail">🍢 SUYA STAND [Stock: 28/50]</div>
     <div id="badge-depot-cargo" class="badge-economic-anchor badge-logistics">📦 BALOGUN WHOLESALE [Press E: Cargo / Bargain]</div>
     <div id="badge-filling-station" class="badge-economic-anchor badge-fuel">⛽ TOTALENERGIES [Press E to Refuel • ₦110/L]</div>
@@ -5434,11 +5436,12 @@
   </div>
 
   <!-- ==========================================================================
-       M5 — JOBSHUB ENTRY WORK SLICE LIVE ON-STREET 3D SHIFT HUD BAR
+       M5 — JOBSHUB ENTRY WORK SLICE LIVE ON-STREET 3D SHIFT HUD BAR & WORK MODAL
        ========================================================================== -->
   <div id="jobshub-active-shift-hud" style="display:none; position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:1245; width:min(94vw, 880px); background:rgba(15,23,42,0.94); backdrop-filter:blur(12px); border:1.5px solid rgba(56,189,248,0.68); border-radius:16px; padding:10px 14px; box-shadow:0 16px 40px rgba(0,0,0,0.68); color:#F8FAFC; font-family:var(--eko-font-sans); pointer-events:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:6px; margin-bottom:8px;">
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="eko-drag-grip" title="Drag to move" style="font-size:12px; color:#94A3B8; font-weight:900; letter-spacing:-1px; cursor:grab;">⋮⋮</span>
         <span id="jobshub-hud-step-badge" style="background:#0284C7; color:#FFF; font-size:10px; font-weight:900; padding:3px 8px; border-radius:999px; letter-spacing:0.6px;">💼 ACTIVE SHIFT • STEP 1 / 3</span>
         <strong id="jobshub-hud-title" style="font-family:var(--eko-font-display); font-size:13px; color:#FFF;">Walking Parcel Runner (No Vehicle)</strong>
         <span id="jobshub-hud-family-pill" style="font-size:10px; color:#34D399; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.35); padding:2px 8px; border-radius:999px; font-weight:800;">👟 No-Vehicle Entry Work</span>
@@ -5447,23 +5450,62 @@
         <span id="jobshub-hud-pay-breakdown" style="font-size:10.5px; color:#FDE68A; font-weight:800;">Base ₦950 + Bonus ₦350 - Cost ₦50 = Net +₦1,250 GN</span>
         <button id="btn-jobshub-hud-board" class="dh-ctrl-btn" style="padding:4px 9px; font-size:10px;" onclick="openEkoLifeModal('jobs')">📋 JobsHub [L]</button>
         <button id="btn-jobshub-hud-minimize" class="dh-ctrl-btn" style="padding:4px 9px; font-size:10px;" onclick="window.__PROJECT_EKO_LIFE__.toggleJobShiftHudMinimized()">➖ Minimize</button>
-        <button id="btn-jobshub-hud-cancel" class="dh-ctrl-btn warn" style="padding:4px 9px; font-size:10px;" onclick="window.__PROJECT_EKO_LIFE__.cancelActiveJobShift()">✕ Cancel</button>
+        <button id="btn-jobshub-hud-cancel" class="dh-ctrl-btn warn" style="padding:4px 9px; font-size:10px;" onclick="window.__PROJECT_EKO_LIFE__.cancelActiveJobShift()" aria-label="Cancel Active Shift">✕</button>
       </div>
     </div>
     <div id="jobshub-hud-body">
-      <div id="jobshub-hud-checkpoints-list" style="display:grid; grid-template-columns:repeat(3, minmax(180px, 1fr)); gap:6px; margin-bottom:8px;"></div>
+      <div id="jobshub-hud-checkpoints-list" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:6px; margin-bottom:8px;"></div>
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
         <div id="jobshub-hud-active-prompt" style="font-size:11px; color:#A7F3D0; font-weight:800;">
-          🎯 Follow the glowing 3D street beacon & press [E] or [J] to complete the current checkpoint!
+          🎯 Walk to the glowing 3D street beacon & press [E] or tap Perform Work Task on arrival!
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          <button id="btn-jobshub-hud-advance" class="dh-ctrl-btn primary" style="padding:5px 12px; font-size:10.5px;" onclick="window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint()">
-            👟 Walk to & Complete 3D Checkpoint [E / J]
+          <button id="btn-jobshub-hud-advance" class="dh-ctrl-btn primary" style="padding:5px 12px; font-size:10.5px;" onclick="window.__PROJECT_EKO_LIFE__.triggerPlayerJobCheckpointAction()">
+            🧭 Point Camera to Checkpoint 1/3
           </button>
-          <button id="btn-jobshub-hud-finish-all" class="dh-ctrl-btn" style="padding:5px 10px; font-size:10px; border-color:var(--eko-gold); color:var(--eko-gold);" onclick="window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint()">
-            🔒 Complete 3/3 Checkpoints Before Settlement
+          <button id="btn-jobshub-hud-finish-all" class="dh-ctrl-btn" style="padding:5px 10px; font-size:10px; border-color:var(--eko-gold); color:var(--eko-gold);" onclick="window.__PROJECT_EKO_LIFE__.triggerPlayerJobCheckpointAction()">
+            🔒 Complete 3/3 Tasks at Beacons for Reward
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive On-Site Work Station Modal (Requires Physical Checkpoint Arrival + Hands-On Task Completion) -->
+  <div id="jobshub-work-task-modal" role="dialog" aria-modal="true" aria-label="On-Site Lagos Work Station" style="display:none; position:fixed; inset:0; z-index:3400; background:rgba(3,7,18,0.72); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:12px; pointer-events:auto;">
+    <div id="jobshub-work-task-card" style="width:min(540px, calc(100vw - 20px)); max-height:calc(100dvh - 24px); overflow-y:auto; background:linear-gradient(165deg, rgba(15,23,42,0.98), rgba(6,28,36,0.98)); border:1.5px solid rgba(16,185,129,0.75); border-radius:18px; box-shadow:0 22px 54px rgba(0,0,0,0.82); color:#F8FAFC; font-family:var(--eko-font-sans); display:flex; flex-direction:column;">
+      <div id="jobshub-work-task-header" style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:12px 14px; background:rgba(5,11,20,0.95); border-bottom:1px solid rgba(16,185,129,0.35); cursor:grab; touch-action:none; user-select:none;">
+        <div style="display:flex; align-items:center; gap:7px; min-width:0;">
+          <span class="eko-drag-grip" style="font-size:12px; color:#94A3B8; font-weight:900;">⋮⋮</span>
+          <span id="jobshub-work-task-step-badge" style="background:#059669; color:#FFF; font-size:9.5px; font-weight:900; padding:3px 8px; border-radius:999px; white-space:nowrap;">🛠️ WORK STATION • TASK 1 / 3</span>
+          <strong id="jobshub-work-task-subtitle" style="font-family:var(--eko-font-display); font-size:12px; color:#A7F3D0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Walking Parcel Runner</strong>
+        </div>
+        <button type="button" id="btn-jobshub-work-task-close" onclick="window.__PROJECT_EKO_LIFE__.closeCheckpointWorkTaskModal()" aria-label="Close Work Task Modal" style="background:rgba(239,68,68,0.22); border:1px solid rgba(239,68,68,0.6); color:#FECACA; border-radius:8px; padding:4px 10px; font-size:12px; font-weight:900; cursor:pointer; flex-shrink:0;">✕</button>
+      </div>
+      <div id="jobshub-work-task-body" style="padding:14px; display:flex; flex-direction:column; gap:10px;">
+        <div>
+          <div id="jobshub-work-task-title" style="font-family:var(--eko-font-display); font-size:15px; font-weight:900; color:#FFFFFF; line-height:1.25;">Checkpoint Duty</div>
+          <div id="jobshub-work-task-instruction" style="font-size:11.5px; color:#CBD5E1; line-height:1.45; margin-top:4px;">Perform all 3 hands-on duties below and verify quality to sign off this checkpoint.</div>
+        </div>
+        <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.35); border-radius:10px; padding:8px 10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px; font-weight:900; color:#7DD3FC; margin-bottom:5px;">
+            <span>📊 ON-SITE TASK PROGRESS</span>
+            <span id="jobshub-work-task-progress-label">0/3 Duties + 0/1 Quality Check (0%)</span>
+          </div>
+          <div style="height:7px; background:rgba(255,255,255,0.12); border-radius:999px; overflow:hidden;">
+            <div id="jobshub-work-task-progress-bar" style="height:100%; width:0%; background:linear-gradient(90deg,#38BDF8,#10B981); transition:width 0.2s ease;"></div>
+          </div>
+        </div>
+        <div style="font-size:10.5px; font-weight:900; color:#FDE68A; letter-spacing:0.4px;">1️⃣ PERFORM HANDS-ON DUTIES IN ORDER (TAP EACH STEP):</div>
+        <div id="jobshub-work-task-actions-container" style="display:flex; flex-direction:column; gap:7px;"></div>
+        <div id="jobshub-work-task-quality-box" style="background:rgba(30,41,59,0.78); border:1px solid rgba(244,180,26,0.45); border-radius:11px; padding:10px;">
+          <div style="font-size:10.5px; font-weight:900; color:#F4B41A; margin-bottom:4px;">2️⃣ QUALITY & SAFETY VERIFICATION (DETERMINES BONUS STARS ★):</div>
+          <div id="jobshub-work-task-quality-prompt" style="font-size:11px; color:#F8FAFC; font-weight:700; line-height:1.4; margin-bottom:7px;"></div>
+          <div id="jobshub-work-task-quality-options" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+        <button type="button" id="btn-jobshub-work-task-submit" disabled onclick="window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.submitCompletedWorkTaskModal()" style="width:100%; padding:11px 14px; border-radius:12px; border:none; font-family:var(--eko-font-display); font-size:12.5px; font-weight:900; background:rgba(51,65,85,0.6); color:#94A3B8; cursor:not-allowed;">
+          🔒 Complete All 3 Hands-On Duties & Quality Check Above
+        </button>
       </div>
     </div>
   </div>
@@ -15561,10 +15603,12 @@
         } else if (window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.activeJobShift && cue) {
           const shf = window.__PROJECT_EKO_LIFE__.activeJobShift;
           const cp = shf.checkpoints && shf.checkpoints[shf.currentStepIndex];
-          if (cp && Math.hypot(activePos.x - cp.x, activePos.z - cp.z) < 4.5) {
+          const arriveRad = shf.requiresVehicle ? 15.0 : 11.0;
+          if (cp && Math.hypot(activePos.x - cp.x, activePos.z - cp.z) <= arriveRad) {
             cue.style.display = 'block';
-            cue.innerText = `🎯 CHECKPOINT ${shf.currentStepIndex + 1}/${shf.checkpoints.length}: ${cp.label.toUpperCase()} — PRESS [E] OR [J] TO COMPLETE`;
+            cue.innerText = `🛠️ WORK STATION (${shf.currentStepIndex + 1}/${shf.checkpoints.length}): ${cp.label.toUpperCase()} — PRESS [E] OR [J] TO WORK`;
           }
+          if (Math.random() < 0.25) window.__PROJECT_EKO_LIFE__.updateActiveJobHUD();
         } else if (distCathedral < 11.0 && cue) {
           cue.style.display = 'block';
           cue.innerText = '⛪ GRACE CATHEDRAL MARINA: PRESS [E] FOR WORSHIP, SEED & BLESSED HUSTLE (+25% EARNINGS)';
@@ -16320,12 +16364,12 @@
           return;
         }
 
-        // 20e. M5 JobsHub Active On-Street Shift Start / Checkpoint Advance ([J])
+        // 20e. M5 JobsHub Active On-Street Shift Start / Checkpoint Work Station ([J])
         if (k === 'j' && window.__PROJECT_EKO_LIFE__) {
           if (window.__PROJECT_EKO_LIFE__.activeJobShift) {
-            window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint();
+            window.__PROJECT_EKO_LIFE__.triggerPlayerJobCheckpointAction();
           } else {
-            window.__PROJECT_EKO_LIFE__.startActiveJobShift('job_foot_courier');
+            window.__PROJECT_EKO_LIFE__.openModal('jobs');
           }
           return;
         }
@@ -16426,8 +16470,9 @@
         if (window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.activeJobShift) {
           const shf = window.__PROJECT_EKO_LIFE__.activeJobShift;
           const cp = shf.checkpoints && shf.checkpoints[shf.currentStepIndex];
-          if (cp && (!isDriving || shf.requiresVehicle) && Math.hypot(activePos.x - cp.x, activePos.z - cp.z) < 14.0) {
-            window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint();
+          const arriveRad = shf.requiresVehicle ? 15.0 : 11.0;
+          if (cp && (!isDriving || shf.requiresVehicle) && Math.hypot(activePos.x - cp.x, activePos.z - cp.z) <= arriveRad) {
+            window.__PROJECT_EKO_LIFE__.triggerPlayerJobCheckpointAction();
             return 'ADVANCE_JOB_CHECKPOINT';
           }
         }
@@ -17953,15 +17998,19 @@
           const total = shf.checkpoints.length;
           const distM = Math.round(Math.hypot(cp.x - pPos.x, cp.z - pPos.z));
           const dirLabel = getCompassDirectionLabel(pPos, cp.x, cp.z);
-          const isArrived = distM <= 12;
+          const isArrived = distM <= (shf.requiresVehicle ? 15 : 11);
           return {
             id: 'obj_stage3_job',
             mode: 'active_job_shift',
-            stepTag: `💼 ACTIVE SHIFT STEP ${stepNum}/${total} • ${distM}M ${dirLabel}`,
+            stepTag: isArrived
+              ? `🛠️ ON SITE AT CHECKPOINT ${stepNum}/${total} (${distM}M)`
+              : `💼 ACTIVE SHIFT STEP ${stepNum}/${total} • ${distM}M ${dirLabel}`,
             headline: `💼 Step ${stepNum}/${total}: ${cp.label}`,
-            guide: `Walk to (${cp.x}, ${cp.z}) and press [E] or [J] (or click ⚡ Go) to complete checkpoint (${distM}m ${dirLabel})`,
+            guide: isArrived
+              ? `✅ You are at Checkpoint ${stepNum}/${total}! Tap "🛠️ Work Task" or press [E]/[J] to perform your hands-on duties.`
+              : `Walk/Drive ${distM}m ${dirLabel} along the green 3D street arrows to (${cp.x}, ${cp.z}), then perform your hands-on task!`,
             shortLabel: `Checkpoint ${stepNum}/${total}`,
-            icon: '💼',
+            icon: isArrived ? '🛠️' : '💼',
             targetX: cp.x,
             targetY: 1.6,
             targetZ: cp.z,
@@ -17969,7 +18018,7 @@
             distM,
             dirLabel,
             isArrived,
-            actionLabel: `👟 Complete Step ${stepNum}/${total}`
+            actionLabel: isArrived ? `🛠️ Work Task ${stepNum}/${total}` : `🧭 Face (${distM}m)`
           };
         }
       }
@@ -18220,7 +18269,7 @@
             updateObjectiveTrackerHUD();
             return 'START_JOB_SHIFT';
           }
-          const adv = life.advanceActiveJobCheckpoint();
+          const adv = life.triggerPlayerJobCheckpointAction();
           if (adv && adv.shiftCompleted) {
             recordJourneyMilestone('completedStreetJob');
           }
@@ -22178,6 +22227,12 @@
             return { label: `⚡ ${verb.toUpperCase()}`, sub: near.distance <= 2.55 ? near.placement.name.split(' ').slice(0, 2).join(' ').toUpperCase() : 'WALK CLOSER', available: true };
           }
           return { label: '⚡ USE', sub: 'NOTHING NEARBY', available: false };
+        }
+        if (life && life.activeJobShift && typeof life.getCheckpointDistanceAndDirection === 'function') {
+          const navInfo = life.getCheckpointDistanceAndDirection();
+          if (navInfo && navInfo.isArrived) {
+            return { label: '🛠️ WORK', sub: `TASK ${navInfo.stepNum}/${navInfo.total}`, available: true };
+          }
         }
         const cue = document.getElementById('interaction-cue');
         if (cue && cue.style.display !== 'none') {
@@ -30967,8 +31022,9 @@
         const isMin = Boolean(this.homeHudMinimized);
         hud.style.width = isMin ? 'auto' : 'min(94vw, 880px)';
         hud.style.maxWidth = 'min(94vw, 880px)';
+        hud.style.height = 'auto';
         hud.style.padding = isMin ? '5px 11px' : '8px 12px';
-        hud.style.borderRadius = isMin ? '999px' : '16px';
+        hud.style.borderRadius = '16px';
 
         const headerRow = document.getElementById('home-hud-header-row');
         if (headerRow) {
@@ -31031,7 +31087,12 @@
         const showNeeds = !isMin && Boolean(this.homeNeedsExpanded);
         const needsBtn = document.getElementById('btn-home-needs-toggle');
         if (needsBtn) {
+          needsBtn.style.display = isMin ? 'none' : '';
           needsBtn.innerText = `💚 Needs (${avgNeed}%) ${showNeeds ? '▴' : '▾'}`;
+        }
+        const catalogBtn = document.getElementById('btn-home-hud-catalog');
+        if (catalogBtn) {
+          catalogBtn.style.display = isMin ? 'none' : '';
         }
 
         const needsStrip = document.getElementById('home-hud-needs-strip');
@@ -31080,6 +31141,7 @@
         const showObjectsDrawer = !isMin && Boolean(this.homePlannerExpanded);
         const showMoverBar = !isMin && (this.homeCameraMode === 'planner' || Boolean(this.homePlannerExpanded));
         if (plannerBtn) {
+          plannerBtn.style.display = isMin ? 'none' : '';
           plannerBtn.innerText = `🛋️ Objects (${this.placedFurniture.length}) ${showObjectsDrawer ? '▴' : '▾'}`;
         }
 
@@ -31811,6 +31873,67 @@
         this.activeJobBeaconGroup.visible = true;
       },
 
+      activeWorkTaskModalState: null,
+
+      getCheckpointDistanceAndDirection() {
+        if (!this.activeJobShift || !Array.isArray(this.activeJobShift.checkpoints)) return null;
+        const shf = this.activeJobShift;
+        const total = shf.checkpoints.length || 3;
+        const stepIndex = shf.currentStepIndex || 0;
+        const cp = shf.checkpoints[stepIndex];
+        if (!cp) return null;
+        const px = (typeof isDriving !== 'undefined' && isDriving && typeof car !== 'undefined' && car)
+          ? car.position.x
+          : ((typeof playerAvatar !== 'undefined' && playerAvatar) ? playerAvatar.position.x : -62);
+        const pz = (typeof isDriving !== 'undefined' && isDriving && typeof car !== 'undefined' && car)
+          ? car.position.z
+          : ((typeof playerAvatar !== 'undefined' && playerAvatar) ? playerAvatar.position.z : -146);
+        const dx = cp.x - px;
+        const dz = cp.z - pz;
+        const distM = Math.hypot(dx, dz);
+        let dirLabel = 'AHEAD ▲';
+        if (Math.abs(dx) > 1 || Math.abs(dz) > 1) {
+          const ns = dz < -4 ? 'NORTH' : (dz > 4 ? 'SOUTH' : '');
+          const ew = dx > 4 ? 'EAST' : (dx < -4 ? 'WEST' : '');
+          const arrow = dz < -4 ? (dx > 4 ? '↗' : (dx < -4 ? '↖' : '▲')) : (dz > 4 ? (dx > 4 ? '↘' : (dx < -4 ? '↙' : '▼')) : (dx > 0 ? '▶' : '◀'));
+          dirLabel = `${[ns, ew].filter(Boolean).join('-') || 'AHEAD'} ${arrow}`;
+        }
+        const arrivalRadius = shf.requiresVehicle ? 15.0 : 11.0;
+        return {
+          cp,
+          stepIndex,
+          stepNum: Math.min(total, stepIndex + 1),
+          total,
+          distM,
+          dirLabel,
+          arrivalRadius,
+          isArrived: !this.isInsideHomeInterior && distM <= arrivalRadius
+        };
+      },
+
+      faceActiveJobCheckpoint(cp) {
+        if (!cp) return;
+        if (typeof playerAvatar !== 'undefined' && playerAvatar && (!this.activeJobShift || !this.activeJobShift.requiresVehicle)) {
+          const dx = cp.x - playerAvatar.position.x;
+          const dz = cp.z - playerAvatar.position.z;
+          if (Math.hypot(dx, dz) > 0.25) {
+            playerHeading = Math.atan2(dx, dz);
+            playerAvatar.rotation.y = playerHeading;
+          }
+          if (typeof camera !== 'undefined' && camera && typeof camYaw !== 'undefined') {
+            const dist = Math.max(1, Math.hypot(dx, dz));
+            const nx = dx / dist;
+            const nz = dz / dist;
+            camera.position.set(
+              playerAvatar.position.x - nx * 5.2,
+              playerAvatar.position.y + 2.5,
+              playerAvatar.position.z - nz * 5.2
+            );
+            camera.lookAt(cp.x, 1.2, cp.z);
+          }
+        }
+      },
+
       toggleJobShiftHudMinimized(forceState) {
         this.jobShiftHudMinimized = typeof forceState === 'boolean' ? forceState : !this.jobShiftHudMinimized;
         this.updateActiveJobHUD();
@@ -31839,9 +31962,12 @@
         const shf = this.activeJobShift;
         const total = shf.checkpoints ? shf.checkpoints.length : 3;
         const stepNum = Math.min(total, shf.currentStepIndex + 1);
+        const navInfo = this.getCheckpointDistanceAndDirection();
         const stepBadge = document.getElementById('jobshub-hud-step-badge');
         if (stepBadge) {
-          stepBadge.innerText = `💼 ACTIVE SHIFT • STEP ${stepNum} / ${total}`;
+          stepBadge.innerText = navInfo && navInfo.isArrived
+            ? `🛠️ ON SITE • CHECKPOINT ${stepNum} / ${total} READY`
+            : `💼 ACTIVE SHIFT • STEP ${stepNum} / ${total}`;
         }
         const titleEl = document.getElementById('jobshub-hud-title');
         if (titleEl) {
@@ -31861,13 +31987,18 @@
           listEl.innerHTML = shf.checkpoints.map((cp, idx) => {
             const done = idx < shf.currentStepIndex;
             const current = idx === shf.currentStepIndex;
-            const borderCol = done ? '#10B981' : (current ? '#38BDF8' : 'rgba(255,255,255,0.12)');
-            const bgCol = done ? 'rgba(16,185,129,0.16)' : (current ? 'rgba(56,189,248,0.18)' : 'rgba(30,41,59,0.82)');
+            const borderCol = done ? '#10B981' : (current ? (navInfo && navInfo.isArrived ? '#F4B41A' : '#38BDF8') : 'rgba(255,255,255,0.12)');
+            const bgCol = done ? 'rgba(16,185,129,0.16)' : (current ? (navInfo && navInfo.isArrived ? 'rgba(244,180,26,0.18)' : 'rgba(56,189,248,0.18)') : 'rgba(30,41,59,0.82)');
+            const statusRight = done
+              ? '✓ VERIFIED'
+              : (current && navInfo
+                  ? (navInfo.isArrived ? '✅ ARRIVED ON SITE' : `📍 ${Math.round(navInfo.distM)}m ${navInfo.dirLabel}`)
+                  : `(${cp.x.toFixed(0)}, ${cp.z.toFixed(0)})`);
             return `
               <div style="background:${bgCol}; border:1px solid ${borderCol}; border-radius:9px; padding:6px 8px;">
-                <div style="display:flex; justify-content:space-between; font-size:9.5px; font-weight:900; color:${done ? '#34D399' : (current ? '#7DD3FC' : '#94A3B8')};">
-                  <span>${done ? '✅ DONE' : (current ? '🎯 ACTIVE CHECKPOINT' : `⬜ STEP ${idx + 1}`)}</span>
-                  <span>(${cp.x.toFixed(0)}, ${cp.z.toFixed(0)})</span>
+                <div style="display:flex; justify-content:space-between; font-size:9.5px; font-weight:900; color:${done ? '#34D399' : (current ? (navInfo && navInfo.isArrived ? '#FDE68A' : '#7DD3FC') : '#94A3B8')};">
+                  <span>${done ? '✅ DONE' : (current ? `🎯 CHECKPOINT ${idx + 1}/${total}` : `⬜ STEP ${idx + 1}`)}</span>
+                  <span>${statusRight}</span>
                 </div>
                 <div style="font-size:10px; font-weight:700; color:#FFF; margin-top:2px;">${cp.label}</div>
               </div>
@@ -31876,12 +32007,28 @@
         }
         const curCp = shf.checkpoints && shf.checkpoints[shf.currentStepIndex];
         const promptEl = document.getElementById('jobshub-hud-active-prompt');
-        if (promptEl && curCp) {
-          promptEl.innerText = `🎯 Step ${stepNum}/${total}: ${curCp.label} — Press [E] or [J] at the 3D street beacon!`;
+        if (promptEl && curCp && navInfo) {
+          if (navInfo.isArrived) {
+            promptEl.innerText = `✅ You are at Checkpoint ${stepNum}/${total}! Tap "🛠️ Open Work Station" or press [E]/[J] to perform your hands-on task.`;
+            promptEl.style.borderColor = 'rgba(16,185,129,0.65)';
+            promptEl.style.color = '#A7F3D0';
+          } else {
+            promptEl.innerText = `🧭 Walk/Drive ${Math.round(navInfo.distM)}m ${navInfo.dirLabel} to the glowing 3D beacon (${curCp.label}), then perform the work task on site!`;
+            promptEl.style.borderColor = 'rgba(244,180,26,0.35)';
+            promptEl.style.color = '#FEF08A';
+          }
         }
         const advBtn = document.getElementById('btn-jobshub-hud-advance');
-        if (advBtn) {
-          advBtn.innerText = `👟 Complete Step ${stepNum}/${total} on Street [E / J]`;
+        if (advBtn && navInfo) {
+          if (navInfo.isArrived) {
+            advBtn.innerText = `🛠️ Perform Work Task ${stepNum}/${total} Now [E / J]`;
+            advBtn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
+            advBtn.style.color = '#062E22';
+          } else {
+            advBtn.innerText = `🧭 Face Beacon (${Math.round(navInfo.distM)}m ${navInfo.dirLabel}) — Walk There First`;
+            advBtn.style.background = 'linear-gradient(135deg,#0284C7,#0369A1)';
+            advBtn.style.color = '#F8FAFC';
+          }
         }
         const finishAllBtn = document.getElementById('btn-jobshub-hud-finish-all');
         if (finishAllBtn) {
@@ -31905,6 +32052,7 @@
           quickSwitchVehicle(job.jobId.includes('danfo') ? 'danfo' : (job.jobId.includes('keke') ? 'keke' : 'sedan'));
         }
         this.closeModal();
+        this.closeCheckpointWorkTaskModal();
         this.activeShopCounterId = null;
         this.updateShopCounterHUD();
         this.activeFleetTerminalClassId = null;
@@ -31940,20 +32088,15 @@
           objectiveSteps: cps.map(c => c.id),
           currentStepIndex: 0,
           completedSteps: [],
-          qualityScore: 0.98,
+          qualityScore: 0.94,
           startedAtMs: performance.now()
         };
 
+        // Do NOT teleport player onto Checkpoint 1! Face the player & camera toward Checkpoint 1 so they walk/drive there along the 3D GPS route.
         const cp0 = cps[0];
-        if (typeof playerAvatar !== 'undefined' && playerAvatar && !job.requiresVehicle) {
-          playerAvatar.position.set(cp0.x, 0.22, cp0.z + 1.65);
-          playerHeading = Math.PI;
-          playerAvatar.rotation.y = playerHeading;
+        if (typeof playerAvatar !== 'undefined' && playerAvatar) {
           playerAvatar.visible = true;
-          if (typeof camera !== 'undefined' && camera) {
-            camera.position.set(cp0.x + 1.2, 2.4, cp0.z + 5.8);
-            camera.lookAt(cp0.x, 1.1, cp0.z);
-          }
+          this.faceActiveJobCheckpoint(cp0);
         }
 
         if (typeof fetch !== 'undefined') {
@@ -31978,11 +32121,502 @@
         this.updateActiveJobHUD();
         this.saveMasterBibleStateToStorage();
         this.renderActiveTab();
-        showToast(`💼 Started 3D Street Shift: "${job.title}"! Complete 3 checkpoints [E / J] to settle +₦${(job.basePayGN + job.qualityBonusMaxGN - job.disclosedCostsGN).toLocaleString()} GN.`, '💼');
+        const nav0 = this.getCheckpointDistanceAndDirection();
+        const distTxt = nav0 ? `${Math.round(nav0.distM)}m ${nav0.dirLabel}` : 'ahead';
+        showToast(`💼 Shift Started: "${job.title}"! Follow the green 3D arrows (${distTxt}) to Checkpoint 1/3 and perform your hands-on task!`, '💼');
         return { success: true, activeJobShift: { ...this.activeJobShift } };
       },
 
-      advanceActiveJobCheckpoint() {
+      getWorkTaskSpecForCheckpoint(jobId, stepIndex, cp) {
+        const label = (cp && cp.label) ? cp.label : `Checkpoint ${stepIndex + 1}`;
+        const catalog = {
+          job_foot_courier: [
+            {
+              instruction: 'Verify the sender manifest at the Broad Street Dispatch Desk, inspect the tamper-evident wax seal, and log the parcel into your courier pouch.',
+              actions: [
+                { icon: '📋', label: 'Scan Waybill Manifest #104', doneLabel: 'Waybill #104 Scanned & Logged' },
+                { icon: '🔒', label: 'Check Tamper-Proof Security Seal', doneLabel: 'Security Seal Verified Intact' },
+                { icon: '🎒', label: 'Strap Waterproof Parcel into Courier Bag', doneLabel: 'Parcel Secured in Dispatch Pouch' }
+              ],
+              qualityPrompt: 'Dispatch Protocol: A rain cloud is gathering over Marina. How do you protect the legal brief before setting off?',
+              options: [
+                { label: 'Double-wrap in waterproof polythene sleeve & zip inner pouch', delta: 0.03, good: true },
+                { label: 'Carry the paper envelope loosely in your hand to save 5 seconds', delta: -0.05, good: false }
+              ]
+            },
+            {
+              instruction: 'Present the urgent legal brief to the Chambers Clerk at Kakawa Mercantile Chambers and collect the stamped receipt counterfoil.',
+              actions: [
+                { icon: '🔔', label: 'Announce Express Delivery at Chambers Reception', doneLabel: 'Clerk Summoned to Counter' },
+                { icon: '📄', label: 'Hand Over Sealed Legal Brief #104', doneLabel: 'Legal Brief Handed Over Intact' },
+                { icon: '🖋️', label: 'Collect Official Rubber-Stamped Counterfoil', doneLabel: 'Stamped Receipt Collected' }
+              ],
+              qualityPrompt: 'Verification Check: Who must sign the waybill counterfoil for a valid commercial delivery?',
+              options: [
+                { label: 'Authorized Chambers Receiving Clerk with official stamp & time', delta: 0.03, good: true },
+                { label: 'Leave it unattended on the corridor bench without a signature', delta: -0.06, good: false }
+              ]
+            },
+            {
+              instruction: 'Submit the clearing manifest and signed Kakawa counterfoil at the Broad Street Financial Tower dispatch registry to close your run.',
+              actions: [
+                { icon: '🏢', label: 'Present Clearing Manifest at Registry Window', doneLabel: 'Clearing Manifest Submitted' },
+                { icon: '🧾', label: 'Verify Kakawa Stamp & Delivery Time Log', doneLabel: 'Time Log Audited (On Schedule)' },
+                { icon: '✅', label: 'Sign Off Courier Shift Ledger', doneLabel: 'Shift Ledger Signed & Closed' }
+              ],
+              qualityPrompt: 'Final Audit: Before closing the courier pouch, what final step ensures 100% reliability rating?',
+              options: [
+                { label: 'Upload stamped waybill serial number to the Broad St dispatch book', delta: 0.03, good: true },
+                { label: 'Discard the receipt stub before the supervisor checks it', delta: -0.05, good: false }
+              ]
+            }
+          ],
+          job_market_assistant: [
+            {
+              instruction: 'Help Alhaja Biola unload the newly arrived textile bales at Balogun Wholesale Depot, check yardage, and sort by fabric grade.',
+              actions: [
+                { icon: '📦', label: 'Cut Straps & Unpack 12 Ankara Textile Bales', doneLabel: '12 Ankara Bales Unpacked' },
+                { icon: '📏', label: 'Verify 6-Yard Standard Cut Measurements', doneLabel: 'All 6-Yard Cuts Verified' },
+                { icon: '🧺', label: 'Separate Lace & Dutch Wax by Color Palette', doneLabel: 'Fabrics Sorted by Grade & Color' }
+              ],
+              qualityPrompt: 'Quality Check: You spot one bale with a damp outer wrapper from lagoon humidity. What do you do?',
+              options: [
+                { label: 'Remove outer wrap immediately, air-dry clean inner bolts & report to Alhaja', delta: 0.03, good: true },
+                { label: 'Hide the damp bolt at the bottom of the customer pile', delta: -0.05, good: false }
+              ]
+            },
+            {
+              instruction: 'Dress the front display mannequins and attach clear Game Naira price tags for morning wholesale buyers.',
+              actions: [
+                { icon: '👗', label: 'Drape Featured Gold Lace on Front Display Rack', doneLabel: 'Front Display Rack Dressed' },
+                { icon: '🏷️', label: 'Write & Pin Wholesale Price Tags on 20 Bolts', doneLabel: '20 Wholesale Price Tags Pinned' },
+                { icon: '🧹', label: 'Sweep Stall Walkway & Arrange Customer Stools', doneLabel: 'Stall Front Neat & Welcoming' }
+              ],
+              qualityPrompt: 'Customer Service Check: A buyer asks for a 5-bolt bulk discount on Super Wax. How do you handle it?',
+              options: [
+                { label: 'Quote Alhaja Biola’s approved 5-bolt wholesale tier price politely', delta: 0.03, good: true },
+                { label: 'Argue loudly with the customer and refuse to check the price list', delta: -0.05, good: false }
+              ]
+            },
+            {
+              instruction: 'Tally the day’s POS slips and cash receipts against remaining textile bolts in the stall ledger.',
+              actions: [
+                { icon: '🧾', label: 'Count Cash Naira Notes & POS Transfer Slips', doneLabel: 'Cash & POS Receipts Counted' },
+                { icon: '📊', label: 'Match Sold Yardage Against Remaining Stock', doneLabel: 'Stock Inventory 100% Matched' },
+                { icon: '🔐', label: 'Lock Stall Cashbox & Hand Keys to Alhaja Biola', doneLabel: 'Cashbox Locked & Handed Over' }
+              ],
+              qualityPrompt: 'Ledger Reconciliation: Cashbox has ₦500 extra from a customer who forgot change. What is the honorable action?',
+              options: [
+                { label: 'Log the ₦500 surplus in the customer credit book for their next visit', delta: 0.03, good: true },
+                { label: 'Pocket the difference without recording it', delta: -0.06, good: false }
+              ]
+            }
+          ],
+          job_bukka_kitchen_helper: [
+            {
+              instruction: 'Wash and prep the morning market crate of scotch bonnet peppers (ata rodo), plum tomatoes, onions, and ripe plantains for Mama Nkechi.',
+              actions: [
+                { icon: '🚰', label: 'Rinse Tomatoes, Rodo Peppers & Onions in Clean Water', doneLabel: 'Fresh Produce Washed Clean' },
+                { icon: '🔪', label: 'Slice Ripe Plantains Diagonally for Golden Dodo', doneLabel: 'Plantains Sliced Evenly' },
+                { icon: '🫙', label: 'Blend Smoky Pepper Base & Measure Curry/Thyme', doneLabel: 'Smoky Pepper Base Ready' }
+              ],
+              qualityPrompt: 'Kitchen Hygiene Check: Before slicing the ripe plantains, which prep rule do you follow?',
+              options: [
+                { label: 'Sanitize chopping board & knife with hot soapy water first', delta: 0.03, good: true },
+                { label: 'Use an unwashed board from yesterday’s raw fish prep', delta: -0.06, good: false }
+              ]
+            },
+            {
+              instruction: 'Monitor the firewood smokehouse Jollof cauldron and turn the suya skewers so the rice catches the signature party aroma without burning.',
+              actions: [
+                { icon: '🔥', label: 'Regulate Firewood Embers Under Party Jollof Pot', doneLabel: 'Firewood Heat Balanced' },
+                { icon: '🥄', label: 'Fold Steaming Jollof Rice with Wooden Paddle', doneLabel: 'Jollof Stirred & Foil-Sealed' },
+                { icon: '🍢', label: 'Baste Beef Suya Skewers with Yaji Peanut Spice', doneLabel: 'Suya Skewers Spiced & Grilled' }
+              ],
+              qualityPrompt: 'Culinary Technique: How do you achieve authentic smoky Lagos Party Jollof steam without scorching the pot?',
+              options: [
+                { label: 'Seal the pot rim tightly with foil over low glowing embers', delta: 0.03, good: true },
+                { label: 'Pour cold water on top and crank the flame to maximum', delta: -0.05, good: false }
+              ]
+            },
+            {
+              instruction: 'Portion hot Jollof, fried dodo, and grilled suya for Marina lunch commuters and sanitize the serving counter.',
+              actions: [
+                { icon: '🍛', label: 'Dish 18 Steaming Jollof, Dodo & Beef Portions', doneLabel: '18 Commuter Lunch Plates Served' },
+                { icon: '🧃', label: 'Hand Out Chilled Zobo & Malt Drinks with Receipts', doneLabel: 'Drinks & Receipts Issued' },
+                { icon: '🧽', label: 'Wipe Down Stainless Serving Counter & Warmers', doneLabel: 'Serving Counter Spotless' }
+              ],
+              qualityPrompt: 'Service Standard: A regular Marina banker asks for extra pepper sauce on the side. How do you respond?',
+              options: [
+                { label: 'Pack a neat sealed cup of hot ata din-din with a warm smile', delta: 0.03, good: true },
+                { label: 'Ignore the request and slam the takeaway pack shut', delta: -0.05, good: false }
+              ]
+            }
+          ],
+          job_mechanic_apprentice: [
+            {
+              instruction: 'Connect Segun’s OBD-II diagnostic scanner and digital multimeter to the commercial Danfo in Bay 1 and test charging voltage.',
+              actions: [
+                { icon: '🔌', label: 'Plug OBD-II Scanner into Under-Dash Port', doneLabel: 'OBD-II Fault Codes Scanned' },
+                { icon: '🔋', label: 'Probe Alternator Output & Battery Terminals', doneLabel: '14.2V Charging Output Verified' },
+                { icon: '🛢️', label: 'Check Engine Oil Dipstick & Coolant Expansion Tank', doneLabel: 'Oil & Coolant Levels Logged' }
+              ],
+              qualityPrompt: 'Diagnostic Check: The battery terminal has white sulfate buildup. What is the right procedure?',
+              options: [
+                { label: 'Brush terminals clean, apply petroleum jelly & tighten clamp', delta: 0.03, good: true },
+                { label: 'Hammer the loose clamp down without cleaning corrosion', delta: -0.05, good: false }
+              ]
+            },
+            {
+              instruction: 'Inspect the front and rear brake pads, torque-check all wheel lug nuts in a star pattern, and inflate tyres to 38 PSI.',
+              actions: [
+                { icon: '🛞', label: 'Torque-Check 20 Wheel Lug Nuts in Star Sequence', doneLabel: 'All Lug Nuts Torqued to Spec' },
+                { icon: '🛑', label: 'Measure Front Disc Brake Pad Thickness (8mm)', doneLabel: 'Brake Pads Inspected & Cleared' },
+                { icon: '💨', label: 'Calibrate All 4 Tyres to 38 PSI Cold Pressure', doneLabel: 'All 4 Tyres Set to 38 PSI' }
+              ],
+              qualityPrompt: 'Safety Standard: Why must wheel lug nuts be tightened in a star/crisscross pattern?',
+              options: [
+                { label: 'Ensures even clamping force and prevents brake rotor warping', delta: 0.03, good: true },
+                { label: 'Skip half the lug nuts so the wheel comes off faster next time', delta: -0.06, good: false }
+              ]
+            },
+            {
+              instruction: 'Clear diagnostic trouble codes, test-fire the engine with Master Segun, and stamp the roadworthiness inspection sheet.',
+              actions: [
+                { icon: '🔑', label: 'Run Idle RPM & Exhaust Smoke Verification Test', doneLabel: 'Idle RPM Smooth at 750 RPM' },
+                { icon: '🧰', label: 'Wipe Down Spanners & Return Tools to Bay Rack', doneLabel: 'Workshop Tools Cleaned & Racked' },
+                { icon: '📋', label: 'Co-Sign Roadworthiness Sheet with Master Segun', doneLabel: 'Roadworthiness Certificate Signed' }
+              ],
+              qualityPrompt: 'Final Bay Check: Before lowering the hydraulic jack, what safety step is mandatory?',
+              options: [
+                { label: 'Confirm under-chassis is completely clear of tools and stands', delta: 0.03, good: true },
+                { label: 'Drop the hydraulic release valve abruptly without looking', delta: -0.06, good: false }
+              ]
+            }
+          ],
+          job_danfo_conductor_shift: [
+            {
+              instruction: 'Call out the CMS–Broad St–TBS route clearly at CMS Bus Terminal and guide boarding passengers into rows.',
+              actions: [
+                { icon: '📢', label: 'Call Route: "TBS! Broad Street! Enter With Your Change!"', doneLabel: 'Commuters Called to Boarding Door' },
+                { icon: '🪑', label: 'Guide 14 Passengers into 4-4-4-2 Seating Rows', doneLabel: '14 Passengers Seated Orderly' },
+                { icon: '🚪', label: 'Slide Door Clear & Tap Roof Twice ("Oya Carry Go!")', doneLabel: 'Departure Signal Given to Driver' }
+              ],
+              qualityPrompt: 'Boarding Etiquette: An elderly mama with a market basket is boarding at CMS. What do you do?',
+              options: [
+                { label: 'Help lift her basket aboard and offer the front accessible seat', delta: 0.03, good: true },
+                { label: 'Shout at her to hurry up while the bus is already moving', delta: -0.05, good: false }
+              ]
+            },
+            {
+              instruction: 'Collect the ₦300 GN corridor fare from each seated row along Broad Street and issue exact Naira change.',
+              actions: [
+                { icon: '💷', label: 'Collect Fares from Rows 1 & 2 (8 Passengers)', doneLabel: 'Rows 1 & 2 Fares Collected' },
+                { icon: '🪙', label: 'Count & Hand Out Exact ₦200/₦500 Change Notes', doneLabel: 'Exact Change Issued to Commuters' },
+                { icon: '🧾', label: 'Collect Remaining Fares from Rear Bench (6 Pax)', doneLabel: 'All 14 Fares Collected (₦4,200 Gross)' }
+              ],
+              qualityPrompt: 'Fare Reconciliation: A passenger hands you ₦1,000 for a ₦300 fare. How much change do you return?',
+              options: [
+                { label: 'Return exact ₦700 GN change promptly with no delay', delta: 0.03, good: true },
+                { label: 'Pretend to forget their ₦700 change until they shout', delta: -0.06, good: false }
+              ]
+            },
+            {
+              instruction: 'Alert the driver for "Owa O!" at TBS Terminal, ensure a full stop in the layby, and reconcile the trip pool.',
+              actions: [
+                { icon: '🚏', label: 'Signal Driver for Clean Layby Stop at TBS ("Owa O!")', doneLabel: 'Danfo Stopped Safely in TBS Bay' },
+                { icon: '🚶🏾', label: 'Assist All 14 Commuters to Alight Safely Onto Curb', doneLabel: 'All 14 Passengers Alighted Safely' },
+                { icon: '🤝', label: 'Settle Agreed Driver/Conductor Split Sheet', doneLabel: 'Trip Split Sheet Reconciled' }
+              ],
+              qualityPrompt: 'Terminal Safety: When is it safe to open the sliding door for passengers to step down?',
+              options: [
+                { label: 'Only after the Danfo comes to a complete 0 km/h stop at the curb', delta: 0.03, good: true },
+                { label: 'While the bus is still rolling in the middle lane', delta: -0.06, good: false }
+              ]
+            }
+          ]
+        };
+
+        const jobSteps = catalog[jobId];
+        if (jobSteps && jobSteps[stepIndex]) {
+          return jobSteps[stepIndex];
+        }
+
+        // Rich dynamic fallback for Mechanic, Conductor, Graphic Gig, Maintenance, Event Usher, Drivers, Logistics & Civic Steward
+        const stepVerbs = [
+          [
+            { icon: '📋', label: `Inspect Site & Check In: ${label}`, doneLabel: 'Site Inspection & Check-In Logged' },
+            { icon: '🧰', label: 'Prepare Professional Tools & Safety Gear', doneLabel: 'Tools & Safety Gear Ready' },
+            { icon: '⚡', label: 'Execute Initial Station Calibration', doneLabel: 'Station Calibration Verified' }
+          ],
+          [
+            { icon: '🛠️', label: `Perform Core Hands-On Task: ${label}`, doneLabel: 'Core Hands-On Task Executed' },
+            { icon: '🔍', label: 'Verify Output Against Lagos Standard Specs', doneLabel: 'Output Verified to Spec' },
+            { icon: '📝', label: 'Record Operational Metrics in Shift Log', doneLabel: 'Operational Metrics Recorded' }
+          ],
+          [
+            { icon: '✅', label: `Complete Final Handover: ${label}`, doneLabel: 'Final Handover Completed' },
+            { icon: '🧾', label: 'Obtain Supervisor / Client Sign-Off Stamp', doneLabel: 'Supervisor Stamp Obtained' },
+            { icon: '🔒', label: 'Secure Station & File Completion Certificate', doneLabel: 'Completion Certificate Filed' }
+          ]
+        ];
+        return {
+          instruction: `Complete all 3 hands-on operational steps for "${label}" and verify work quality on site.`,
+          actions: stepVerbs[stepIndex % 3],
+          qualityPrompt: `Quality Verification (${label}): How do you complete this step for maximum shift bonus?`,
+          options: [
+            { label: 'Follow full Lagos safety & quality checklist and double-check every detail', delta: 0.03, good: true },
+            { label: 'Rush through the checklist without verifying measurements', delta: -0.05, good: false }
+          ]
+        };
+      },
+
+      triggerPlayerJobCheckpointAction() {
+        if (!this.activeJobShift) {
+          showToast('💼 Open JobsHub [J] and start an active shift first!', 'ℹ️');
+          return { success: false, error: 'NO_ACTIVE_SHIFT' };
+        }
+        if (this.isInsideHomeInterior) {
+          showToast('🚪 Step outside your home first (`[E]` at front door) to walk to the street checkpoint!', '🚪');
+          return { success: false, error: 'INSIDE_HOME' };
+        }
+        const navInfo = this.getCheckpointDistanceAndDirection();
+        if (!navInfo) return { success: false, error: 'INVALID_CHECKPOINT' };
+
+        if (!navInfo.isArrived) {
+          this.faceActiveJobCheckpoint(navInfo.cp);
+          this.syncActiveJobBeacon3D();
+          this.updateActiveJobHUD();
+          AudioEngine.playCashChime();
+          showToast(
+            `🧭 Checkpoint ${navInfo.stepNum}/${navInfo.total} is ${Math.round(navInfo.distM)}m ${navInfo.dirLabel}! Walk/drive along the glowing green 3D street arrows to the beacon first.`,
+            '🧭'
+          );
+          if (typeof showPlayerChatBubble === 'function') {
+            showPlayerChatBubble(`🧭 Heading ${Math.round(navInfo.distM)}m ${navInfo.dirLabel} to Checkpoint ${navInfo.stepNum}/${navInfo.total}!`);
+          }
+          return {
+            success: false,
+            requiresTravel: true,
+            distM: Math.round(navInfo.distM),
+            dirLabel: navInfo.dirLabel,
+            checkpoint: navInfo.cp
+          };
+        }
+
+        return this.openCheckpointWorkTaskModal();
+      },
+
+      openCheckpointWorkTaskModal() {
+        const navInfo = this.getCheckpointDistanceAndDirection();
+        if (!navInfo || !this.activeJobShift) return { success: false, error: 'NO_ACTIVE_SHIFT' };
+        if (!navInfo.isArrived) {
+          return this.triggerPlayerJobCheckpointAction();
+        }
+        const shf = this.activeJobShift;
+        const spec = this.getWorkTaskSpecForCheckpoint(shf.jobId, navInfo.stepIndex, navInfo.cp);
+        this.activeWorkTaskModalState = {
+          shiftId: shf.shiftId,
+          jobId: shf.jobId,
+          stepIndex: navInfo.stepIndex,
+          stepNum: navInfo.stepNum,
+          total: navInfo.total,
+          cp: navInfo.cp,
+          spec,
+          completedActionIndices: [],
+          selectedOptionIndex: null
+        };
+        this.faceActiveJobCheckpoint(navInfo.cp);
+        if (typeof playerAvatar !== 'undefined' && playerAvatar && typeof EkoAnimStateMachine !== 'undefined') {
+          playerAnimTransitionTimer = 0.8;
+          EkoAnimStateMachine.setState(playerAvatar, 'interact');
+        }
+        const modal = document.getElementById('jobshub-work-task-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+        }
+        this.renderCheckpointWorkTaskModal();
+        return {
+          success: true,
+          modalOpened: true,
+          stepNum: navInfo.stepNum,
+          total: navInfo.total
+        };
+      },
+
+      renderCheckpointWorkTaskModal() {
+        const st = this.activeWorkTaskModalState;
+        if (!st || !this.activeJobShift) return;
+        const shf = this.activeJobShift;
+        const badgeEl = document.getElementById('jobshub-work-task-step-badge');
+        if (badgeEl) {
+          badgeEl.innerText = `🛠️ ON-SITE WORK STATION • CHECKPOINT ${st.stepNum} OF ${st.total}`;
+        }
+        const titleEl = document.getElementById('jobshub-work-task-title');
+        if (titleEl) {
+          titleEl.innerText = st.cp.label;
+        }
+        const subEl = document.getElementById('jobshub-work-task-subtitle');
+        if (subEl) {
+          subEl.innerText = `${shf.title} • ${shf.careerFamily}`;
+        }
+        const instEl = document.getElementById('jobshub-work-task-instruction');
+        if (instEl) {
+          instEl.innerText = st.spec.instruction;
+        }
+
+        const totalActions = st.spec.actions.length;
+        const doneActions = st.completedActionIndices.length;
+        const hasQuality = st.selectedOptionIndex !== null;
+        const pct = Math.round(((doneActions + (hasQuality ? 1 : 0)) / (totalActions + 1)) * 100);
+        const progLabel = document.getElementById('jobshub-work-task-progress-label');
+        if (progLabel) {
+          progLabel.innerText = `${doneActions}/${totalActions} Duties + ${hasQuality ? '1/1' : '0/1'} Quality Check (${pct}%)`;
+        }
+        const progBar = document.getElementById('jobshub-work-task-progress-bar');
+        if (progBar) {
+          progBar.style.width = `${pct}%`;
+        }
+
+        const actionsEl = document.getElementById('jobshub-work-task-actions-container');
+        if (actionsEl) {
+          actionsEl.innerHTML = st.spec.actions.map((act, idx) => {
+            const isDone = st.completedActionIndices.includes(idx);
+            const isNext = !isDone && (idx === 0 || st.completedActionIndices.includes(idx - 1));
+            const bg = isDone
+              ? 'rgba(16,185,129,0.22)'
+              : (isNext ? 'linear-gradient(135deg,rgba(56,189,248,0.24),rgba(14,165,233,0.16))' : 'rgba(15,23,42,0.75)');
+            const border = isDone ? '#10B981' : (isNext ? '#38BDF8' : 'rgba(255,255,255,0.12)');
+            return `
+              <button
+                type="button"
+                id="btn-work-subaction-${idx}"
+                onclick="window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.performWorkTaskSubAction(${idx})"
+                style="width:100%; text-align:left; background:${bg}; border:1.5px solid ${border}; border-radius:11px; padding:9px 11px; color:#FFF; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; transition:all 0.15s ease;">
+                <span style="display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:800; color:${isDone ? '#A7F3D0' : '#F8FAFC'};">
+                  <span style="font-size:15px;">${isDone ? '✅' : act.icon}</span>
+                  <span>${idx + 1}. ${isDone ? act.doneLabel : act.label}</span>
+                </span>
+                <span style="font-size:10px; font-weight:900; padding:4px 8px; border-radius:999px; background:${isDone ? 'rgba(16,185,129,0.3)' : (isNext ? '#38BDF8' : 'rgba(255,255,255,0.08)')}; color:${isDone ? '#6EE7B7' : (isNext ? '#0F172A' : '#94A3B8')}; white-space:nowrap;">
+                  ${isDone ? 'DONE ✓' : (isNext ? 'TAP TO DO ⚡' : 'WAITING')}
+                </span>
+              </button>
+            `;
+          }).join('');
+        }
+
+        const qBox = document.getElementById('jobshub-work-task-quality-box');
+        const qPrompt = document.getElementById('jobshub-work-task-quality-prompt');
+        const qOpts = document.getElementById('jobshub-work-task-quality-options');
+        if (qBox && qPrompt && qOpts) {
+          qBox.style.display = 'block';
+          qPrompt.innerText = st.spec.qualityPrompt;
+          qOpts.innerHTML = st.spec.options.map((opt, oIdx) => {
+            const selected = st.selectedOptionIndex === oIdx;
+            const border = selected ? (opt.good ? '#10B981' : '#F59E0B') : 'rgba(255,255,255,0.16)';
+            const bg = selected ? (opt.good ? 'rgba(16,185,129,0.24)' : 'rgba(245,158,11,0.22)') : 'rgba(15,23,42,0.82)';
+            return `
+              <button
+                type="button"
+                id="btn-work-quality-opt-${oIdx}"
+                onclick="window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.selectWorkTaskQualityOption(${oIdx})"
+                style="width:100%; text-align:left; background:${bg}; border:1.5px solid ${border}; border-radius:9px; padding:8px 10px; color:${selected ? '#FFF' : '#E2E8F0'}; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span>${selected ? (opt.good ? '🌟 ' : '⚠️ ') : '○ '}${opt.label}</span>
+                <span style="font-size:9.5px; font-weight:900; color:${selected ? (opt.good ? '#34D399' : '#FBBF24') : '#94A3B8'}; white-space:nowrap;">
+                  ${selected ? (opt.good ? '+QUALITY BONUS' : 'STANDARD') : 'SELECT'}
+                </span>
+              </button>
+            `;
+          }).join('');
+        }
+
+        const submitBtn = document.getElementById('btn-jobshub-work-task-submit');
+        const allReady = doneActions >= totalActions && hasQuality;
+        if (submitBtn) {
+          submitBtn.disabled = !allReady;
+          if (allReady) {
+            submitBtn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
+            submitBtn.style.color = '#062E22';
+            submitBtn.style.cursor = 'pointer';
+            submitBtn.style.boxShadow = '0 6px 18px rgba(16,185,129,0.4)';
+            submitBtn.innerText = st.stepNum >= st.total
+              ? `✅ Sign Off Final Checkpoint ${st.stepNum}/${st.total} & Claim Shift Pay!`
+              : `✅ Sign Off Checkpoint ${st.stepNum}/${st.total} & Unlock Next Stop!`;
+          } else {
+            submitBtn.style.background = 'rgba(51,65,85,0.6)';
+            submitBtn.style.color = '#94A3B8';
+            submitBtn.style.cursor = 'not-allowed';
+            submitBtn.style.boxShadow = 'none';
+            submitBtn.innerText = `🔒 Complete All ${totalActions} Hands-On Duties & Quality Check Above (${doneActions}/${totalActions})`;
+          }
+        }
+      },
+
+      performWorkTaskSubAction(actionIdx) {
+        const st = this.activeWorkTaskModalState;
+        if (!st || !this.activeJobShift) return { success: false, error: 'NO_ACTIVE_WORK_MODAL' };
+        if (actionIdx > 0 && !st.completedActionIndices.includes(actionIdx - 1)) {
+          showToast(`🛠️ Perform Step ${actionIdx} first before Step ${actionIdx + 1}!`, 'ℹ️');
+          return { success: false, error: 'OUT_OF_ORDER' };
+        }
+        if (!st.completedActionIndices.includes(actionIdx)) {
+          st.completedActionIndices.push(actionIdx);
+        }
+        const act = st.spec.actions[actionIdx];
+        if (typeof playerAvatar !== 'undefined' && playerAvatar && typeof EkoAnimStateMachine !== 'undefined') {
+          playerAnimTransitionTimer = 0.65;
+          EkoAnimStateMachine.setState(playerAvatar, 'interact');
+        }
+        if (typeof showPlayerChatBubble === 'function' && act) {
+          showPlayerChatBubble(`${act.icon} ${act.doneLabel}!`);
+        }
+        AudioEngine.playCashChime();
+        this.renderCheckpointWorkTaskModal();
+        return {
+          success: true,
+          completedActionIndices: [...st.completedActionIndices]
+        };
+      },
+
+      selectWorkTaskQualityOption(optIdx) {
+        const st = this.activeWorkTaskModalState;
+        if (!st || !this.activeJobShift) return { success: false, error: 'NO_ACTIVE_WORK_MODAL' };
+        const opt = st.spec.options[optIdx];
+        if (!opt) return { success: false, error: 'INVALID_OPTION' };
+        st.selectedOptionIndex = optIdx;
+        AudioEngine.playCashChime();
+        this.renderCheckpointWorkTaskModal();
+        return {
+          success: true,
+          selectedOptionIndex: optIdx,
+          good: Boolean(opt.good)
+        };
+      },
+
+      submitCompletedWorkTaskModal() {
+        const st = this.activeWorkTaskModalState;
+        if (!st || !this.activeJobShift) return { success: false, error: 'NO_ACTIVE_WORK_MODAL' };
+        if (st.completedActionIndices.length < st.spec.actions.length || st.selectedOptionIndex === null) {
+          showToast('🛠️ Complete all 3 hands-on duties and select a quality verification option first!', '⚠️', 'error');
+          return { success: false, error: 'INCOMPLETE_WORK_TASK' };
+        }
+        const chosenOpt = st.spec.options[st.selectedOptionIndex];
+        if (chosenOpt && typeof chosenOpt.delta === 'number') {
+          this.activeJobShift.qualityScore = Math.max(0.75, Math.min(1.0, (this.activeJobShift.qualityScore || 0.94) + chosenOpt.delta));
+        }
+        this.closeCheckpointWorkTaskModal();
+        return this.advanceActiveJobCheckpoint({ fromWorkModal: true });
+      },
+
+      closeCheckpointWorkTaskModal() {
+        this.activeWorkTaskModalState = null;
+        const modal = document.getElementById('jobshub-work-task-modal');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      },
+
+      advanceActiveJobCheckpoint(opts = {}) {
         if (!this.activeJobShift) return { success: false, error: 'NO_ACTIVE_SHIFT' };
         const shf = this.activeJobShift;
         const stepIndex = shf.currentStepIndex;
@@ -31997,17 +32631,23 @@
           toggleVehicleMount();
         }
         if (typeof playerAvatar !== 'undefined' && playerAvatar && !shf.requiresVehicle) {
-          playerAvatar.position.set(cp.x, 0.22, cp.z + 1.15);
-          playerHeading = Math.PI;
-          playerAvatar.rotation.y = playerHeading;
+          const curDist = Math.hypot(cp.x - playerAvatar.position.x, cp.z - playerAvatar.position.z);
+          // Only snap position when invoked programmatically from far away; when player walked here, keep their natural position!
+          if (!opts.fromWorkModal && curDist > 12.0) {
+            playerAvatar.position.set(cp.x, 0.22, cp.z + 1.15);
+            playerHeading = Math.PI;
+            playerAvatar.rotation.y = playerHeading;
+            if (typeof camera !== 'undefined' && camera) {
+              camera.position.set(cp.x + 1.1, 2.35, cp.z + 5.2);
+              camera.lookAt(cp.x, 1.05, cp.z);
+            }
+          } else {
+            this.faceActiveJobCheckpoint(cp);
+          }
           playerAvatar.visible = true;
           if (typeof EkoAnimStateMachine !== 'undefined') {
-            playerAnimTransitionTimer = 0.45;
-            EkoAnimStateMachine.setState(playerAvatar, 'interact');
-          }
-          if (typeof camera !== 'undefined' && camera) {
-            camera.position.set(cp.x + 1.1, 2.35, cp.z + 5.2);
-            camera.lookAt(cp.x, 1.05, cp.z);
+            playerAnimTransitionTimer = 0.65;
+            EkoAnimStateMachine.setState(playerAvatar, 'celebrate');
           }
         }
         if (typeof showPlayerChatBubble === 'function' && cp.bubble) {
@@ -32036,6 +32676,7 @@
           const qScore = shf.qualityScore || 0.98;
           const completedEvidence = [...shf.completedSteps];
           this.activeJobShift = null;
+          this.closeCheckpointWorkTaskModal();
           this.syncActiveJobBeacon3D();
           this.updateActiveJobHUD();
           const settleRes = this.completeJobShift(finishedJobId, qScore, completedEvidence, finishedInstanceId);
@@ -32049,10 +32690,15 @@
         }
 
         this.syncActiveJobBeacon3D();
+        const nextCp = shf.checkpoints[shf.currentStepIndex];
+        if (nextCp) {
+          this.faceActiveJobCheckpoint(nextCp);
+        }
         this.updateActiveJobHUD();
         this.saveMasterBibleStateToStorage();
-        const nextCp = shf.checkpoints[shf.currentStepIndex];
-        showToast(`✅ Checkpoint ${shf.currentStepIndex}/${shf.checkpoints.length} Complete! Next: ${nextCp.label}`, '🎯');
+        const nextNav = this.getCheckpointDistanceAndDirection();
+        const nextDistTxt = nextNav ? ` (${Math.round(nextNav.distM)}m ${nextNav.dirLabel})` : '';
+        showToast(`✅ Checkpoint ${shf.currentStepIndex}/${shf.checkpoints.length} Verified! Walk${nextDistTxt} to Next Stop: ${nextCp.label}`, '🎯');
         return {
           success: true,
           shiftCompleted: false,
@@ -35476,6 +36122,11 @@
           const totalCps = shf.checkpoints.length;
           const cp = shf.checkpoints[cpIdx];
           const maxNet = (shf.basePayGN || 950) + (shf.qualityBonusMaxGN || 350) - (shf.disclosedCostsGN || 50);
+          const navInfo = typeof life.getCheckpointDistanceAndDirection === 'function'
+            ? life.getCheckpointDistanceAndDirection()
+            : null;
+          const isArrived = Boolean(navInfo && navInfo.isArrived);
+          const distLabel = navInfo ? `${Math.round(navInfo.distM)}m ${navInfo.dirLabel}` : '';
           return {
             objectiveId: `obj_active_shift_cp_${cpIdx + 1}`,
             stepNumber: Math.max(9, this.completedObjectiveIds.length),
@@ -35487,13 +36138,17 @@
             shiftTotalSteps: totalCps,
             checkpointCoords: { x: cp.x, z: cp.z },
             title: `Complete Checkpoint ${cpIdx + 1} of ${totalCps}: ${cp.label}`,
-            why: `Active Shift: ${shf.title} (${shf.requiresVehicle ? 'Vehicle Shift' : 'No-Vehicle Entry'}) • Settles +₦${maxNet.toLocaleString()} GN upon 3/3 completion.`,
-            actionLabel: `${devicePrefix}Complete Checkpoint ${cpIdx + 1}/${totalCps} [E / J]`,
+            why: isArrived
+              ? `✅ On Site at Checkpoint ${cpIdx + 1}/${totalCps}! Tap below or press [E]/[J] to open the Work Station and perform your 3 hands-on duties.`
+              : `🧭 Walk/Drive ${distLabel} following the green 3D arrows to the beacon (${cp.label}), then perform your hands-on task on site!`,
+            actionLabel: isArrived
+              ? `${devicePrefix}🛠️ Perform Work Task ${cpIdx + 1}/${totalCps} [E / J]`
+              : `${devicePrefix}🧭 Face Beacon ${cpIdx + 1}/${totalCps} (${distLabel})`,
             fn: 'advanceSingleJobCheckpointStep',
             isCompactDrivingMode: false,
             blocker: this.lastBlocker,
             secondary: [
-              { title: `Checkpoint ${cpIdx + 1}/${totalCps} Beacon (${cp.x.toFixed(0)}, ${cp.z.toFixed(0)})`, reason: cp.label },
+              { title: `Checkpoint ${cpIdx + 1}/${totalCps} Beacon (${cp.x.toFixed(0)}, ${cp.z.toFixed(0)})`, reason: isArrived ? '✅ Arrived on site — ready to work!' : `📍 ${distLabel} — walk/drive to beacon` },
               { title: `Expected Net Settlement: +₦${maxNet.toLocaleString()} GN`, reason: `Base ₦${shf.basePayGN} + Bonus ₦${shf.qualityBonusMaxGN} - Cost ₦${shf.disclosedCostsGN}` }
             ]
           };
@@ -35572,17 +36227,17 @@
         } else if (fnName === 'advanceSingleJobCheckpointStep') {
           if (life.isInsideHomeInterior) life.exitHomeInterior();
           if (!life.activeJobShift) life.startActiveJobShift('job_foot_courier');
-          life.advanceActiveJobCheckpoint();
+          life.triggerPlayerJobCheckpointAction();
         } else if (fnName === 'reachJobLocationStep') {
           if (life.isInsideHomeInterior) life.exitHomeInterior();
           if (!life.activeJobShift) life.startActiveJobShift('job_foot_courier');
-          life.advanceActiveJobCheckpoint();
+          life.triggerPlayerJobCheckpointAction();
         } else if (fnName === 'completeJobGameplayStep' || fnName === 'claimJobSettlementStep') {
           if (life.isInsideHomeInterior) life.exitHomeInterior();
           if (!life.activeJobShift) {
             life.startActiveJobShift('job_foot_courier');
           } else {
-            life.advanceActiveJobCheckpoint();
+            life.triggerPlayerJobCheckpointAction();
           }
         } else if (fnName === 'boardTaxiPassengerStep') {
           if (!isDriving && typeof quickSwitchVehicle === 'function') quickSwitchVehicle('sedan');
@@ -38579,7 +39234,8 @@
           { handle: '#m47-wardrobe-modal > div > div:first-child', box: '#m47-wardrobe-modal > div', mode: 'transform' },
           { handle: '#m48-qualification-modal > div > div:first-child', box: '#m48-qualification-modal > div', mode: 'transform' },
           { handle: '#m481-danfo-boarding-modal > div > div:first-child', box: '#m481-danfo-boarding-modal > div', mode: 'transform' },
-          { handle: '#m47-auth-modal > div > div:first-child', box: '#m47-auth-modal > div', mode: 'transform' }
+          { handle: '#m47-auth-modal > div > div:first-child', box: '#m47-auth-modal > div', mode: 'transform' },
+          { handle: '#jobshub-work-task-header', box: '#jobshub-work-task-card', mode: 'transform' }
         ];
         for (const p of pairs) {
           const handleEl = startEl.closest(p.handle);
@@ -38634,11 +39290,12 @@
             const maxLeft = Math.max(4, vw - Math.min(d.width, 80));
             const nextLeft = Math.max(minLeft, Math.min(maxLeft, d.startLeft + deltaX));
             const nextTop = Math.max(4, Math.min(vh - 48, d.startTop + deltaY));
-            d.boxEl.style.left = `${Math.round(nextLeft)}px`;
-            d.boxEl.style.top = `${Math.round(nextTop)}px`;
-            d.boxEl.style.right = 'auto';
-            d.boxEl.style.bottom = 'auto';
-            d.boxEl.style.transform = 'none';
+            d.boxEl.style.setProperty('left', `${Math.round(nextLeft)}px`, 'important');
+            d.boxEl.style.setProperty('top', `${Math.round(nextTop)}px`, 'important');
+            d.boxEl.style.setProperty('right', 'auto', 'important');
+            d.boxEl.style.setProperty('bottom', 'auto', 'important');
+            d.boxEl.style.setProperty('height', 'auto', 'important');
+            d.boxEl.style.setProperty('transform', 'none', 'important');
             d.boxEl.style.margin = '0';
           } else {
             const maxX = Math.max(60, Math.round(vw * 0.45));
@@ -39135,7 +39792,14 @@
       syncProximityActionBar(nearbyVehicleKey) {
         const bar = document.getElementById('m481-vehicle-proximity-bar');
         if (!bar) return;
-        if (this.state !== 'ON_FOOT' || !nearbyVehicleKey) {
+        const life = window.__PROJECT_EKO_LIFE__;
+        const atOnFootJobCheckpoint = Boolean(
+          life && (
+            life.activeWorkTaskModalState ||
+            (life.activeJobShift && !life.activeJobShift.requiresVehicle && life.getCheckpointDistanceAndDirection && life.getCheckpointDistanceAndDirection()?.isArrived)
+          )
+        );
+        if (this.state !== 'ON_FOOT' || !nearbyVehicleKey || atOnFootJobCheckpoint) {
           bar.style.display = 'none';
           bar.dataset.vehicleKey = '';
           return;
