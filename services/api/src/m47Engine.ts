@@ -3378,6 +3378,20 @@ export async function handleM47ApiRoutes(
     if (body.characterCreated === true && !acc.characterCreated) {
       acc.characterCreated = true;
     }
+    if (acc.characterCreated) {
+      for (const reqObj of ['obj_01_register_or_guest', 'obj_02_create_character', 'obj_03_claim_starter_profile']) {
+        if (!acc.onboarding.completedObjectiveIds.includes(reqObj)) {
+          acc.onboarding.completedObjectiveIds.push(reqObj);
+        }
+      }
+    }
+    if (Array.isArray(body.completedObjectiveIds)) {
+      for (const rawId of body.completedObjectiveIds) {
+        if (typeof rawId === 'string' && /^obj_[a-z0-9_]+$/i.test(rawId) && !acc.onboarding.completedObjectiveIds.includes(rawId)) {
+          acc.onboarding.completedObjectiveIds.push(rawId);
+        }
+      }
+    }
     if (typeof body.equippedOutfitId === 'string') {
       acc.onboarding.equippedOutfitId = body.equippedOutfitId;
       acc.wearableEquipped = body.equippedOutfitId;

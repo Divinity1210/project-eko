@@ -29037,6 +29037,7 @@
             const resolvedAccId = this.getStorageAccountId();
             const payload = {
               accountId: resolvedAccId,
+              characterCreated: Boolean(authObj && authObj.characterCreated),
               starterProfileId: this.starterProfileId,
               currentHousingTier: this.currentHousingTier,
               currentResidenceId: this.currentResidenceId,
@@ -29090,6 +29091,9 @@
                   sessionToken: authObj.sessionToken,
                   accountId: authObj.accountId,
                   characterCreated: Boolean(authObj.characterCreated),
+                  completedObjectiveIds: (typeof window !== 'undefined' && window.__PROJECT_EKO_GUIDE__ && Array.isArray(window.__PROJECT_EKO_GUIDE__.completedObjectiveIds))
+                    ? window.__PROJECT_EKO_GUIDE__.completedObjectiveIds
+                    : undefined,
                   characterAppearance: liveAppearance || null,
                   gameNairaBalance: payload.playerBalanceGN,
                   activeJobShift: this.activeJobShift || null,
@@ -35265,6 +35269,14 @@
 
       getCurrentEvaluation() {
         const life = window.__PROJECT_EKO_LIFE__;
+        const auth = window.__PROJECT_EKO_AUTH__;
+        if (auth && auth.characterCreated) {
+          for (const reqId of ['obj_01_register_or_guest', 'obj_02_create_character', 'obj_03_claim_starter_profile']) {
+            if (!this.completedObjectiveIds.includes(reqId)) {
+              this.completedObjectiveIds.push(reqId);
+            }
+          }
+        }
         const inHome = Boolean(life && life.isInsideHomeInterior);
         const isDriving = Boolean(player && player.inVehicle);
         const promptSystem = window.__PROJECT_EKO_INPUT_PROMPTS__;
@@ -35706,11 +35718,15 @@
 
         if (this.minimized) {
           hud.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-              <span style="font-size:11px;font-weight:800;color:#10B981;">🧭 NEXT: ${evalState.title.slice(0, 32)}...</span>
-              <div style="display:flex;gap:4px;">
-                <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:#0F172A;color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:3px 7px;font-size:10px;font-weight:700;cursor:pointer;">What Next?</button>
-                <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer;">▲</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+              <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
+                <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:900;color:#10B981;white-space:nowrap;">🧭 ${completedCount}/${this.steps.length}</span>
+                <span id="m47-guide-primary-title" style="font-size:11px;font-weight:800;color:#F8FAFC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${evalState.title}</span>
+              </div>
+              <div style="display:flex;gap:4px;flex-shrink:0;">
+                <button type="button" id="m47-guide-primary-action-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="background:#10B981;color:#052E16;border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:900;cursor:pointer;">▶ Go</button>
+                <button type="button" id="m47-what-next-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:#0F172A;color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:4px 7px;font-size:10px;font-weight:700;cursor:pointer;">📋</button>
+                <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" title="Expand EkoGuide" style="background:rgba(255,255,255,0.12);color:#F8FAFC;border:none;border-radius:6px;padding:4px 7px;font-size:10px;cursor:pointer;">▲</button>
               </div>
             </div>
           `;
@@ -35718,31 +35734,34 @@
         }
 
         hud.innerHTML = `
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px;">
-            <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:800;color:#10B981;letter-spacing:0.04em;">🧭 EKOGUIDE • STEP ${completedCount}/${this.steps.length} (${pct}%)</span>
-            <div style="display:flex;gap:4px;">
-              <button type="button" id="m47-what-next-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:rgba(56,189,248,0.16);color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;">What should I do next?</button>
-              <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" title="Minimise Next Step" style="background:rgba(255,255,255,0.08);color:#CBD5E1;border:none;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer;">—</button>
+          <div class="m47-guide-header-row" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px;">
+            <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:800;color:#10B981;letter-spacing:0.03em;white-space:nowrap;">🧭 EKOGUIDE • STEP ${completedCount}/${this.steps.length} (${pct}%)</span>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+              <button type="button" id="m47-what-next-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:rgba(56,189,248,0.16);color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                <span class="m47-desktop-label">What should I do next?</span>
+                <span class="m47-mobile-label">📋 Steps</span>
+              </button>
+              <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" title="Minimise Next Step" style="background:rgba(255,255,255,0.1);color:#CBD5E1;border:none;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:900;cursor:pointer;">—</button>
             </div>
           </div>
-          <div id="m47-guide-overall-journey-line" style="font-size:9.5px;font-weight:700;color:#6EE7B7;margin-bottom:4px;">OVERALL JOURNEY: ${evalState.overallJourneyLabel || `First Day in Lagos — Step ${completedCount} of ${this.steps.length}`}</div>
+          <div id="m47-guide-overall-journey-line" class="m47-guide-journey-line" style="font-size:9.5px;font-weight:700;color:#6EE7B7;margin-bottom:3px;">OVERALL JOURNEY: ${evalState.overallJourneyLabel || `First Day in Lagos — Step ${completedCount} of ${this.steps.length}`}</div>
           ${evalState.isActiveJobShift ? `
-            <div id="m47-guide-active-shift-substep" style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);border-radius:7px;padding:4px 7px;margin-bottom:5px;font-size:10px;color:#7DD3FC;font-weight:800;">
+            <div id="m47-guide-active-shift-substep" style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);border-radius:7px;padding:4px 7px;margin-bottom:4px;font-size:10px;color:#7DD3FC;font-weight:800;">
               💼 CURRENT SHIFT ACTION: Step ${evalState.shiftStepNumber} of ${evalState.shiftTotalSteps} (${evalState.shiftTitle})
             </div>
           ` : ''}
-          <div id="m47-guide-primary-title" style="font-size:12px;font-weight:800;color:#F8FAFC;line-height:1.25;margin-bottom:2px;">${evalState.title}</div>
-          <div style="font-size:10px;color:#94A3B8;line-height:1.3;margin-bottom:6px;">${evalState.why}</div>
+          <div id="m47-guide-primary-title" class="m47-guide-title" style="font-size:12px;font-weight:800;color:#F8FAFC;line-height:1.25;margin-bottom:2px;">${evalState.title}</div>
+          <div class="m47-guide-why" style="font-size:10px;color:#94A3B8;line-height:1.3;margin-bottom:6px;">${evalState.why}</div>
           ${evalState.blocker ? `
             <div id="m47-guide-blocker-box" style="background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.45);border-radius:7px;padding:5px 7px;margin-bottom:6px;font-size:10px;color:#FDE68A;">
               <div><strong>⚠️ Blocker:</strong> ${evalState.blocker.reason}</div>
               <button type="button" id="m47-guide-recovery-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.blocker.recoveryFnName}')" style="margin-top:4px;background:#F59E0B;color:#0F172A;border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:800;cursor:pointer;">💡 Recovery: ${evalState.blocker.recoveryLabel}</button>
             </div>
           ` : ''}
-          <div style="display:flex;align-items:center;gap:5px;">
-            <button type="button" id="m47-guide-primary-action-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="flex:1;background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:7px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;min-height:32px;">▶ ${evalState.actionLabel}</button>
-            <button type="button" id="m47-guide-wardrobe-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWardrobeModal()" style="background:rgba(244,180,26,0.15);color:#F4B41A;border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 8px;font-size:10px;font-weight:800;cursor:pointer;min-height:32px;">👗 Wardrobe</button>
-            <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.openModal()" style="background:rgba(255,255,255,0.08);color:#E2E8F0;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:6px 8px;font-size:10px;font-weight:700;cursor:pointer;min-height:32px;">📈 Career Map</button>
+          <div class="m47-guide-actions" style="display:flex;align-items:center;gap:5px;">
+            <button type="button" id="m47-guide-primary-action-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="flex:1;background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:7px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">▶ ${evalState.actionLabel}</button>
+            <button type="button" id="m47-guide-wardrobe-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWardrobeModal()" style="background:rgba(244,180,26,0.15);color:#F4B41A;border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 8px;font-size:10px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;">👗 Wardrobe</button>
+            <button type="button" class="m47-guide-career-btn" onclick="window.__PROJECT_EKO_PROGRESS__.openModal()" style="background:rgba(255,255,255,0.08);color:#E2E8F0;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:6px 8px;font-size:10px;font-weight:700;cursor:pointer;min-height:32px;white-space:nowrap;">📈 <span class="m47-desktop-label">Career Map</span><span class="m47-mobile-label">Map</span></button>
           </div>
         `;
       },
@@ -35931,11 +35950,29 @@
         // Check if this exact account already completed character creation locally before a serverless cold-start
         let localCharacterCreated = false;
         try {
-          const rawSess = typeof localStorage !== 'undefined' ? localStorage.getItem(this.SESSION_KEY) : null;
-          if (rawSess) {
-            const parsedSess = JSON.parse(rawSess);
-            if (parsedSess && parsedSess.accountId === acc.accountId && parsedSess.characterCreated === true) {
-              localCharacterCreated = true;
+          if (typeof localStorage !== 'undefined') {
+            const rawSess = localStorage.getItem(this.SESSION_KEY);
+            if (rawSess) {
+              const parsedSess = JSON.parse(rawSess);
+              if (parsedSess && parsedSess.accountId === acc.accountId && parsedSess.characterCreated === true) {
+                localCharacterCreated = true;
+              }
+            }
+            const rawBible = localStorage.getItem(`__PROJECT_EKO_MASTER_BIBLE_V1__:${acc.accountId}`);
+            if (rawBible) {
+              const parsedBible = JSON.parse(rawBible);
+              if (parsedBible && parsedBible.accountId === acc.accountId) {
+                const bApp = parsedBible.characterAppearance || {};
+                if (
+                  parsedBible.characterCreated === true ||
+                  bApp.gender === 'female' ||
+                  (bApp.topColor && String(bApp.topColor).toUpperCase() !== '#10B981') ||
+                  (bApp.bottomColor && String(bApp.bottomColor).toUpperCase() !== '#1E293B') ||
+                  (bApp.hairStyle && bApp.hairStyle !== 'low_fade')
+                ) {
+                  localCharacterCreated = true;
+                }
+              }
             }
           }
         } catch (_) {}
@@ -36046,9 +36083,20 @@
         }
         EkoGuideEngine.loadLocalState(acc.accountId);
         if (acc.onboarding && Array.isArray(acc.onboarding.completedObjectiveIds) && (acc.characterCreated || acc.onboarding.completedObjectiveIds.length > 0)) {
-          EkoGuideEngine.completedObjectiveIds = [...acc.onboarding.completedObjectiveIds];
-          EkoGuideEngine.tutorialSkipped = Boolean(acc.onboarding.tutorialSkipped);
-          EkoGuideEngine.tutorialCompleted = Boolean(acc.onboarding.tutorialCompleted);
+          if (acc.characterCreated || isSwitchingAccount) {
+            EkoGuideEngine.completedObjectiveIds = Array.from(new Set([...(EkoGuideEngine.completedObjectiveIds || []), ...acc.onboarding.completedObjectiveIds]));
+          } else {
+            EkoGuideEngine.completedObjectiveIds = Array.from(new Set([...(EkoGuideEngine.completedObjectiveIds || []), ...acc.onboarding.completedObjectiveIds]));
+          }
+          if (this.characterCreated) {
+            for (const reqId of ['obj_01_register_or_guest', 'obj_02_create_character', 'obj_03_claim_starter_profile']) {
+              if (!EkoGuideEngine.completedObjectiveIds.includes(reqId)) {
+                EkoGuideEngine.completedObjectiveIds.push(reqId);
+              }
+            }
+          }
+          EkoGuideEngine.tutorialSkipped = Boolean(acc.onboarding.tutorialSkipped || EkoGuideEngine.tutorialSkipped);
+          EkoGuideEngine.tutorialCompleted = Boolean(acc.onboarding.tutorialCompleted || EkoGuideEngine.tutorialCompleted);
           EkoGuideEngine.saveLocalState(acc.accountId);
         }
         if (guideState && (acc.characterCreated || !localCharacterCreated)) {
@@ -37911,6 +37959,12 @@
           justify-content: flex-end;
           pointer-events: auto;
         }
+        .m47-mobile-label {
+          display: none;
+        }
+        .m47-desktop-label {
+          display: inline;
+        }
         #m47-ekoguide-hud {
           position: fixed;
           top: calc(env(safe-area-inset-top, 0px) + 122px);
@@ -37927,19 +37981,54 @@
           pointer-events: auto;
         }
         @media (max-width: 900px) {
+          .m47-desktop-label {
+            display: none !important;
+          }
+          .m47-mobile-label {
+            display: inline !important;
+          }
           #m47-top-pills {
             display: none;
           }
           #m47-ekoguide-hud {
-            top: calc(env(safe-area-inset-top, 0px) + 112px);
-            left: 8px;
-            right: auto;
-            width: min(330px, calc(100vw - 16px));
-            max-height: 70px;
+            top: calc(env(safe-area-inset-top, 0px) + 64px);
+            left: 10px;
+            right: 10px;
+            width: auto;
+            max-height: none;
+            overflow: visible;
+            padding: 7px 10px;
+            border-radius: 11px;
+            background: rgba(15, 23, 42, 0.90);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.42);
+          }
+          #m47-ekoguide-hud .m47-guide-journey-line {
+            font-size: 9px !important;
+            margin-bottom: 2px !important;
+            white-space: nowrap;
             overflow: hidden;
-            padding: 6px 8px;
-            background: rgba(15, 23, 42, 0.84);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            text-overflow: ellipsis;
+          }
+          #m47-ekoguide-hud .m47-guide-title {
+            font-size: 11.5px !important;
+            margin-bottom: 1px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          #m47-ekoguide-hud .m47-guide-why {
+            font-size: 9.5px !important;
+            margin-bottom: 5px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          #m47-ekoguide-hud #m47-guide-primary-action-btn,
+          #m47-ekoguide-hud #m47-guide-wardrobe-btn,
+          #m47-ekoguide-hud .m47-guide-career-btn {
+            min-height: 30px !important;
+            padding: 5px 8px !important;
+            font-size: 10.5px !important;
           }
         }
         @media (max-height: 480px) {
