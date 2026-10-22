@@ -3375,9 +3375,60 @@ export async function handleM47ApiRoutes(
     if (typeof body.inHome === 'boolean') {
       acc.onboarding.inHome = body.inHome;
     }
+    if (body.characterCreated === true && !acc.characterCreated) {
+      acc.characterCreated = true;
+    }
     if (typeof body.equippedOutfitId === 'string') {
       acc.onboarding.equippedOutfitId = body.equippedOutfitId;
       acc.wearableEquipped = body.equippedOutfitId;
+    }
+    if (body.characterAppearance && typeof body.characterAppearance === 'object') {
+      const ca = body.characterAppearance as Record<string, any>;
+      if (acc.characterCreated && !acc.character) {
+        const rawGender = String(ca.gender || 'male').toLowerCase() === 'female' ? 'female' : 'male';
+        acc.character = {
+          displayName: acc.username,
+          appearance: {
+            gender: rawGender,
+            styleSet: (ca.styleSet || 'casual') as 'casual' | 'casual2' | 'smart' | 'party',
+            fabricStyle: (ca.fabricStyle || 'ankara') as 'ankara' | 'asooke' | 'plain',
+            bodyType: String(ca.bodyType || 'athletic_lagos'),
+            skinTone: String(ca.skinTone || '#6B3E26'),
+            hairStyle: String(ca.hairStyle || (rawGender === 'female' ? 'braids_classic' : 'low_fade')),
+            outfitPreset: String(ca.outfitId || ca.customOutfitId || ca.outfitPreset || body.equippedOutfitId || 'outfit_street_hustler'),
+            shoesStyle: String(ca.shoesStyle || 'white_sneakers'),
+            bagStyle: String(ca.bagStyle || 'none'),
+            topColor: String(ca.topColor || (rawGender === 'female' ? '#EC4899' : '#10B981')),
+            bottomColor: String(ca.bottomColor || '#1E293B'),
+            hairColor: String(ca.hairColor || '#1A1110'),
+            shoeColor: String(ca.shoeColor || '#F8FAFC'),
+            bagColor: String(ca.bagColor || '#D97706'),
+            accentColor: String(ca.accentColor || '#F4B41A'),
+          },
+          starterProfileId: String(body.starterProfileId || 'profile_new_arrival'),
+          starterHomeId: 'home_vi_selfcon_starter',
+          selectedCareerId: 'career_danfo_driver',
+          selectedLifeGoalId: 'goal_first_car',
+          createdAt: Date.now(),
+        };
+      } else if (acc.character && acc.character.appearance) {
+        const ap = acc.character.appearance as Record<string, any>;
+        for (const k of [
+          'gender', 'styleSet', 'fabricStyle', 'bodyType', 'skinTone', 'hairStyle',
+          'outfitPreset', 'outfitId', 'shoesStyle', 'bagStyle',
+          'topColor', 'bottomColor', 'hairColor', 'shoeColor', 'bagColor', 'accentColor',
+        ]) {
+          if (typeof ca[k] === 'string' && ca[k].trim()) {
+            ap[k] = ca[k].trim();
+          }
+        }
+        if (typeof ca.customOutfitId === 'string' && ca.customOutfitId.trim()) {
+          ap.outfitId = ca.customOutfitId.trim();
+        }
+      }
+    }
+    if (typeof body.equippedOutfitId === 'string' && acc.character && acc.character.appearance) {
+      (acc.character.appearance as any).outfitId = body.equippedOutfitId;
     }
     if (Array.isArray(body.ownedOutfits)) {
       acc.onboarding.ownedOutfits = body.ownedOutfits;

@@ -484,7 +484,7 @@ function readJsonBody(req: http.IncomingMessage): Promise<any> {
 type AuthenticatedRealtimePlayer = { accountId: string; username: string; appearance?: Record<string, unknown> | null };
 
 const APPEARANCE_STRING_KEYS = [
-  'gender', 'styleSet', 'fabricStyle', 'bodyType', 'skinTone', 'hairStyle', 'outfitPreset',
+  'gender', 'styleSet', 'fabricStyle', 'bodyType', 'skinTone', 'hairStyle', 'outfitPreset', 'outfitId',
   'shoesStyle', 'bagStyle', 'topColor', 'bottomColor', 'hairColor', 'shoeColor', 'bagColor', 'accentColor',
 ];
 
@@ -762,6 +762,11 @@ const server = http.createServer(async (req, res) => {
     }
 
     const prevPresence = zonePlayers.get(p.playerId);
+    const serverAppearance = sanitizePublicAppearance(authenticatedPlayer?.appearance);
+    const clientAppearance = sanitizePublicAppearance(p.appearance);
+    const mergedAppearance = (serverAppearance || clientAppearance)
+      ? { ...(serverAppearance || {}), ...(clientAppearance || {}) }
+      : null;
     const updatedPresence: ExtendedPlayerPresence = {
       playerId: p.playerId,
       username: p.username || prevPresence?.username || p.playerId,
@@ -781,7 +786,7 @@ const server = http.createServer(async (req, res) => {
       inVehicleId: p.inVehicleId !== undefined ? p.inVehicleId : (prevPresence?.inVehicleId || null),
       isDriving: Boolean(p.isDriving),
       avatarState: p.avatarState || prevPresence?.avatarState || 'idle',
-      appearance: sanitizePublicAppearance(authenticatedPlayer?.appearance) || prevPresence?.appearance || null,
+      appearance: mergedAppearance || prevPresence?.appearance || null,
       lastSeen: now,
     };
 

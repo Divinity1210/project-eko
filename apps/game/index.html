@@ -9324,6 +9324,9 @@
         charGroup.currentVisualColors = { topHex, bottomHex, accentHex, shoeHex };
         charGroup.has3DHeadwearAttachment = Boolean(charGroup.outfitHeadMesh);
         charGroup.has3DSpineGarmentAttachment = Boolean(charGroup.outfitSpineMesh);
+        if (typeof playerAvatar !== 'undefined' && charGroup === playerAvatar && typeof EkoMultiplayerEngine !== 'undefined' && EkoMultiplayerEngine && typeof EkoMultiplayerEngine.notifyAppearanceChanged === 'function') {
+          EkoMultiplayerEngine.notifyAppearanceChanged();
+        }
         return true;
       },
 
@@ -10004,6 +10007,9 @@
           skinHex: skinCol,
           hairHex: hairCol
         };
+        charGroup.currentVisualOutfitId = 'outfit_street_hustler';
+        charGroup.activeOutfitId = 'outfit_street_hustler';
+        charGroup.currentVisualColors = { topHex: topCol, bottomHex: bottomCol, accentHex: accentCol, shoeHex: shoeCol };
         skinnedMesh.add(bRoot);
         charGroup.add(skinnedMesh);
 
@@ -27638,11 +27644,8 @@
         if (!this.selectedHomeFurnitureInstanceId && this.placedFurniture && this.placedFurniture.length > 0) {
           this.selectedHomeFurnitureInstanceId = this.placedFurniture[0].instanceId;
         }
-        if (typeof playerAvatar !== 'undefined' && playerAvatar && typeof EkoHumanCharacterSystem !== 'undefined' && typeof EkoHumanCharacterSystem.applyOutfitToCharacter === 'function') {
-          const initialFit = this.outfits.find(o => o.id === this.currentOutfitId) || this.outfits[0];
-          if (initialFit) {
-            EkoHumanCharacterSystem.applyOutfitToCharacter(playerAvatar, initialFit);
-          }
+        if (typeof playerAvatar !== 'undefined' && playerAvatar) {
+          this.equipOutfit(this.currentOutfitId || 'outfit_street_hustler', { silent: true, silentToast: true, suppressEvent: true, useCustomPalette: true });
         }
         this.build3DWayOfLifeWorld();
         this.rebuild3DHomeInteriorMesh();
@@ -28629,12 +28632,16 @@
               (opts && (opts.useCustomPalette || opts.silent)) ||
               (app.customOutfitId && app.customOutfitId === fit.id)
             );
+            const resolvedTopHex = (useCustomPalette && app.topHex !== undefined) ? app.topHex : fit.topHex;
+            const resolvedBottomHex = (useCustomPalette && app.bottomHex !== undefined) ? app.bottomHex : fit.bottomHex;
+            const resolvedShoeHex = (useCustomPalette && app.shoeHex !== undefined) ? app.shoeHex : fit.shoeHex;
+            const resolvedAccentHex = (useCustomPalette && app.accentHex !== undefined) ? app.accentHex : fit.accentHex;
             EkoHumanCharacterSystem.applyOutfitToCharacter(playerAvatar, {
               ...fit,
-              topHex: (useCustomPalette && app.topHex !== undefined) ? app.topHex : fit.topHex,
-              bottomHex: (useCustomPalette && app.bottomHex !== undefined) ? app.bottomHex : fit.bottomHex,
-              shoeHex: (useCustomPalette && app.shoeHex !== undefined) ? app.shoeHex : fit.shoeHex,
-              accentHex: (useCustomPalette && app.accentHex !== undefined) ? app.accentHex : fit.accentHex,
+              topHex: resolvedTopHex,
+              bottomHex: resolvedBottomHex,
+              shoeHex: resolvedShoeHex,
+              accentHex: resolvedAccentHex,
               bagHex: app.bagHex !== undefined ? app.bagHex : 0xD97706,
               skinHex: app.skinHex,
               hairHex: app.hairHex,
@@ -28643,6 +28650,16 @@
               hairStyle: app.hairStyle,
               bagStyle: app.bagStyle || 'none'
             });
+            const hexStr = (n, fb) => (typeof n === 'number' && Number.isFinite(n))
+              ? ('#' + Math.max(0, Math.min(0xFFFFFF, Math.round(n))).toString(16).padStart(6, '0').toUpperCase())
+              : fb;
+            if (this.characterAppearance) {
+              this.characterAppearance.equippedOutfitId = fit.id;
+              this.characterAppearance.liveTopColor = hexStr(resolvedTopHex, '#10B981');
+              this.characterAppearance.liveBottomColor = hexStr(resolvedBottomHex, '#1E293B');
+              this.characterAppearance.liveShoeColor = hexStr(resolvedShoeHex, '#F8FAFC');
+              this.characterAppearance.liveAccentColor = hexStr(resolvedAccentHex, '#F4B41A');
+            }
           }
           if (typeof EkoAnimStateMachine !== 'undefined') {
             playerAnimTransitionTimer = 0.65;
@@ -29063,12 +29080,17 @@
             localStorage.setItem(`__PROJECT_EKO_MASTER_BIBLE_V1__:${resolvedAccId}`, serialized);
             localStorage.setItem('__PROJECT_EKO_MASTER_BIBLE_V1__', serialized);
             if (authObj && authObj.sessionToken && typeof fetch !== 'undefined') {
+              const liveAppearance = (typeof EkoMultiplayerEngine !== 'undefined' && EkoMultiplayerEngine && typeof EkoMultiplayerEngine.getLocalPlayerAppearancePayload === 'function')
+                ? EkoMultiplayerEngine.getLocalPlayerAppearancePayload()
+                : this.characterAppearance;
               fetch('http://localhost:3001/api/v1/journey/sync-state', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   sessionToken: authObj.sessionToken,
                   accountId: authObj.accountId,
+                  characterCreated: Boolean(authObj.characterCreated),
+                  characterAppearance: liveAppearance || null,
                   gameNairaBalance: payload.playerBalanceGN,
                   activeJobShift: this.activeJobShift || null,
                   ownedOutfits: this.ownedOutfitIds,
@@ -31126,9 +31148,8 @@
         if (typeof window !== 'undefined' && (window.innerWidth <= 768 || window.innerHeight <= 540)) {
           this.homePlannerExpanded = false;
         }
-        if (typeof playerAvatar !== 'undefined' && playerAvatar && typeof EkoHumanCharacterSystem !== 'undefined' && typeof EkoHumanCharacterSystem.applyOutfitToCharacter === 'function') {
-          const curFit = this.outfits.find(o => o.id === this.currentOutfitId) || this.outfits[0];
-          if (curFit) EkoHumanCharacterSystem.applyOutfitToCharacter(playerAvatar, curFit);
+        if (typeof playerAvatar !== 'undefined' && playerAvatar) {
+          this.equipOutfit(this.currentOutfitId || 'outfit_street_hustler', { silent: true, silentToast: true, suppressEvent: true, useCustomPalette: true });
         }
         this.syncHomeBodyClass();
         this.updateShopCounterHUD();
@@ -35906,7 +35927,20 @@
         this.accountId = acc.accountId;
         this.username = (acc.character && acc.character.displayName) || acc.username;
         this.isGuest = Boolean(acc.isGuest);
-        this.characterCreated = Boolean(acc.characterCreated);
+
+        // Check if this exact account already completed character creation locally before a serverless cold-start
+        let localCharacterCreated = false;
+        try {
+          const rawSess = typeof localStorage !== 'undefined' ? localStorage.getItem(this.SESSION_KEY) : null;
+          if (rawSess) {
+            const parsedSess = JSON.parse(rawSess);
+            if (parsedSess && parsedSess.accountId === acc.accountId && parsedSess.characterCreated === true) {
+              localCharacterCreated = true;
+            }
+          }
+        } catch (_) {}
+
+        this.characterCreated = Boolean(acc.characterCreated || localCharacterCreated);
         if (acc.character && acc.character.starterProfileId) {
           this.starterProfileId = acc.character.starterProfileId;
           const found = this.starterProfiles.find(p => p.id === this.starterProfileId);
@@ -35980,12 +36014,12 @@
         if (window.__PROJECT_EKO_LIFE__) {
           const life = window.__PROJECT_EKO_LIFE__;
           // Ensure strict per-account character & life state isolation:
-          if (isSwitchingAccount || !acc.characterCreated) {
+          if (isSwitchingAccount || !this.characterCreated) {
             if (typeof life.resetStateForIsolatedAccount === 'function') {
               life.resetStateForIsolatedAccount(acc.accountId);
             }
           }
-          if (acc.characterCreated && typeof life.loadMasterBibleStateFromStorage === 'function') {
+          if (this.characterCreated && typeof life.loadMasterBibleStateFromStorage === 'function') {
             life.loadMasterBibleStateFromStorage(acc.accountId);
           }
           if (acc.onboarding && Array.isArray(acc.onboarding.ownedOutfits) && acc.onboarding.ownedOutfits.length > 0) {
@@ -35995,7 +36029,11 @@
             life.currentOutfitId = acc.onboarding.equippedOutfitId;
           }
           if (acc.characterCreated && acc.character && acc.character.appearance) {
+            const savedEquipped = (acc.onboarding && acc.onboarding.equippedOutfitId) || life.currentOutfitId;
             this.previewCharacterAppearance(true);
+            if (savedEquipped && savedEquipped !== life.currentOutfitId) {
+              life.equipOutfit(savedEquipped, { silent: true, silentToast: true, suppressEvent: true });
+            }
           }
           if (acc.onboarding && acc.onboarding.activeJobShift !== undefined) {
             life.activeJobShift = acc.onboarding.activeJobShift;
@@ -36007,13 +36045,13 @@
           }
         }
         EkoGuideEngine.loadLocalState(acc.accountId);
-        if (acc.onboarding && Array.isArray(acc.onboarding.completedObjectiveIds)) {
+        if (acc.onboarding && Array.isArray(acc.onboarding.completedObjectiveIds) && (acc.characterCreated || acc.onboarding.completedObjectiveIds.length > 0)) {
           EkoGuideEngine.completedObjectiveIds = [...acc.onboarding.completedObjectiveIds];
           EkoGuideEngine.tutorialSkipped = Boolean(acc.onboarding.tutorialSkipped);
           EkoGuideEngine.tutorialCompleted = Boolean(acc.onboarding.tutorialCompleted);
           EkoGuideEngine.saveLocalState(acc.accountId);
         }
-        if (guideState) {
+        if (guideState && (acc.characterCreated || !localCharacterCreated)) {
           EkoGuideEngine.applyServerGuideState(guideState);
         }
         try {
@@ -36022,6 +36060,7 @@
             accountId: this.accountId,
             username: this.username,
             isGuest: this.isGuest,
+            characterCreated: this.characterCreated,
             starterProfileId: this.starterProfileId
           }));
         } catch (_) {}
@@ -36228,6 +36267,31 @@
         if (bagColEl) this.charForm.bagColor = bagColEl.value;
       },
 
+      syncDomFromCharForm() {
+        const setVal = (id, val) => {
+          const el = document.getElementById(id);
+          if (el && val !== undefined && val !== null && el.value !== String(val)) {
+            el.value = String(val);
+          }
+        };
+        setVal('m47-char-displayname', this.charForm.displayName);
+        setVal('m47-char-profile', this.charForm.starterProfileId);
+        setVal('m47-char-gender', this.charForm.gender);
+        setVal('m47-char-styleset', this.charForm.styleSet);
+        setVal('m47-char-fabric', this.charForm.fabricStyle);
+        setVal('m47-char-body', this.charForm.bodyType);
+        setVal('m47-char-skin', this.charForm.skinTone);
+        setVal('m47-char-hair', this.charForm.hairStyle);
+        setVal('m47-char-outfit', this.charForm.outfitPreset);
+        setVal('m47-char-shoes', this.charForm.shoesStyle);
+        setVal('m47-char-bag', this.charForm.bagStyle);
+        setVal('m47-char-topcolor', this.charForm.topColor);
+        setVal('m47-char-bottomcolor', this.charForm.bottomColor);
+        setVal('m47-char-haircolor', this.charForm.hairColor);
+        setVal('m47-char-shoecolor', this.charForm.shoeColor);
+        setVal('m47-char-bagcolor', this.charForm.bagColor);
+      },
+
       onOutfitPresetChanged(newPreset) {
         this.syncCharFormFromDom();
         this.charForm.outfitPreset = newPreset;
@@ -36254,7 +36318,11 @@
       },
 
       previewCharacterAppearance(skipDomSync = false) {
-        if (!skipDomSync) this.syncCharFormFromDom();
+        if (!skipDomSync) {
+          this.syncCharFormFromDom();
+        } else {
+          this.syncDomFromCharForm();
+        }
 
         const parseHex = (str, fallback) => {
           const n = parseInt(String(str || '').replace('#', '0x'), 16);
@@ -36874,7 +36942,7 @@
             this.renderModal();
             return false;
           }
-          this.previewCharacterAppearance();
+          this.previewCharacterAppearance(true);
           this.applyAccountState(data.account, data.guideState);
           if (window.__PROJECT_EKO_LIFE__) {
             const life = window.__PROJECT_EKO_LIFE__;
@@ -37328,6 +37396,71 @@
         }, 1500);
       },
 
+      _appearanceSyncTimer: null,
+      notifyAppearanceChanged() {
+        if (this._appearanceSyncTimer) clearTimeout(this._appearanceSyncTimer);
+        this._appearanceSyncTimer = setTimeout(() => {
+          this._appearanceSyncTimer = null;
+          this.sendHeartbeat();
+        }, 60);
+      },
+
+      getLocalPlayerAppearancePayload() {
+        const toHexStr = (val, fallback) => {
+          if (typeof val === 'number' && Number.isFinite(val)) {
+            return '#' + Math.max(0, Math.min(0xFFFFFF, Math.round(val))).toString(16).padStart(6, '0').toUpperCase();
+          }
+          if (typeof val === 'string' && /^#[0-9a-fA-F]{6}$/.test(val.trim())) {
+            return val.trim().toUpperCase();
+          }
+          return fallback;
+        };
+        const life = typeof window !== 'undefined' ? window.__PROJECT_EKO_LIFE__ : null;
+        const auth = typeof window !== 'undefined' ? window.__PROJECT_EKO_AUTH__ : null;
+        const lifeApp = (life && life.characterAppearance) ? life.characterAppearance : {};
+        const cf = (auth && auth.charForm) ? auth.charForm : {};
+        const av = (typeof playerAvatar !== 'undefined' && playerAvatar) ? playerAvatar : null;
+        const ud = (av && av.userData) ? av.userData : {};
+        const vc = (av && av.currentVisualColors) ? av.currentVisualColors : {};
+
+        const gender = (ud.gender || lifeApp.gender || cf.gender || 'male') === 'female' ? 'female' : 'male';
+        const bodyType = ud.bodyType || lifeApp.bodyType || cf.bodyType || 'athletic_lagos';
+        const outfitId = (av && av.currentVisualOutfitId) || (life && life.currentOutfitId) || lifeApp.customOutfitId || 'outfit_street_hustler';
+        const outfitPreset = cf.outfitPreset || outfitId;
+        const hairStyle = (ud.hairStyle !== undefined && ud.hairStyle !== '') ? ud.hairStyle : (lifeApp.hairStyle || cf.hairStyle || (gender === 'female' ? 'braids_classic' : 'low_fade'));
+        const bagStyle = (ud.bagStyle !== undefined && ud.bagStyle !== '') ? ud.bagStyle : (lifeApp.bagStyle || cf.bagStyle || 'none');
+        const shoesStyle = lifeApp.shoesStyle || cf.shoesStyle || 'white_sneakers';
+        const styleSet = lifeApp.styleSet || cf.styleSet || 'casual';
+        const fabricStyle = lifeApp.fabricStyle || cf.fabricStyle || 'ankara';
+
+        const skinTone = toHexStr(ud.skinHex !== undefined ? ud.skinHex : (lifeApp.skinTone || cf.skinTone), '#6B3E26');
+        const hairColor = toHexStr(ud.hairHex !== undefined ? ud.hairHex : (lifeApp.hairColor || cf.hairColor), '#1A1110');
+        const topColor = toHexStr(vc.topHex !== undefined ? vc.topHex : (lifeApp.liveTopColor || lifeApp.topHex || lifeApp.topColor || cf.topColor), gender === 'female' ? '#EC4899' : '#10B981');
+        const bottomColor = toHexStr(vc.bottomHex !== undefined ? vc.bottomHex : (lifeApp.liveBottomColor || lifeApp.bottomHex || lifeApp.bottomColor || cf.bottomColor), '#1E293B');
+        const shoeColor = toHexStr(vc.shoeHex !== undefined ? vc.shoeHex : (lifeApp.liveShoeColor || lifeApp.shoeHex || lifeApp.shoeColor || cf.shoeColor), '#F8FAFC');
+        const bagColor = toHexStr(ud.bagHex !== undefined ? ud.bagHex : (lifeApp.bagHex !== undefined ? lifeApp.bagHex : (lifeApp.bagColor || cf.bagColor)), '#D97706');
+        const accentColor = toHexStr(vc.accentHex !== undefined ? vc.accentHex : (lifeApp.liveAccentColor || lifeApp.accentColor || cf.accentColor), '#F4B41A');
+
+        return {
+          gender,
+          styleSet,
+          fabricStyle,
+          bodyType,
+          skinTone,
+          hairStyle,
+          outfitPreset,
+          outfitId,
+          shoesStyle,
+          bagStyle,
+          topColor,
+          bottomColor,
+          hairColor,
+          shoeColor,
+          bagColor,
+          accentColor
+        };
+      },
+
       async sendHeartbeat() {
         try {
           const auth = window.__PROJECT_EKO_AUTH__;
@@ -37345,7 +37478,8 @@
               rotationY: typeof playerHeading === 'number' ? Number(playerHeading.toFixed(2)) : 0,
               inVehicleId: (player && player.inVehicle) ? 'veh_player_active' : null,
               isDriving: Boolean(player && player.inVehicle),
-              avatarState: (player && player.inVehicle) ? 'driving' : 'idle'
+              avatarState: (player && player.inVehicle) ? 'driving' : 'idle',
+              appearance: this.getLocalPlayerAppearancePayload()
             })
           });
           if (res.ok) {
@@ -37438,10 +37572,12 @@
         const bottomHex = hex(ap.bottomColor, 0x1E293B);
         const shoeHex = hex(ap.shoeColor, 0xF8FAFC);
         const bagHex = hex(ap.bagColor, 0x92400E);
+        const accentHex = hex(ap.accentColor, 0xF4B41A);
         const authSys = window.__PROJECT_EKO_AUTH__;
+        const rawOutfitRef = ap.outfitId || ap.outfitPreset || 'outfit_street_hustler';
         const outfitId = (authSys && typeof authSys.resolveOutfitIdFromPreset === 'function')
-          ? authSys.resolveOutfitIdFromPreset(ap.outfitPreset)
-          : 'outfit_street_hustler';
+          ? authSys.resolveOutfitIdFromPreset(rawOutfitRef)
+          : rawOutfitRef;
 
         const ch = EkoHumanCharacterSystem.createHumanoid({
           name: hp.username || 'Lagos Citizen',
@@ -37454,7 +37590,7 @@
           topCol: topHex,
           bottomCol: bottomHex,
           shoeCol: shoeHex,
-          accentCol: 0xF4B41A
+          accentCol: accentHex
         });
         ch.userData.gender = gender;
         ch.userData.bodyType = bodyType;
@@ -37469,7 +37605,8 @@
           topHex,
           bottomHex,
           shoeHex,
-          bagHex
+          bagHex,
+          accentHex
         });
         if (ch.skinnedMesh) ch.skinnedMesh.castShadow = true;
 
