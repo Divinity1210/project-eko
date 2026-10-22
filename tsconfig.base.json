@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@project-eko/contracts": ["packages/contracts/dist"],
+      "@project-eko/physics": ["packages/physics/dist"],
+      "@project-eko/economy": ["packages/economy/dist"],
+      "@project-eko/world": ["packages/world/dist"],
+      "@project-eko/game-core": ["packages/game-core/dist"],
+      "@project-eko/telemetry": ["packages/telemetry/dist"],
+      "@project-eko/anti-cheat": ["packages/anti-cheat/dist"],
+      "@project-eko/ui": ["packages/ui/dist"],
+      "@project-eko/assets": ["packages/assets/dist"]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Runtime & local state stores
+services/api/data/
+services/realtime/data/
+*.tmp
+*.jsonl
+
+# Environment & secrets (keep *.env.example tracked)
+.env
+.env.*
+!.env.example
+!*.env.example
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*

@@ -1,0 +1,1589 @@
+{
+  "milestone": "M4.8.1 — Danfo Input Repair, Seating, Routes, Fares & Conductor System",
+  "timestamp": "2026-10-21T13:52:55.382Z",
+  "consoleErrors": [],
+  "pageErrors": [],
+  "tests": [
+    {
+      "id": 1,
+      "name": "Pressing F near the Apex Danfo 14 boards as passenger and opens the Danfo Route/Stop/Fare selector",
+      "passed": true,
+      "details": {
+        "audit": {
+          "version": "1.0.0-m4.8.1",
+          "totalActions": 28,
+          "fBoundToBoardPassenger": true,
+          "fRemovedFromFlexCard": true,
+          "flexCardShortcut": "KeyU",
+          "flexCardButtonId": "btn-header-flex-card",
+          "zeroConflicts": true
+        },
+        "stateAfterF": "PASSENGER",
+        "seatId": "front_passenger",
+        "seatLabel": "Row 0 Center: Front Cab Bench Seat (#1)",
+        "flexCardOpen": false,
+        "flexBtnText": "🪪 Flex Card",
+        "danfoBoardingModalVisible": true,
+        "lastDispatchedAction": {
+          "code": "KeyF",
+          "actionId": "vehicle.board_passenger",
+          "context": "ON_FOOT_VEHICLE_PROXIMITY",
+          "flexCardOpen": false,
+          "timestamp": "2026-10-21T13:53:21.688Z",
+          "resultSummary": {
+            "allowed": true,
+            "state": "PASSENGER",
+            "seatId": "front_passenger"
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "Confirming F does NOT open Flex Card during vehicle boarding (and (F) removed from Flex Card button)",
+      "passed": true,
+      "details": {
+        "audit": {
+          "version": "1.0.0-m4.8.1",
+          "totalActions": 28,
+          "fBoundToBoardPassenger": true,
+          "fRemovedFromFlexCard": true,
+          "flexCardShortcut": "KeyU",
+          "flexCardButtonId": "btn-header-flex-card",
+          "zeroConflicts": true
+        },
+        "stateAfterF": "PASSENGER",
+        "seatId": "front_passenger",
+        "seatLabel": "Row 0 Center: Front Cab Bench Seat (#1)",
+        "flexCardOpen": false,
+        "flexBtnText": "🪪 Flex Card",
+        "danfoBoardingModalVisible": true,
+        "lastDispatchedAction": {
+          "code": "KeyF",
+          "actionId": "vehicle.board_passenger",
+          "context": "ON_FOOT_VEHICLE_PROXIMITY",
+          "flexCardOpen": false,
+          "timestamp": "2026-10-21T13:53:21.688Z",
+          "resultSummary": {
+            "allowed": true,
+            "state": "PASSENGER",
+            "seatId": "front_passenger"
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "Opening Flex Card through its visible button (#btn-header-flex-card) and non-conflicting KeyU shortcut",
+      "passed": true,
+      "details": {
+        "openedViaButton": true,
+        "closedAfterDismiss": true,
+        "openedViaKeyU": true
+      }
+    },
+    {
+      "id": 4,
+      "name": "Pressing E near the Apex Danfo 14 enters DRIVER state when authorised",
+      "passed": true,
+      "details": {
+        "driverState": "DRIVER",
+        "isDriving": true,
+        "isConductorMode": false,
+        "vehicleId": "veh_danfo_coop",
+        "seatId": "driver"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Inspecting the Apex Danfo 14 interior and verifying the canonical 14-position layout (1 Driver + 1 Conductor + 12 Passenger Seats)",
+      "passed": true,
+      "details": {
+        "modelName": "Apex Danfo 14",
+        "totalCapacity": 14,
+        "driverPositions": 1,
+        "conductorPositions": 1,
+        "passengerSeatCapacity": 12,
+        "occupiedPassengerCount": 2,
+        "availablePassengerCount": 10,
+        "doorwayEntrance": {
+          "side": "RIGHT_SLIDING_DOOR",
+          "localX": 1.14,
+          "localY": 0.54,
+          "localZMin": 0.16,
+          "localZMax": 1.2,
+          "aisleX": 0.22
+        },
+        "hollowCabinInterior": true,
+        "cabinDriverFigurePresent": true,
+        "seatAssembliesCount": 13,
+        "rendered3DSeatSubMeshesCount": 39
+      }
+    },
+    {
+      "id": 6,
+      "name": "Boarding through the right-side sliding passenger entrance along the aisle and sitting on an actual seat anchor",
+      "passed": true,
+      "details": {
+        "boardRes": {
+          "allowed": true,
+          "state": "PASSENGER",
+          "vehicleId": "veh_danfo_coop",
+          "seatId": "rear_passenger_2",
+          "seatLabel": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+          "seatOffset": {
+            "x": -0.18,
+            "y": 0.68,
+            "z": 0.62
+          },
+          "eyeOffset": {
+            "x": -0.18,
+            "y": 1.44,
+            "z": 0.62
+          },
+          "boardingPath": {
+            "entranceDoor": "RIGHT_SLIDING_DOOR",
+            "waypoints": [
+              {
+                "step": "curbApproach",
+                "localOffset": {
+                  "x": 1.55,
+                  "y": 0.05,
+                  "z": 0.68
+                }
+              },
+              {
+                "step": "slidingDoorStep",
+                "localOffset": {
+                  "x": 0.92,
+                  "y": 0.54,
+                  "z": 0.68
+                }
+              },
+              {
+                "step": "aisleAlign",
+                "localOffset": {
+                  "x": 0.22,
+                  "y": 0.54,
+                  "z": 0.62
+                }
+              },
+              {
+                "step": "seatAnchor",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": 0.62
+                }
+              }
+            ]
+          }
+        },
+        "state": "PASSENGER",
+        "seatId": "rear_passenger_2",
+        "seatLabel": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+        "occupiedSeatOffset": {
+          "x": -0.18,
+          "y": 0.68,
+          "z": 0.62
+        },
+        "worldDeltaY": 0.54,
+        "insideCabinBounds": true,
+        "playerAvatarVisible": true,
+        "boardingWaypoints": [
+          {
+            "step": "curbApproach",
+            "localOffset": {
+              "x": 1.55,
+              "y": 0.05,
+              "z": 0.68
+            }
+          },
+          {
+            "step": "slidingDoorStep",
+            "localOffset": {
+              "x": 0.92,
+              "y": 0.54,
+              "z": 0.68
+            }
+          },
+          {
+            "step": "aisleAlign",
+            "localOffset": {
+              "x": 0.22,
+              "y": 0.54,
+              "z": 0.62
+            }
+          },
+          {
+            "step": "seatAnchor",
+            "localOffset": {
+              "x": -0.18,
+              "y": 0.68,
+              "z": 0.62
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "name": "Verifying that the passenger is inside the cabin and not floating above the roof or clipping into the road",
+      "passed": true,
+      "details": {
+        "boardRes": {
+          "allowed": true,
+          "state": "PASSENGER",
+          "vehicleId": "veh_danfo_coop",
+          "seatId": "rear_passenger_2",
+          "seatLabel": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+          "seatOffset": {
+            "x": -0.18,
+            "y": 0.68,
+            "z": 0.62
+          },
+          "eyeOffset": {
+            "x": -0.18,
+            "y": 1.44,
+            "z": 0.62
+          },
+          "boardingPath": {
+            "entranceDoor": "RIGHT_SLIDING_DOOR",
+            "waypoints": [
+              {
+                "step": "curbApproach",
+                "localOffset": {
+                  "x": 1.55,
+                  "y": 0.05,
+                  "z": 0.68
+                }
+              },
+              {
+                "step": "slidingDoorStep",
+                "localOffset": {
+                  "x": 0.92,
+                  "y": 0.54,
+                  "z": 0.68
+                }
+              },
+              {
+                "step": "aisleAlign",
+                "localOffset": {
+                  "x": 0.22,
+                  "y": 0.54,
+                  "z": 0.62
+                }
+              },
+              {
+                "step": "seatAnchor",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": 0.62
+                }
+              }
+            ]
+          }
+        },
+        "state": "PASSENGER",
+        "seatId": "rear_passenger_2",
+        "seatLabel": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+        "occupiedSeatOffset": {
+          "x": -0.18,
+          "y": 0.68,
+          "z": 0.62
+        },
+        "worldDeltaY": 0.54,
+        "insideCabinBounds": true,
+        "playerAvatarVisible": true,
+        "boardingWaypoints": [
+          {
+            "step": "curbApproach",
+            "localOffset": {
+              "x": 1.55,
+              "y": 0.05,
+              "z": 0.68
+            }
+          },
+          {
+            "step": "slidingDoorStep",
+            "localOffset": {
+              "x": 0.92,
+              "y": 0.54,
+              "z": 0.68
+            }
+          },
+          {
+            "step": "aisleAlign",
+            "localOffset": {
+              "x": 0.22,
+              "y": 0.54,
+              "z": 0.62
+            }
+          },
+          {
+            "step": "seatAnchor",
+            "localOffset": {
+              "x": -0.18,
+              "y": 0.68,
+              "z": 0.62
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "name": "Selecting a valid stop on the Danfo route and viewing the calculated stop-based fare before confirming (1 stop=150 GN, 3 stops=350 GN, 4 stops=450 GN)",
+      "passed": true,
+      "details": {
+        "quote1StopFare": 150,
+        "quote3StopsFare": 350,
+        "quote4StopsFare": 450
+      }
+    },
+    {
+      "id": 9,
+      "name": "Paying the fare (350 GN with 500 GN note -> 150 GN change) and verifying the Game Naira ledger debit (5000 -> 4650 GN)",
+      "passed": true,
+      "details": {
+        "client": {
+          "allowed": true,
+          "state": "PASSENGER",
+          "seatId": "rear_passenger_2",
+          "ticket": {
+            "ticketId": "tkt_1792590804950",
+            "eventId": "ev_m481_test_ride_3stops",
+            "vehicleId": "veh_danfo_coop",
+            "seatId": "rear_passenger_2",
+            "seatLabel": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS Terminal → Broad St → Marina → TBS Gate",
+            "originStopId": "stop_cms",
+            "originStopName": "CMS Bus Terminal",
+            "destinationStopId": "stop_broad_south",
+            "destinationStopName": "Broad St South (Marina Junction)",
+            "stopsCount": 3,
+            "farePaidGN": 350,
+            "tenderedNoteGN": 500,
+            "changeReturnedGN": 150,
+            "driverShareGN": 245,
+            "conductorShareGN": 105,
+            "balanceBeforeGN": 5000,
+            "balanceAfterGN": 4650,
+            "paidAt": "2026-10-21T13:53:24.950Z"
+          },
+          "quote": {
+            "valid": true,
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS Terminal → Broad St → Marina → TBS Gate",
+            "direction": "NORTHBOUND",
+            "corridorLabel": "CMS – Broad Street – Marina – TBS Corridor",
+            "originStop": {
+              "stopId": "stop_cms",
+              "name": "CMS Bus Terminal",
+              "index": 0,
+              "worldX": -110.2,
+              "worldZ": -211,
+              "landmark": "Cathedral Church & CMS Ferry Terminal"
+            },
+            "destinationStop": {
+              "stopId": "stop_broad_south",
+              "name": "Broad St South (Marina Junction)",
+              "index": 3,
+              "worldX": -110.2,
+              "worldZ": -35,
+              "landmark": "Marina Financial Crossing"
+            },
+            "stopsCount": 3,
+            "distanceMeters": 176,
+            "baseFareGN": 350,
+            "weatherSurchargeGN": 0,
+            "totalFareGN": 350,
+            "driverShareGN": 245,
+            "conductorShareGN": 105,
+            "tenderedNoteGN": 500,
+            "changeDueGN": 150,
+            "currency": "GN"
+          },
+          "balanceBeforeGN": 5000,
+          "balanceAfterGN": 4650
+        },
+        "server": {
+          "ok": true,
+          "allowed": true,
+          "httpStatus": 200,
+          "duplicateIgnored": false,
+          "idempotentReplay": false,
+          "fareSettled": true,
+          "role": "PASSENGER",
+          "seat": {
+            "seatId": "front_passenger",
+            "role": "PASSENGER",
+            "label": "Row 0 Center: Front Cab Bench Seat (#1)",
+            "localOffset": {
+              "x": 0.12,
+              "y": 0.68,
+              "z": 1.68
+            },
+            "eyeOffset": {
+              "x": 0.12,
+              "y": 1.44,
+              "z": 1.68
+            },
+            "occupantId": "usr_m481_api_pax",
+            "occupantName": "API Commuter",
+            "occupantKind": "HUMAN_PLAYER",
+            "occupiedAt": 1792590804955
+          },
+          "vehicle": {
+            "vehicleId": "veh_danfo_coop",
+            "vehicleKey": "danfo",
+            "displayName": "Apex Danfo 14 Commercial Minibus (12 Pax + 1 Driver + 1 Conductor)",
+            "ownershipMode": "EMPLOYER_ASSIGNED",
+            "ownerId": "org_cms_motor_park_union",
+            "ownerName": "CMS Motor Park Co-op Fleet",
+            "authorizedDriverIds": [
+              "*"
+            ],
+            "requiredQualification": null,
+            "drivingState": "PARKED",
+            "seats": {
+              "driver": {
+                "seatId": "driver",
+                "role": "DRIVER",
+                "label": "Row 0 Left: Driver Cockpit Seat",
+                "localOffset": {
+                  "x": -0.62,
+                  "y": 0.68,
+                  "z": 1.68
+                },
+                "eyeOffset": {
+                  "x": -0.62,
+                  "y": 1.46,
+                  "z": 1.68
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "conductor_step": {
+                "seatId": "conductor_step",
+                "role": "CONDUCTOR",
+                "label": "Sliding-Door Entrance: Conductor Step & Grab Rail",
+                "localOffset": {
+                  "x": 0.88,
+                  "y": 0.56,
+                  "z": 0.68
+                },
+                "eyeOffset": {
+                  "x": 0.88,
+                  "y": 1.52,
+                  "z": 0.68
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "front_passenger": {
+                "seatId": "front_passenger",
+                "role": "PASSENGER",
+                "label": "Row 0 Center: Front Cab Bench Seat (#1)",
+                "localOffset": {
+                  "x": 0.12,
+                  "y": 0.68,
+                  "z": 1.68
+                },
+                "eyeOffset": {
+                  "x": 0.12,
+                  "y": 1.44,
+                  "z": 1.68
+                },
+                "occupantId": "usr_m481_api_pax",
+                "occupantName": "API Commuter",
+                "occupantKind": "HUMAN_PLAYER",
+                "occupiedAt": 1792590804955
+              },
+              "front_passenger_window": {
+                "seatId": "front_passenger_window",
+                "role": "PASSENGER",
+                "label": "Row 0 Right: Front Cab Window Seat (#2)",
+                "localOffset": {
+                  "x": 0.68,
+                  "y": 0.68,
+                  "z": 1.68
+                },
+                "eyeOffset": {
+                  "x": 0.68,
+                  "y": 1.44,
+                  "z": 1.68
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_1": {
+                "seatId": "rear_passenger_1",
+                "role": "PASSENGER",
+                "label": "Row 1 Left: Window Seat (#3)",
+                "localOffset": {
+                  "x": -0.74,
+                  "y": 0.68,
+                  "z": 0.62
+                },
+                "eyeOffset": {
+                  "x": -0.74,
+                  "y": 1.44,
+                  "z": 0.62
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_2": {
+                "seatId": "rear_passenger_2",
+                "role": "PASSENGER",
+                "label": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": 0.62
+                },
+                "eyeOffset": {
+                  "x": -0.18,
+                  "y": 1.44,
+                  "z": 0.62
+                },
+                "occupantId": "usr_eko_hustler_01",
+                "occupantName": "Amaka_Driver",
+                "occupantKind": "HUMAN_PLAYER",
+                "occupiedAt": 1792590804953
+              },
+              "rear_passenger_3": {
+                "seatId": "rear_passenger_3",
+                "role": "PASSENGER",
+                "label": "Row 2 Left: Window Seat (#5)",
+                "localOffset": {
+                  "x": -0.74,
+                  "y": 0.68,
+                  "z": -0.32
+                },
+                "eyeOffset": {
+                  "x": -0.74,
+                  "y": 1.44,
+                  "z": -0.32
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_4": {
+                "seatId": "rear_passenger_4",
+                "role": "PASSENGER",
+                "label": "Row 2 Center: Mid-Cabin Seat (#6)",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": -0.32
+                },
+                "eyeOffset": {
+                  "x": -0.18,
+                  "y": 1.44,
+                  "z": -0.32
+                },
+                "occupantId": "usr_m481_idempotent_pax",
+                "occupantName": "Idempotent Tester",
+                "occupantKind": "HUMAN_PLAYER",
+                "occupiedAt": 1792590416186
+              },
+              "rear_passenger_5": {
+                "seatId": "rear_passenger_5",
+                "role": "PASSENGER",
+                "label": "Row 2 Right: Window Seat (#7)",
+                "localOffset": {
+                  "x": 0.68,
+                  "y": 0.68,
+                  "z": -0.32
+                },
+                "eyeOffset": {
+                  "x": 0.68,
+                  "y": 1.44,
+                  "z": -0.32
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_6": {
+                "seatId": "rear_passenger_6",
+                "role": "PASSENGER",
+                "label": "Row 3 Left: Window Seat (#8)",
+                "localOffset": {
+                  "x": -0.74,
+                  "y": 0.68,
+                  "z": -1.22
+                },
+                "eyeOffset": {
+                  "x": -0.74,
+                  "y": 1.44,
+                  "z": -1.22
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_7": {
+                "seatId": "rear_passenger_7",
+                "role": "PASSENGER",
+                "label": "Row 3 Center: Rear-Mid Seat (#9)",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": -1.22
+                },
+                "eyeOffset": {
+                  "x": -0.18,
+                  "y": 1.44,
+                  "z": -1.22
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_8": {
+                "seatId": "rear_passenger_8",
+                "role": "PASSENGER",
+                "label": "Row 3 Right: Window Seat (#10)",
+                "localOffset": {
+                  "x": 0.68,
+                  "y": 0.68,
+                  "z": -1.22
+                },
+                "eyeOffset": {
+                  "x": 0.68,
+                  "y": 1.44,
+                  "z": -1.22
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_9": {
+                "seatId": "rear_passenger_9",
+                "role": "PASSENGER",
+                "label": "Row 4 Left: Back Bench Seat (#11)",
+                "localOffset": {
+                  "x": -0.58,
+                  "y": 0.7,
+                  "z": -2.08
+                },
+                "eyeOffset": {
+                  "x": -0.58,
+                  "y": 1.46,
+                  "z": -2.08
+                },
+                "occupantId": "npc_commuter_ngozi",
+                "occupantName": "Mama_Ngozi (Commuter)",
+                "occupantKind": "SIMULATED_NPC",
+                "occupiedAt": 1792590176382
+              },
+              "rear_passenger_10": {
+                "seatId": "rear_passenger_10",
+                "role": "PASSENGER",
+                "label": "Row 4 Right: Back Bench Seat (#12)",
+                "localOffset": {
+                  "x": 0.58,
+                  "y": 0.7,
+                  "z": -2.08
+                },
+                "eyeOffset": {
+                  "x": 0.58,
+                  "y": 1.46,
+                  "z": -2.08
+                },
+                "occupantId": "npc_commuter_babatunde",
+                "occupantName": "Babatunde_Clerk (Commuter)",
+                "occupantKind": "SIMULATED_NPC",
+                "occupiedAt": 1792590176382
+              }
+            }
+          },
+          "quote": {
+            "ok": true,
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS → TBS Commercial Express",
+            "displayDirection": "Northbound along Broad Street Corridor (CMS Bus Terminal → TBS Gate)",
+            "originStop": {
+              "stopId": "stop_cms_bus_terminal",
+              "canonicalNodeId": "node_cms_bus_park",
+              "name": "CMS Bus Terminal",
+              "sequence": 0,
+              "x": -110.2,
+              "z": -200,
+              "allowBoard": true,
+              "allowAlight": true
+            },
+            "destinationStop": {
+              "stopId": "stop_broad_st_south",
+              "canonicalNodeId": "node_broad_st_south",
+              "name": "Broad St South Gateway",
+              "sequence": 3,
+              "x": -110.2,
+              "z": -25,
+              "allowBoard": true,
+              "allowAlight": true
+            },
+            "stopSegmentsCount": 3,
+            "intermediateStops": [
+              "Broad St North (Balogun)",
+              "Broad St Central (Financial Towers)"
+            ],
+            "baseFareGN": 350,
+            "weatherAdjustmentGN": 0,
+            "totalFareGN": 350,
+            "driverShareGN": 245,
+            "conductorShareGN": 105,
+            "currency": "GN",
+            "formattedQuoteText": "Route: CMS → TBS Commercial Express | Boarding stop: CMS Bus Terminal | Destination: Broad St South Gateway | Fare: 350 GN"
+          },
+          "receipt": {
+            "transactionId": "tx_danfo_fare_1792590804958_j0td9",
+            "idempotencyKey": "ev_m481_api_board_1792590804951",
+            "vehicleId": "veh_danfo_coop",
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS → TBS Commercial Express",
+            "originStopId": "stop_cms_bus_terminal",
+            "originStopName": "CMS Bus Terminal",
+            "destinationStopId": "stop_broad_st_south",
+            "destinationStopName": "Broad St South Gateway",
+            "stopSegmentsCount": 3,
+            "seatId": "front_passenger",
+            "seatLabel": "Row 0 Center: Front Cab Bench Seat (#1)",
+            "seatOffset": {
+              "x": 0.12,
+              "y": 0.68,
+              "z": 1.68
+            },
+            "eyeOffset": {
+              "x": 0.12,
+              "y": 1.44,
+              "z": 1.68
+            },
+            "baseFareGN": 350,
+            "weatherAdjustmentGN": 0,
+            "totalFareGN": 350,
+            "tenderedNoteGN": 500,
+            "changeReturnedGN": 150,
+            "passengerDebitGN": 350,
+            "transportIncomeCreditGN": 245,
+            "conductorCommissionCreditGN": 105,
+            "passengerDrivingSalaryAwardedGN": 0,
+            "balanceBeforeGN": 3234,
+            "balanceAfterGN": 2884,
+            "settledAt": 1792590804958
+          },
+          "farePaidGN": 350,
+          "changeDueGN": 150,
+          "balanceBeforeGN": 3234,
+          "balanceAfterGN": 2884,
+          "passengerPaidDriverSalary": false,
+          "ledgerEntry": {
+            "entryId": "tx_danfo_fare_1792590804958_j0td9",
+            "direction": "DEBIT",
+            "amountGN": 350,
+            "balanceAfterGN": 2884
+          },
+          "gameNairaBalance": 2884
+        }
+      }
+    },
+    {
+      "id": 18,
+      "name": "Verifying that passenger boarding deducts the fare and NEVER pays the player a driver salary",
+      "passed": true,
+      "details": {
+        "balanceBeforeGN": 5000,
+        "balanceAfterGN": 4650,
+        "serverLedgerEntry": {
+          "entryId": "tx_danfo_fare_1792590804958_j0td9",
+          "direction": "DEBIT",
+          "amountGN": 350,
+          "balanceAfterGN": 2884
+        }
+      }
+    },
+    {
+      "id": 10,
+      "name": "Attempting to choose an off-route or behind-direction destination and receiving a clear explanation & alternative route",
+      "passed": true,
+      "details": {
+        "offRouteQuote": {
+          "valid": false,
+          "routeId": "route_cms_tbs_northbound",
+          "routeName": "CMS Terminal → Broad St → Marina → TBS Gate",
+          "direction": "NORTHBOUND",
+          "originStop": {
+            "stopId": "stop_cms",
+            "name": "CMS Bus Terminal",
+            "index": 0,
+            "worldX": -110.2,
+            "worldZ": -211,
+            "landmark": "Cathedral Church & CMS Ferry Terminal"
+          },
+          "requestedDestinationStopId": "stop_ikoyi_offroute",
+          "reasonCode": "DESTINATION_OFF_ROUTE",
+          "explanation": "This Danfo is operating on CMS Terminal → Broad St → Marina → TBS Gate (NORTHBOUND) and does not serve 'stop_ikoyi_offroute'. Valid stops on this route: Broad St North (Odunlami) → Broad St Central (Bookshop House) → Broad St South (Marina Junction) → TBS Gate (Tafawa Balewa Square).",
+          "alternativeRouteId": "route_marina_waterfront",
+          "alternativeRouteName": "CMS Terminal → Marina Waterfront → Obalende",
+          "validStopsAhead": [
+            {
+              "stopId": "stop_broad_north",
+              "name": "Broad St North (Odunlami)",
+              "index": 1,
+              "worldX": -110.2,
+              "worldZ": -150,
+              "landmark": "Odunlami Street & Commercial Precinct"
+            },
+            {
+              "stopId": "stop_broad_central",
+              "name": "Broad St Central (Bookshop House)",
+              "index": 2,
+              "worldX": -110.2,
+              "worldZ": -95,
+              "landmark": "CSS Bookshop House & UBA Tower"
+            },
+            {
+              "stopId": "stop_broad_south",
+              "name": "Broad St South (Marina Junction)",
+              "index": 3,
+              "worldX": -110.2,
+              "worldZ": -35,
+              "landmark": "Marina Financial Crossing"
+            },
+            {
+              "stopId": "stop_tbs_gate",
+              "name": "TBS Gate (Tafawa Balewa Square)",
+              "index": 4,
+              "worldX": -110.2,
+              "worldZ": 45,
+              "landmark": "Tafawa Balewa Square & Independence Arch"
+            }
+          ]
+        },
+        "behindQuote": {
+          "valid": false,
+          "routeId": "route_cms_tbs_northbound",
+          "routeName": "CMS Terminal → Broad St → Marina → TBS Gate",
+          "direction": "NORTHBOUND",
+          "originStop": {
+            "stopId": "stop_broad_central",
+            "name": "Broad St Central (Bookshop House)",
+            "index": 2,
+            "worldX": -110.2,
+            "worldZ": -95,
+            "landmark": "CSS Bookshop House & UBA Tower"
+          },
+          "destinationStop": {
+            "stopId": "stop_cms",
+            "name": "CMS Bus Terminal",
+            "index": 0,
+            "worldX": -110.2,
+            "worldZ": -211,
+            "landmark": "Cathedral Church & CMS Ferry Terminal"
+          },
+          "reasonCode": "DESTINATION_BEHIND_DIRECTION",
+          "explanation": "CMS Bus Terminal is behind or equal to your boarding stop (Broad St Central (Bookshop House)) on the NORTHBOUND corridor. Board the Southbound Danfo or select a forward stop.",
+          "alternativeRouteId": "route_tbs_cms_southbound",
+          "validStopsAhead": [
+            {
+              "stopId": "stop_broad_south",
+              "name": "Broad St South (Marina Junction)",
+              "index": 3,
+              "worldX": -110.2,
+              "worldZ": -35,
+              "landmark": "Marina Financial Crossing"
+            },
+            {
+              "stopId": "stop_tbs_gate",
+              "name": "TBS Gate (Tafawa Balewa Square)",
+              "index": 4,
+              "worldX": -110.2,
+              "worldZ": 45,
+              "landmark": "Tafawa Balewa Square & Independence Arch"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 11,
+      "name": "Riding while the Danfo moves along its route with synchronized seat attachment, interior camera, and visible 3D Driver",
+      "passed": true,
+      "details": {
+        "state": "PASSENGER",
+        "cameraMode": "passenger",
+        "vehMovedZ": 4.67,
+        "paxMovedZ": 4.69,
+        "attachError": 0.0254,
+        "yawAfterLook": 0.12,
+        "cabinDriverVisible": true,
+        "passengerHudVisible": true
+      }
+    },
+    {
+      "id": 13,
+      "name": "Preventing passenger exit while the Danfo is moving above the safe stop threshold (>= 5 km/h -> VEHICLE_MOVING_CANNOT_EXIT)",
+      "passed": true,
+      "details": {
+        "movingExitRes": {
+          "allowed": false,
+          "state": "PASSENGER",
+          "vehicleId": "veh_danfo_coop",
+          "vehicleSpeedKmh": 28,
+          "reasonCode": "VEHICLE_MOVING_CANNOT_EXIT",
+          "explanation": "Cannot jump out while the Danfo is moving (28 km/h >= 5 km/h safe threshold)! Press [O] or tap '🛑 Request Stop (O wa!)' so the driver halts at the bus stop layby first."
+        },
+        "stateAfterMovingAttempt": "PASSENGER"
+      }
+    },
+    {
+      "id": 12,
+      "name": "Requesting a stop (\"O wa o!\" [O]) halts the Danfo at the stop layby (0 km/h) and allows safe alighting through the sliding doorway",
+      "passed": true,
+      "details": {
+        "stopRequested": true,
+        "speedAfterStopReq": 0,
+        "atPermittedStop": true,
+        "alightRes": {
+          "allowed": true,
+          "state": "ON_FOOT",
+          "previousState": "PASSENGER",
+          "alightingPath": {
+            "exitDoor": "RIGHT_SLIDING_DOOR",
+            "doorwayStepLocal": {
+              "x": 0.92,
+              "y": 0.54,
+              "z": 0.68
+            },
+            "curbLandingWorld": {
+              "x": -95.64,
+              "y": 0,
+              "z": -34.36
+            }
+          }
+        },
+        "stateAfterAlight": "ON_FOOT",
+        "playerAvatarPosition": {
+          "x": -95.64,
+          "y": 0,
+          "z": -34.36,
+          "visible": true
+        }
+      }
+    },
+    {
+      "id": 14,
+      "name": "Attempting to board a full Danfo (veh_npc_full_shuttle) rejects boarding cleanly with NO_SEATS_AVAILABLE",
+      "passed": true,
+      "details": {
+        "fullRes": {
+          "allowed": false,
+          "vehicleId": "veh_npc_full_shuttle",
+          "vehicleKey": "full_shuttle",
+          "reasonCode": "NO_SEATS_AVAILABLE",
+          "explanation": "No passenger seats available on Obalende Express Danfo #99 (FULL). All passenger seats are currently occupied (Commuter_A (NPC), Commuter_B (NPC))."
+        },
+        "state": "ON_FOOT"
+      }
+    },
+    {
+      "id": 15,
+      "name": "Attempting to occupy an already-occupied seat (rear_passenger_9 — Mama Risikat) rejects overlapping seat assignment (SEAT_ALREADY_OCCUPIED)",
+      "passed": true,
+      "details": {
+        "occupiedRes": {
+          "allowed": false,
+          "vehicleId": "veh_danfo_coop",
+          "vehicleKey": "danfo",
+          "requestedSeatId": "rear_passenger_9",
+          "reasonCode": "SEAT_ALREADY_OCCUPIED",
+          "explanation": "Seat 'Row 4 Left: Back Bench Seat (#11)' (rear_passenger_9) is already occupied by Mama_Ngozi (Commuter). Choose one of the unoccupied passenger seats."
+        },
+        "state": "ON_FOOT"
+      }
+    },
+    {
+      "id": 16,
+      "name": "Joining as Conductor ([G]) places player at conductor_step, enables Conductor HUD, and disables vehicle driving controls",
+      "passed": true,
+      "details": {
+        "condRes": {
+          "allowed": true,
+          "state": "CONDUCTOR",
+          "vehicleId": "veh_danfo_coop",
+          "seatId": "conductor_step"
+        },
+        "state": "CONDUCTOR",
+        "isDriving": false,
+        "isConductorMode": true,
+        "seatId": "conductor_step",
+        "movedWhileConductor": 0,
+        "conductorHudVisible": true,
+        "callRes": {
+          "allowed": true,
+          "actionType": "ANNOUNCE_ROUTE",
+          "routeId": "route_cms_tbs_northbound",
+          "availablePassengerSeats": 10,
+          "announcement": "You (Conductor): \"CMS – Broad Street – Marina – TBS Corridor! 10 seats open inside! Enter with your change o!\""
+        },
+        "collectRes": {
+          "allowed": true,
+          "actionType": "COLLECT_FARES",
+          "eventId": "ev_m481_cond_collect_1",
+          "passengersCount": 2,
+          "grossFareGN": 500,
+          "conductorShareGN": 150,
+          "driverShareGN": 350,
+          "changeIssuedGN": 500,
+          "balanceBeforeGN": 5000,
+          "balanceAfterGN": 5150
+        }
+      }
+    },
+    {
+      "id": 17,
+      "name": "Collecting fares as Conductor (2 pax @ 250 GN = 500 GN, 1000 GN note tendered -> 500 GN change, +150 GN 30% Conductor Commission settled)",
+      "passed": true,
+      "details": {
+        "allowed": true,
+        "actionType": "COLLECT_FARES",
+        "eventId": "ev_m481_cond_collect_1",
+        "passengersCount": 2,
+        "grossFareGN": 500,
+        "conductorShareGN": 150,
+        "driverShareGN": 350,
+        "changeIssuedGN": 500,
+        "balanceBeforeGN": 5000,
+        "balanceAfterGN": 5150
+      }
+    },
+    {
+      "id": 19,
+      "name": "Verifying that free-roam driving does not generate commercial fare income (deltaGN === 0)",
+      "passed": true,
+      "details": {
+        "elig": {
+          "allowed": true,
+          "vehicleId": "veh_danfo_coop",
+          "reasonCode": "ELIGIBLE_DRIVER",
+          "accessBasis": "JOB_ASSIGNED",
+          "commercialEarningAllowed": false,
+          "freeRoamPersonalDriving": true,
+          "freeRoamNotice": "Personal free-roam driving active — no commercial income is generated without an accepted job or fare."
+        },
+        "balBefore": 5150,
+        "balAfter": 5150,
+        "deltaGN": 0
+      }
+    },
+    {
+      "id": 20,
+      "name": "Verifying that duplicate inputs / repeated eventIds do not charge or pay twice (idempotent ledger protection)",
+      "passed": true,
+      "details": {
+        "firstPay": {
+          "ok": true,
+          "allowed": true,
+          "httpStatus": 200,
+          "duplicateIgnored": false,
+          "idempotentReplay": false,
+          "fareSettled": true,
+          "role": "PASSENGER",
+          "seat": {
+            "seatId": "rear_passenger_4",
+            "role": "PASSENGER",
+            "label": "Row 2 Center: Mid-Cabin Seat (#6)",
+            "localOffset": {
+              "x": -0.18,
+              "y": 0.68,
+              "z": -0.32
+            },
+            "eyeOffset": {
+              "x": -0.18,
+              "y": 1.44,
+              "z": -0.32
+            },
+            "occupantId": "usr_m481_idempotent_pax",
+            "occupantName": "Idempotent Tester",
+            "occupantKind": "HUMAN_PLAYER",
+            "occupiedAt": 1792590813069
+          },
+          "vehicle": {
+            "vehicleId": "veh_danfo_coop",
+            "vehicleKey": "danfo",
+            "displayName": "Apex Danfo 14 Commercial Minibus (12 Pax + 1 Driver + 1 Conductor)",
+            "ownershipMode": "EMPLOYER_ASSIGNED",
+            "ownerId": "org_cms_motor_park_union",
+            "ownerName": "CMS Motor Park Co-op Fleet",
+            "authorizedDriverIds": [
+              "*"
+            ],
+            "requiredQualification": null,
+            "drivingState": "PARKED",
+            "seats": {
+              "driver": {
+                "seatId": "driver",
+                "role": "DRIVER",
+                "label": "Row 0 Left: Driver Cockpit Seat",
+                "localOffset": {
+                  "x": -0.62,
+                  "y": 0.68,
+                  "z": 1.68
+                },
+                "eyeOffset": {
+                  "x": -0.62,
+                  "y": 1.46,
+                  "z": 1.68
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "conductor_step": {
+                "seatId": "conductor_step",
+                "role": "CONDUCTOR",
+                "label": "Sliding-Door Entrance: Conductor Step & Grab Rail",
+                "localOffset": {
+                  "x": 0.88,
+                  "y": 0.56,
+                  "z": 0.68
+                },
+                "eyeOffset": {
+                  "x": 0.88,
+                  "y": 1.52,
+                  "z": 0.68
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "front_passenger": {
+                "seatId": "front_passenger",
+                "role": "PASSENGER",
+                "label": "Row 0 Center: Front Cab Bench Seat (#1)",
+                "localOffset": {
+                  "x": 0.12,
+                  "y": 0.68,
+                  "z": 1.68
+                },
+                "eyeOffset": {
+                  "x": 0.12,
+                  "y": 1.44,
+                  "z": 1.68
+                },
+                "occupantId": "usr_m481_api_pax",
+                "occupantName": "API Commuter",
+                "occupantKind": "HUMAN_PLAYER",
+                "occupiedAt": 1792590804955
+              },
+              "front_passenger_window": {
+                "seatId": "front_passenger_window",
+                "role": "PASSENGER",
+                "label": "Row 0 Right: Front Cab Window Seat (#2)",
+                "localOffset": {
+                  "x": 0.68,
+                  "y": 0.68,
+                  "z": 1.68
+                },
+                "eyeOffset": {
+                  "x": 0.68,
+                  "y": 1.44,
+                  "z": 1.68
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_1": {
+                "seatId": "rear_passenger_1",
+                "role": "PASSENGER",
+                "label": "Row 1 Left: Window Seat (#3)",
+                "localOffset": {
+                  "x": -0.74,
+                  "y": 0.68,
+                  "z": 0.62
+                },
+                "eyeOffset": {
+                  "x": -0.74,
+                  "y": 1.44,
+                  "z": 0.62
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_2": {
+                "seatId": "rear_passenger_2",
+                "role": "PASSENGER",
+                "label": "Row 1 Center: Doorway Access Aisle Seat (#4)",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": 0.62
+                },
+                "eyeOffset": {
+                  "x": -0.18,
+                  "y": 1.44,
+                  "z": 0.62
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_3": {
+                "seatId": "rear_passenger_3",
+                "role": "PASSENGER",
+                "label": "Row 2 Left: Window Seat (#5)",
+                "localOffset": {
+                  "x": -0.74,
+                  "y": 0.68,
+                  "z": -0.32
+                },
+                "eyeOffset": {
+                  "x": -0.74,
+                  "y": 1.44,
+                  "z": -0.32
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_4": {
+                "seatId": "rear_passenger_4",
+                "role": "PASSENGER",
+                "label": "Row 2 Center: Mid-Cabin Seat (#6)",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": -0.32
+                },
+                "eyeOffset": {
+                  "x": -0.18,
+                  "y": 1.44,
+                  "z": -0.32
+                },
+                "occupantId": "usr_m481_idempotent_pax",
+                "occupantName": "Idempotent Tester",
+                "occupantKind": "HUMAN_PLAYER",
+                "occupiedAt": 1792590813069
+              },
+              "rear_passenger_5": {
+                "seatId": "rear_passenger_5",
+                "role": "PASSENGER",
+                "label": "Row 2 Right: Window Seat (#7)",
+                "localOffset": {
+                  "x": 0.68,
+                  "y": 0.68,
+                  "z": -0.32
+                },
+                "eyeOffset": {
+                  "x": 0.68,
+                  "y": 1.44,
+                  "z": -0.32
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_6": {
+                "seatId": "rear_passenger_6",
+                "role": "PASSENGER",
+                "label": "Row 3 Left: Window Seat (#8)",
+                "localOffset": {
+                  "x": -0.74,
+                  "y": 0.68,
+                  "z": -1.22
+                },
+                "eyeOffset": {
+                  "x": -0.74,
+                  "y": 1.44,
+                  "z": -1.22
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_7": {
+                "seatId": "rear_passenger_7",
+                "role": "PASSENGER",
+                "label": "Row 3 Center: Rear-Mid Seat (#9)",
+                "localOffset": {
+                  "x": -0.18,
+                  "y": 0.68,
+                  "z": -1.22
+                },
+                "eyeOffset": {
+                  "x": -0.18,
+                  "y": 1.44,
+                  "z": -1.22
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_8": {
+                "seatId": "rear_passenger_8",
+                "role": "PASSENGER",
+                "label": "Row 3 Right: Window Seat (#10)",
+                "localOffset": {
+                  "x": 0.68,
+                  "y": 0.68,
+                  "z": -1.22
+                },
+                "eyeOffset": {
+                  "x": 0.68,
+                  "y": 1.44,
+                  "z": -1.22
+                },
+                "occupantId": null,
+                "occupantName": null,
+                "occupantKind": null,
+                "occupiedAt": null
+              },
+              "rear_passenger_9": {
+                "seatId": "rear_passenger_9",
+                "role": "PASSENGER",
+                "label": "Row 4 Left: Back Bench Seat (#11)",
+                "localOffset": {
+                  "x": -0.58,
+                  "y": 0.7,
+                  "z": -2.08
+                },
+                "eyeOffset": {
+                  "x": -0.58,
+                  "y": 1.46,
+                  "z": -2.08
+                },
+                "occupantId": "npc_commuter_ngozi",
+                "occupantName": "Mama_Ngozi (Commuter)",
+                "occupantKind": "SIMULATED_NPC",
+                "occupiedAt": 1792590176382
+              },
+              "rear_passenger_10": {
+                "seatId": "rear_passenger_10",
+                "role": "PASSENGER",
+                "label": "Row 4 Right: Back Bench Seat (#12)",
+                "localOffset": {
+                  "x": 0.58,
+                  "y": 0.7,
+                  "z": -2.08
+                },
+                "eyeOffset": {
+                  "x": 0.58,
+                  "y": 1.46,
+                  "z": -2.08
+                },
+                "occupantId": "npc_commuter_babatunde",
+                "occupantName": "Babatunde_Clerk (Commuter)",
+                "occupantKind": "SIMULATED_NPC",
+                "occupiedAt": 1792590176382
+              }
+            }
+          },
+          "quote": {
+            "ok": true,
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS → TBS Commercial Express",
+            "displayDirection": "Northbound along Broad Street Corridor (CMS Bus Terminal → TBS Gate)",
+            "originStop": {
+              "stopId": "stop_cms_bus_terminal",
+              "canonicalNodeId": "node_cms_bus_park",
+              "name": "CMS Bus Terminal",
+              "sequence": 0,
+              "x": -110.2,
+              "z": -200,
+              "allowBoard": true,
+              "allowAlight": true
+            },
+            "destinationStop": {
+              "stopId": "stop_broad_street_central",
+              "canonicalNodeId": "node_broad_st_mid",
+              "name": "Broad St Central (Financial Towers)",
+              "sequence": 2,
+              "x": -110.2,
+              "z": -90,
+              "allowBoard": true,
+              "allowAlight": true
+            },
+            "stopSegmentsCount": 2,
+            "intermediateStops": [
+              "Broad St North (Balogun)"
+            ],
+            "baseFareGN": 250,
+            "weatherAdjustmentGN": 0,
+            "totalFareGN": 250,
+            "driverShareGN": 175,
+            "conductorShareGN": 75,
+            "currency": "GN",
+            "formattedQuoteText": "Route: CMS → TBS Commercial Express | Boarding stop: CMS Bus Terminal | Destination: Broad St Central (Financial Towers) | Fare: 250 GN"
+          },
+          "receipt": {
+            "transactionId": "tx_danfo_fare_1792590813071_8j7f5",
+            "idempotencyKey": "ev_m481_idempotent_1792590813066",
+            "vehicleId": "veh_danfo_coop",
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS → TBS Commercial Express",
+            "originStopId": "stop_cms_bus_terminal",
+            "originStopName": "CMS Bus Terminal",
+            "destinationStopId": "stop_broad_street_central",
+            "destinationStopName": "Broad St Central (Financial Towers)",
+            "stopSegmentsCount": 2,
+            "seatId": "rear_passenger_4",
+            "seatLabel": "Row 2 Center: Mid-Cabin Seat (#6)",
+            "seatOffset": {
+              "x": -0.18,
+              "y": 0.68,
+              "z": -0.32
+            },
+            "eyeOffset": {
+              "x": -0.18,
+              "y": 1.44,
+              "z": -0.32
+            },
+            "baseFareGN": 250,
+            "weatherAdjustmentGN": 0,
+            "totalFareGN": 250,
+            "tenderedNoteGN": 250,
+            "changeReturnedGN": 0,
+            "passengerDebitGN": 250,
+            "transportIncomeCreditGN": 175,
+            "conductorCommissionCreditGN": 75,
+            "passengerDrivingSalaryAwardedGN": 0,
+            "balanceBeforeGN": 2884,
+            "balanceAfterGN": 2634,
+            "settledAt": 1792590813071
+          },
+          "farePaidGN": 250,
+          "changeDueGN": 0,
+          "balanceBeforeGN": 2884,
+          "balanceAfterGN": 2634,
+          "passengerPaidDriverSalary": false,
+          "ledgerEntry": {
+            "entryId": "tx_danfo_fare_1792590813071_8j7f5",
+            "direction": "DEBIT",
+            "amountGN": 250,
+            "balanceAfterGN": 2634
+          },
+          "gameNairaBalance": 2634
+        },
+        "secondPay": {
+          "ok": true,
+          "allowed": true,
+          "httpStatus": 200,
+          "duplicateIgnored": true,
+          "idempotentReplay": true,
+          "receipt": {
+            "transactionId": "tx_danfo_fare_1792590813071_8j7f5",
+            "idempotencyKey": "ev_m481_idempotent_1792590813066",
+            "vehicleId": "veh_danfo_coop",
+            "routeId": "route_cms_tbs_northbound",
+            "routeName": "CMS → TBS Commercial Express",
+            "originStopId": "stop_cms_bus_terminal",
+            "originStopName": "CMS Bus Terminal",
+            "destinationStopId": "stop_broad_street_central",
+            "destinationStopName": "Broad St Central (Financial Towers)",
+            "stopSegmentsCount": 2,
+            "seatId": "rear_passenger_4",
+            "seatLabel": "Row 2 Center: Mid-Cabin Seat (#6)",
+            "seatOffset": {
+              "x": -0.18,
+              "y": 0.68,
+              "z": -0.32
+            },
+            "eyeOffset": {
+              "x": -0.18,
+              "y": 1.44,
+              "z": -0.32
+            },
+            "baseFareGN": 250,
+            "weatherAdjustmentGN": 0,
+            "totalFareGN": 250,
+            "tenderedNoteGN": 250,
+            "changeReturnedGN": 0,
+            "passengerDebitGN": 250,
+            "transportIncomeCreditGN": 175,
+            "conductorCommissionCreditGN": 75,
+            "passengerDrivingSalaryAwardedGN": 0,
+            "balanceBeforeGN": 2884,
+            "balanceAfterGN": 2634,
+            "settledAt": 1792590813071
+          },
+          "farePaidGN": 250,
+          "changeDueGN": 0,
+          "balanceBeforeGN": 2884,
+          "balanceAfterGN": 2634,
+          "passengerPaidDriverSalary": false,
+          "ledgerEntry": {
+            "entryId": "tx_danfo_fare_1792590813071_8j7f5",
+            "direction": "DEBIT",
+            "amountGN": 250,
+            "balanceAfterGN": 2634
+          },
+          "gameNairaBalance": 2634
+        }
+      }
+    },
+    {
+      "id": 21,
+      "name": "Testing mobile touch controls (390x844 portrait & 844x390 landscape) for Drive, Board as Passenger, Join as Conductor, Choose Destination, Confirm Fare, Request Stop (\"O wa!\"), and Exit at Stop",
+      "passed": true,
+      "details": {
+        "hasDriveBtn": true,
+        "hasBoardBtn": true,
+        "hasCondBtn": true,
+        "modalVisible": true,
+        "stateAfterMobileConfirm": "PASSENGER",
+        "hasRequestStopBtn": true,
+        "hasExitBtn": true,
+        "finalState": "ON_FOOT"
+      }
+    },
+    {
+      "id": 22,
+      "name": "Confirming zero console errors and zero uncaught page errors across all 22 M4.8.1 flows",
+      "passed": true,
+      "details": {
+        "consoleErrors": [],
+        "pageErrors": []
+      }
+    }
+  ],
+  "screenshots": {
+    "danfoProximityOnFoot": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_danfo_proximity_on_foot_desktop.png",
+    "danfoBoardingModalDesktop": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_danfo_route_fare_modal_desktop.png",
+    "danfoInteriorPassengerDesktop": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_danfo_interior_passenger_view_desktop.png",
+    "danfoSeatedPassengerExteriorDesktop": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_danfo_seated_passenger_exterior_desktop.png",
+    "danfoConductorHudDesktop": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_danfo_conductor_hud_desktop.png",
+    "mobilePortraitDanfoPassenger": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_mobile_portrait_danfo_passenger.png",
+    "mobileLandscapeDanfoStopRequested": "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_8_1_mobile_landscape_danfo_stop.png"
+  },
+  "allPassed": true
+}

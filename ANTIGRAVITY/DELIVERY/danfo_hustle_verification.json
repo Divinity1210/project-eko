@@ -1,0 +1,137 @@
+{
+  "timestamp": "2026-10-17T15:17:53.005Z",
+  "tests": {
+    "entryAndHub": {
+      "passed": true,
+      "routeCount": 5,
+      "missionCount": 8
+    },
+    "runSpawnAndPatterns": {
+      "passed": true,
+      "spawnedCounts": {
+        "coins": 53,
+        "coinPatterns": [
+          "short_trail",
+          "individual",
+          "risk_reward_line",
+          "optional_cluster"
+        ],
+        "boosters": 5,
+        "boosterTypes": [
+          "coin_magnet",
+          "shield",
+          "lucky_fare",
+          "clear_road",
+          "fuel_can"
+        ],
+        "obstacles": 10,
+        "obstacleTypes": [
+          "pothole",
+          "tyre_pile",
+          "stationary_vehicle",
+          "broken_down_vehicle",
+          "pedestrian_crossing",
+          "lane_blockage",
+          "moving_traffic"
+        ],
+        "stops": 3
+      }
+    },
+    "laneSteeringAndHop": {
+      "passed": true,
+      "startLane": 2,
+      "immediateAfterPressX": -100,
+      "targetAfterLeft": -95.6,
+      "xTrajectory": [
+        -100,
+        -98.81,
+        -98.46,
+        -98.27,
+        -98.09,
+        -97.9
+      ],
+      "finalLaneAfterRight": 2,
+      "laneSwitchCount": 2,
+      "maxHopY": 1.42,
+      "hopCount": 1
+    },
+    "coinCollection": {
+      "passed": true,
+      "collectedByPattern": {
+        "individual": 1,
+        "short_trail": 1,
+        "risk_reward_line": 2,
+        "optional_cluster": 1
+      },
+      "runCoinsCollected": 23,
+      "runScore": 1663,
+      "comboMultiplier": 2,
+      "hudCoinsText": "23 HC"
+    },
+    "boosters": {
+      "passed": true,
+      "fuelAfterCan": 85,
+      "activeBoosters": {
+        "clear_road": 6,
+        "shield": 8,
+        "coin_magnet": 8,
+        "lucky_fare": true
+      },
+      "shieldMeshVisible": true,
+      "boosterPillsHtml": "<span class=\"dh-booster-pill\">🛡️ Shield 8.0s</span><span class=\"dh-booster-pill\">🧲 Magnet 8.0s</span><span class=\"dh-booster-pill\">📢 Clear Road 6.0s</span><span class=\"dh-booster-pill\" style=\"border-color:#10B981;\">🍀 2x Next Stop Fare</span>"
+    },
+    "busStopsAndFares": {
+      "passed": true,
+      "stop0Res": {
+        "stopId": "stop_1",
+        "stopName": "CMS Ferry Jetty Stop",
+        "boarded": true,
+        "runPassengersCarried": 4,
+        "runFaresGN": 2000,
+        "stopsCompleted": 1
+      },
+      "stop1Res": {
+        "stopId": "stop_2",
+        "stopName": "Broad Street Cathedral Stop",
+        "boarded": true,
+        "runPassengersCarried": 8,
+        "runFaresGN": 3000,
+        "stopsCompleted": 2
+      },
+      "stopsCompleted": 2,
+      "runPassengersCarried": 8,
+      "runFaresGN": 3000,
+      "luckyFareConsumed": true
+    },
+    "obstaclesAndSafety": {
+      "passed": true,
+      "scoreBeforeShieldHit": 4726,
+      "scoreAfterEach": 4876,
+      "collisionsAfterShieldHit": 0,
+      "shieldAbsorptions": 1,
+      "safePedestrianYields": 1
+    },
+    "settlementAndUnlocks": {
+      "passed": true,
+      "calculatedScore": 7340,
+      "totalGameNairaAwarded": 3800,
+      "totalHustleCoinsEarned": 51,
+      "equippedLivery": "unlock_livery_green_white"
+    },
+    "returnToLivingLagos": {
+      "passed": true,
+      "isActive": false,
+      "activeGameMode": "free",
+      "bodyHasClass": false,
+      "arcadeChildrenCount": 0,
+      "playerBalanceGN": 47100,
+      "hustleCoinsBalance": 337
+    }
+  },
+  "screenshots": [
+    "danfo_hustle_hub_modal_390x844.png",
+    "danfo_hustle_active_run_portrait_390x844.png",
+    "danfo_hustle_active_run_landscape_780x360.png",
+    "danfo_hustle_results_modal_1366x768.png"
+  ]
+}

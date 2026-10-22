@@ -1,0 +1,73 @@
+{
+  "walkForwardFollow": {
+    "deltaZMeters": 8.448,
+    "speedMps": 2.65,
+    "strideLengthM": 2.0081,
+    "gaitFrequencyHz": 1.3196,
+    "maxHipSpreadRad": 1.052,
+    "maxArmSpreadRad": 0.82,
+    "maxKneeLRad": 0.767,
+    "maxKneeRRad": 0.768,
+    "leftLeadFrames": 67,
+    "rightLeadFrames": 68,
+    "footLockPassedAllFrames": true
+  },
+  "stationaryStop": {
+    "finalState": "idle",
+    "speedMps": 0,
+    "phaseFrame55": 0,
+    "phaseFrame74": 0,
+    "hipLRotX": 0,
+    "hipRRotX": 0
+  },
+  "walkBackwardFollow": {
+    "deltaZMeters": -3.362,
+    "speedMps": -1.75,
+    "canonicalState": "walk_backward",
+    "strideLengthM": 1.3978,
+    "maxHipSpreadRad": 0.716,
+    "spineRotX": -0.04
+  },
+  "turnControlsWASD": {
+    "turnLeftHeadingRad": 1.10521,
+    "turnLeftWalkDeltaXM": 1.485,
+    "turnRightHeadingRad": -1.10521,
+    "turnRightWalkDeltaXM": -1.485
+  },
+  "arrowKeysAndRun": {
+    "arrowUpState": "walk_forward",
+    "runSpeedMps": 5.5998,
+    "runGaitFreqHz": 1.8964,
+    "arrowDownState": "walk_backward",
+    "arrowLeftHeadingRad": 1.10521,
+    "arrowRightHeadingRad": -1.10521
+  },
+  "frontViewMode": {
+    "isFrontViewMode": true,
+    "walkForwardDeltaZM": 2.663,
+    "turnLeftHeadingRad": 1.10521,
+    "turnRightHeadingRad": -0.93563
+  },
+  "vehicleMountDismount": {
+    "enteredDriving": true,
+    "exitedOnFoot": true,
+    "recordedEnterState": true,
+    "recordedExitState": true
+  },
+  "drivingSteering": {
+    "chaseSteerLeftAngle": 0.68,
+    "chaseSteerLeftHeading": 2.76592,
+    "chaseSteerLeftDeltaXM": 6.333,
+    "chaseSteerRightAngle": -0.68,
+    "chaseSteerRightHeading": -2.30383,
+    "chaseSteerRightDeltaXM": -5.217,
+    "cockpitSteerLeftAngle": 0.68,
+    "cockpitSteerLeftHeading": 0.9609,
+    "cockpitSteerLeftDeltaXM": 1.267,
+    "cockpitSteerRightAngle": -0.68,
+    "cockpitSteerRightHeading": -2.30383,
+    "cockpitSteerRightDeltaXM": -5.217
+  },
+  "consoleErrors": 0,
+  "pageErrors": 0
+}

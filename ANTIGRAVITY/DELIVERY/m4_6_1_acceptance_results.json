@@ -1,0 +1,830 @@
+{
+  "timestamp": "2026-10-20T17:07:40.378Z",
+  "environment": "Headless Chrome (CDP) with device-metrics + touch emulation; NOT a physical phone",
+  "checks": [
+    {
+      "name": "Application boots with M4.6.1 HUD-mode, prompt & visibility services",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Street-level exploration performance measured (desktop)",
+      "passed": true,
+      "details": "fps=60, frame=16.66ms, p95=16.8ms, calls=51, tris=27276"
+    },
+    {
+      "name": "Exterior shell, front door & interior doorway are spatially aligned",
+      "passed": true,
+      "details": "shellMaxZ=-147.75, doorZ=-147.64, interiorDoorZ=-147.95"
+    },
+    {
+      "name": "Residence shell is solid from the street (walking into the house stops at the facade)",
+      "passed": true,
+      "details": "tried z=-148.40 → resolved z=-147.33"
+    },
+    {
+      "name": "Residence keyboard prompt names real keys",
+      "passed": true,
+      "details": "🏠 YOUR LAGOS RESIDENCE: PRESS [E] OR [H] TO ENTER YOUR 3D HOME • [L] HOME HUB"
+    },
+    {
+      "name": "[H] at the porch enters the home (previously unreachable horn branch fixed)",
+      "passed": true,
+      "details": "inside=true, hudMode=home"
+    },
+    {
+      "name": "Indoor spawn is clear of walls, door and furniture",
+      "passed": true,
+      "details": "spawn=(-62.00, 0.22, -150.20)"
+    },
+    {
+      "name": "Home Exploration camera is a human-height third-person camera behind the avatar",
+      "passed": true,
+      "details": "behindDot=1.81m, camY=1.63m"
+    },
+    {
+      "name": "Driving HUD & vehicle selectors hidden in home",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Home exploration performance measured",
+      "passed": true,
+      "details": "fps=60, frame=16.67ms, calls=46, tris=26856, entry=695ms"
+    },
+    {
+      "name": "Avatar walks around the furniture with real keys and never clips into furniture or walls",
+      "passed": true,
+      "details": "samples=98, furnitureHits=0, wallHits=0, minClearance=0.208m, grounded=true"
+    },
+    {
+      "name": "Every placed object is reachable on foot within interaction range (2.55m)",
+      "passed": true,
+      "details": "mattress_starter:1.2m, standing_fan:0.6m, wardrobe_rack:0.6m, wash_basin:0.7m, table_stove:0.6m, study_desk:0.6m"
+    },
+    {
+      "name": "[C] switches to Planner Mode (elevated cutaway) without moving furniture or the character",
+      "passed": true,
+      "details": "camY=6.84, furnitureUnchanged=true"
+    },
+    {
+      "name": "Planner placement validation reports invalid & valid positions",
+      "passed": true,
+      "details": "wall=Exceeds starter room interior walls (-3.85m..+3.85m)., door=Blocks front doorway entry clearance zone."
+    },
+    {
+      "name": "Interactive 3D Furniture Mover supports 4-way nudges (West/East/North/South), 3D floor click-to-move, Zone Snap & Tidy Room",
+      "passed": true,
+      "details": "{\"moverBarVisible\":true,\"eastOk\":true,\"westOk\":true,\"southOk\":true,\"northOk\":true,\"floorMoveOk\":true,\"snapOk\":true,\"tidyOk\":true}"
+    },
+    {
+      "name": "Home HUD panel minimizes to a compact pill & Objects drawer collapses in Planner Mode",
+      "passed": true,
+      "details": "{\"fullH\":333,\"drawerCollapsedH\":197,\"minH\":75,\"actionsHiddenWhenDrawerClosed\":true,\"moverHidden\":true,\"actionsHidden\":true,\"quickInlineVisible\":true}"
+    },
+    {
+      "name": "[C] returns to Exploration with identical furniture & character state",
+      "passed": true,
+      "details": "mode=home"
+    },
+    {
+      "name": "Planner camera performance measured",
+      "passed": true,
+      "details": "fps=60, frame=16.67ms, calls=33, tris=23748"
+    },
+    {
+      "name": "[E] near the standing fan toggles real appliance state",
+      "passed": true,
+      "details": "fan ON → OFF, comfort 88 → 100; prompt=\"✨ Ox Breeze Standing Fan (1.1m): Press [E] to Switch Fan OFF (+22 Comf\""
+    },
+    {
+      "name": "Wearing clothes (Aso-Ebi, Work Shirt, Wardrobe) visibly dresses the 3D avatar (Agbada tunic + Fila cap meshes & vertex colors) and all 19 items respond",
+      "passed": true,
+      "details": "{\"shirtOk\":true,\"wardrobeOk\":true,\"asoebiOk\":true,\"all19Count\":19,\"all19Passed\":true,\"subBoxCount\":171}"
+    },
+    {
+      "name": "Exterior player nameplate is hidden behind the solid interior wall",
+      "passed": true,
+      "details": "peer=Chidi_Transporter, reason=INTERIOR_BOUNDARY_OCCLUDED"
+    },
+    {
+      "name": "Nameplate stays visible when seen through the open doorway",
+      "passed": true,
+      "details": "reason=VISIBLE_THROUGH_DOORWAY"
+    },
+    {
+      "name": "[H] inside exits to just outside the real entrance; camera never inside the shell",
+      "passed": true,
+      "details": "avatar=(-62.00, -145.40), camZ=-147.06"
+    },
+    {
+      "name": "Street nameplate behind the house is hidden by wall occlusion",
+      "passed": true,
+      "details": "reason=WALL_OCCLUDED"
+    },
+    {
+      "name": "Nearby visible player nameplate remains discoverable",
+      "passed": true,
+      "details": "reason=VISIBLE"
+    },
+    {
+      "name": "Distant nameplate culled by distance budget",
+      "passed": true,
+      "details": "reason=OUT_OF_RANGE"
+    },
+    {
+      "name": "Nearest interactable NPC shows an occlusion-aware nameplate",
+      "passed": true,
+      "details": "\"💬 Mama Nkechi • Chef & Owner • Marina Bukka — Press E to talk\" (VISIBLE)"
+    },
+    {
+      "name": "[E] opens dialogue with the visible nearby NPC",
+      "passed": true,
+      "details": "Mama Nkechi"
+    },
+    {
+      "name": "6-Stage Start-to-Finish Playable Journey executes end-to-end (Home & Wears -> 3D Shop -> 3-Step Street Job -> Sister Blessing Drive -> Cargo Delivery -> Stage 6)",
+      "passed": true,
+      "details": "stages=1->2->3->4->5, job=+₦1243, cargo=+₦1800, wDismiss=true"
+    },
+    {
+      "name": "EkoAtlas aerial view sets HUD mode \"atlas\"",
+      "passed": true,
+      "details": "overview=true, hist=home>interact,interact>driving,driving>interact,interact>atlas, fps=60, frame=16.69ms, calls=32, tris=18082"
+    },
+    {
+      "name": "Closing EkoAtlas restores the street interface",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Touch becomes the active input device from real touch events",
+      "passed": true,
+      "details": "device=touch"
+    },
+    {
+      "name": "Joystick keeps driving movement while Interact is pressed with a second finger",
+      "passed": true,
+      "details": "w(joystick)=true, w(+interact finger)=true, w(after lifting interact finger)=true"
+    },
+    {
+      "name": "Touch release clears movement (no stuck input)",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "LEFT turns the avatar left and RIGHT turns it right (follow camera)",
+      "passed": true,
+      "details": "ΔLEFT=1.33rad, ΔRIGHT=-1.29rad"
+    },
+    {
+      "name": "Front-view mode mirrors screen-left/right and does not invert forward movement",
+      "passed": true,
+      "details": "front=true, ΔLEFT(front)=-1.32rad (screen-left), forwardAdvance=3.41m"
+    },
+    {
+      "name": "CAM toggles front view off again",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Window blur cancels held touch movement",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Touch prompt at the residence uses on-screen controls (no keyboard keys)",
+      "passed": true,
+      "details": "🏠 YOUR LAGOS RESIDENCE: TAP INTERACT TO ENTER YOUR 3D HOME • ⚙️ Tools → EkoLife HOME HUB"
+    },
+    {
+      "name": "Primary touch button shows the contextual verb",
+      "passed": true,
+      "details": "⚡ ENTER"
+    },
+    {
+      "name": "On-foot portrait hides the speedometer/vehicle strip",
+      "passed": true,
+      "details": "mode=interact"
+    },
+    {
+      "name": "No visible keyboard-only instructions on the touch street HUD",
+      "passed": true,
+      "details": "[]"
+    },
+    {
+      "name": "Tap Interact at the porch enters the home on touch",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Home touch layout: Exit Home + PLAN shown, driving controls hidden",
+      "passed": true,
+      "details": "cam=\"📐 PLAN\""
+    },
+    {
+      "name": "Home HUD no longer overlaps the touch controls (portrait)",
+      "passed": true,
+      "details": "overlap=0px², hudTop=514/844"
+    },
+    {
+      "name": "Touch targets meet a 40px minimum",
+      "passed": true,
+      "details": "foot-interact:146x44 foot-run:41x50 foot-cam:47x50 foot-exit-home:51x50 turn-left:56x44 turn-right:56x44"
+    },
+    {
+      "name": "No keyboard-only instructions visible inside the home on touch",
+      "passed": true,
+      "details": "prompt=\"✨ Starter Wood Wardrobe & Storage (1.1m): Tap Interact to Organize & Freshen War\""
+    },
+    {
+      "name": "Tap Interact at the stove cooks a meal (pantry -1)",
+      "passed": true,
+      "details": "label=\"⚡ COOK\", pantry 10 → 9; prompt=\"✨ Tabletop Gas Burner & Jollof Pot (1.0m): Tap Interact to Cook Home M\""
+    },
+    {
+      "name": "A second rapid tap does not perform the interaction twice",
+      "passed": true,
+      "details": "pantry after 2nd tap=9"
+    },
+    {
+      "name": "Tap PLAN enters Planner Mode on touch",
+      "passed": true,
+      "details": "overlap=0px²"
+    },
+    {
+      "name": "Tap WALK returns to Exploration on touch",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tap Exit Home leaves the home and restores the street interface",
+      "passed": true,
+      "details": "mode=interact"
+    },
+    {
+      "name": "Tap Interact beside the sedan enters driving mode with driving controls exposed",
+      "passed": true,
+      "details": "{\"left\":\"flex\",\"right\":\"flex\",\"foot\":\"none\"}"
+    },
+    {
+      "name": "GAS + STEER LEFT work simultaneously and release cleanly",
+      "passed": true,
+      "details": "held={\"w\":true,\"a\":true,\"s\":false,\"d\":false,\"shift\":false}"
+    },
+    {
+      "name": "After driving, on-foot LEFT still turns left (no inversion across modes)",
+      "passed": true,
+      "details": "ΔLEFT=1.19rad"
+    },
+    {
+      "name": "Opening EkoAtlas on touch hides walking & driving controls",
+      "passed": true,
+      "details": "{\"mode\":\"atlas\",\"touchDeck\":\"none\"}"
+    },
+    {
+      "name": "Closing EkoAtlas restores the previous on-foot touch interface",
+      "passed": true,
+      "details": "{\"mode\":\"interact\",\"touchDeck\":\"flex\"}"
+    },
+    {
+      "name": "Danfo Hustle has its own HUD state and exiting restores Living Lagos",
+      "passed": true,
+      "details": "hustle → driving"
+    },
+    {
+      "name": "phone_landscape_844x390: home HUD fits the viewport, no overlap with touch controls, no keyboard hints",
+      "passed": true,
+      "details": "{\"overlapPx\":0,\"hudInViewport\":true,\"offenders\":0,\"mode\":\"home\"}"
+    },
+    {
+      "name": "Landscape driving: steering, pedals & gauge strip do not overlap",
+      "passed": true,
+      "details": "{\"driving\":true,\"overlapPx\":0,\"mode\":\"driving\"}"
+    },
+    {
+      "name": "tablet_768x1024: home HUD fits the viewport, no overlap with touch controls, no keyboard hints",
+      "passed": true,
+      "details": "{\"overlapPx\":0,\"hudInViewport\":true,\"offenders\":0,\"mode\":\"home\"}"
+    },
+    {
+      "name": "Keyboard users see the real key names again after switching back from touch",
+      "passed": true,
+      "details": "🏠 YOUR LAGOS RESIDENCE: PRESS [E] OR [H] TO ENTER YOUR 3D HOME • [L] HOME HUB"
+    },
+    {
+      "name": "Home, furniture positions/rotations, pantry, fan & residence persist across reload",
+      "passed": true,
+      "details": "pantry=9, fan=true, residence=res_marina_selfcon, furnitureMatch=true"
+    },
+    {
+      "name": "Ownership & Game Naira persist across reload",
+      "passed": true,
+      "details": "owned=7, balance=824505"
+    }
+  ],
+  "perf": {
+    "loading": {
+      "domContentLoadedMs": 937,
+      "loadEventMs": 1054,
+      "perfManagerLoadMs": 328,
+      "scripts": [
+        {
+          "name": "three.min.js",
+          "ms": 362,
+          "kb": 118
+        }
+      ]
+    },
+    "street_desktop_1440x900": {
+      "drawCalls": 51,
+      "triangles": 27276,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.66,
+      "p95FrameTimeMs": 16.8,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 20.1
+    },
+    "homeEntryTransitionMs": 695,
+    "home_exploration_desktop_1440x900": {
+      "drawCalls": 46,
+      "triangles": 26856,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 16.8,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 15.9
+    },
+    "home_planner_desktop_1440x900": {
+      "drawCalls": 33,
+      "triangles": 23748,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.1,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 19.4
+    },
+    "ekoatlas_aerial_desktop_1440x900": {
+      "drawCalls": 32,
+      "triangles": 18082,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.69,
+      "p95FrameTimeMs": 18.1,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 17.3
+    },
+    "ekoatlas_modal_desktop_1440x900": {
+      "drawCalls": 48,
+      "triangles": 25452,
+      "fps": 60,
+      "instantFps": 64,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.3,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 21.9
+    },
+    "street_mobile_portrait_390x844": {
+      "drawCalls": 32,
+      "triangles": 21920,
+      "fps": 60,
+      "instantFps": 66,
+      "frameTimeMs": 16.64,
+      "p95FrameTimeMs": 18.3,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 22.9
+    },
+    "home_exploration_mobile_portrait_390x844": {
+      "drawCalls": 33,
+      "triangles": 23804,
+      "fps": 60,
+      "instantFps": 57,
+      "frameTimeMs": 16.66,
+      "p95FrameTimeMs": 17.9,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 24.2
+    },
+    "home_planner_mobile_portrait_390x844": {
+      "drawCalls": 33,
+      "triangles": 23828,
+      "fps": 60,
+      "instantFps": 62,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 18.6
+    },
+    "ekoatlas_modal_mobile_portrait_390x844": {
+      "drawCalls": 36,
+      "triangles": 22872,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.68,
+      "p95FrameTimeMs": 17.9,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 26.9
+    },
+    "home_exploration_phone_landscape_844x390": {
+      "drawCalls": 51,
+      "triangles": 29136,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.4,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 29.2
+    },
+    "driving_landscape_844x390": {
+      "drawCalls": 56,
+      "triangles": 25690,
+      "fps": 60,
+      "instantFps": 59,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.3,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 25.5
+    },
+    "home_exploration_tablet_768x1024": {
+      "drawCalls": 41,
+      "triangles": 25080,
+      "fps": 60,
+      "instantFps": 64,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.3,
+      "qualityPreset": "mobile_balanced",
+      "loadTimeMs": 328,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      },
+      "heapMB": 22.3
+    }
+  },
+  "occlusion": {
+    "insideWestWall": {
+      "id": "peer_chidi_01",
+      "name": "Chidi_Transporter",
+      "display": "none",
+      "reason": "INTERIOR_BOUNDARY_OCCLUDED"
+    },
+    "throughDoorway": {
+      "id": "peer_chidi_01",
+      "name": "Chidi_Transporter",
+      "display": "flex",
+      "reason": "VISIBLE_THROUGH_DOORWAY"
+    },
+    "street": {
+      "behindHouse": {
+        "id": "peer_chidi_01",
+        "name": "Chidi_Transporter",
+        "display": "none",
+        "reason": "WALL_OCCLUDED"
+      },
+      "clear": {
+        "id": "peer_chidi_01",
+        "name": "Chidi_Transporter",
+        "display": "flex",
+        "reason": "VISIBLE"
+      },
+      "far": {
+        "id": "peer_chidi_01",
+        "name": "Chidi_Transporter",
+        "display": "none",
+        "reason": "OUT_OF_RANGE"
+      }
+    }
+  },
+  "input": {
+    "fanRepeatSuppressed": true,
+    "multiTouch": {
+      "joystickOnly": {
+        "w": true,
+        "a": false,
+        "s": false,
+        "d": false,
+        "shift": true
+      },
+      "bothDown": {
+        "w": true,
+        "a": false,
+        "s": false,
+        "d": false,
+        "shift": true
+      },
+      "afterSecondLift": {
+        "w": true,
+        "a": false,
+        "s": false,
+        "d": false,
+        "shift": true
+      },
+      "joyAfterSecondLift": true
+    },
+    "streetTouchOffenders": [],
+    "touchDoubleTapCookSuppressed": true,
+    "promptDiagnostics": {
+      "version": "1.0.0-m4.6.1",
+      "device": "keyboard",
+      "lastSwitchReason": "keydown",
+      "switchCount": 3,
+      "rewriteCount": 3718,
+      "adaptedNodeCount": 0,
+      "gamepadSupported": false,
+      "gamepadDetected": false,
+      "observerActive": false
+    }
+  },
+  "viewports": {
+    "phone_portrait_390x844": {
+      "exitVisible": true,
+      "driveHidden": true,
+      "hudOverlapPx": 0,
+      "hudTop": 514,
+      "viewportH": 844,
+      "promptText": "✨ Starter Wood Wardrobe & Storage (1.1m): Tap Interact to Organize & Freshen Wardrobe • 📐 Plan → 🔄 Rotate",
+      "camLabel": "📐 PLAN",
+      "btns": [
+        {
+          "id": "btn-touch-foot-interact",
+          "w": 146,
+          "h": 44
+        },
+        {
+          "id": "btn-touch-foot-run",
+          "w": 41,
+          "h": 50
+        },
+        {
+          "id": "btn-touch-foot-cam",
+          "w": 47,
+          "h": 50
+        },
+        {
+          "id": "btn-touch-foot-exit-home",
+          "w": 51,
+          "h": 50
+        },
+        {
+          "id": "btn-touch-turn-left",
+          "w": 56,
+          "h": 44
+        },
+        {
+          "id": "btn-touch-turn-right",
+          "w": 56,
+          "h": 44
+        }
+      ],
+      "offenders": []
+    },
+    "phone_landscape_844x390": {
+      "overlapPx": 0,
+      "hudInViewport": true,
+      "offenders": 0,
+      "mode": "home"
+    },
+    "tablet_768x1024": {
+      "overlapPx": 0,
+      "hudInViewport": true,
+      "offenders": 0,
+      "mode": "home"
+    }
+  },
+  "persistence": {
+    "before": {
+      "furniture": "[[\"itm_mattress_starter\",0,0.4,0],[\"itm_standing_fan\",2.8,2.4,0],[\"itm_wardrobe_rack\",0,-3.1,0],[\"itm_wash_basin\",2.6,-2.6,0],[\"itm_table_stove\",2.6,0,0],[\"itm_study_desk\",-2.6,0.5,1.5708]]",
+      "pantry": 9,
+      "fan": true,
+      "residence": "res_marina_selfcon",
+      "owned": 7,
+      "balance": 824505
+    },
+    "after": {
+      "furniture": "[[\"itm_mattress_starter\",0,0.4,0],[\"itm_standing_fan\",2.8,2.4,0],[\"itm_wardrobe_rack\",0,-3.1,0],[\"itm_wash_basin\",2.6,-2.6,0],[\"itm_table_stove\",2.6,0,0],[\"itm_study_desk\",-2.6,0.5,1.5708]]",
+      "pantry": 9,
+      "fan": true,
+      "residence": "res_marina_selfcon",
+      "owned": 7,
+      "balance": 824505
+    }
+  },
+  "walk": {
+    "samples": 98,
+    "furnitureHits": 0,
+    "wallHits": 0,
+    "offGround": 0,
+    "minClearM": 0.208,
+    "walkableCells": 3823,
+    "walkableAreaM2": 38.23,
+    "reach": [
+      {
+        "itemId": "itm_mattress_starter",
+        "nearestReachableM": 1.2
+      },
+      {
+        "itemId": "itm_standing_fan",
+        "nearestReachableM": 0.6
+      },
+      {
+        "itemId": "itm_wardrobe_rack",
+        "nearestReachableM": 0.6
+      },
+      {
+        "itemId": "itm_wash_basin",
+        "nearestReachableM": 0.7
+      },
+      {
+        "itemId": "itm_table_stove",
+        "nearestReachableM": 0.6
+      },
+      {
+        "itemId": "itm_study_desk",
+        "nearestReachableM": 0.6
+      }
+    ]
+  },
+  "screenshots": [
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_street_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_home_exterior_porch.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_home_exploration_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_home_planner_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_2_home_furniture_mover_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_2_home_planner_minimized_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_3_home_wears_and_items_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_occlusion_inside_home_no_labels.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_occlusion_through_doorway.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_npc_nameplate_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_4_complete_playable_flow_desktop.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_mobile_portrait_street_porch.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_mobile_portrait_home_exploration.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_mobile_portrait_home_planner.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_mobile_portrait_driving.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_mobile_portrait_atlas.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_phone_landscape_844x390_home.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_phone_landscape_844x390_driving.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_tablet_768x1024_home.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m4_6_1_home_after_reload.png"
+  ],
+  "completePlayableFlow": {
+    "stage1StartOk": true,
+    "act1a": "ENTER_3D_HOME",
+    "act1b": "USE_HOME_WEARS",
+    "act1c": "EXIT_3D_HOME",
+    "afterStage1Idx": 1,
+    "shopInteractRes": "OPEN_SHOP_COUNTER_3D",
+    "counterHudOpen": true,
+    "act2b": "BUY_AND_PLACE_SHOP_ITEM",
+    "afterStage2Idx": 2,
+    "act3Start": "START_JOB_SHIFT",
+    "jobOverrideActive": true,
+    "jobBodyHidden": true,
+    "act3Finish": "COMPLETE_JOB_SHIFT",
+    "jobEarnedGN": 1243,
+    "afterStage3Idx": 3,
+    "act4Mount": "MOUNT_SEDAN",
+    "act4Pickup": "ARRIVE_SISTER_BLESSING_PICKUP",
+    "boardedOk": true,
+    "wDismissedGreeting": true,
+    "act4Dropoff": "COMPLETE_SISTER_BLESSING_DROPOFF",
+    "afterStage4Idx": 4,
+    "act5Load": "LOAD_BALOGUN_CARGO",
+    "act5Deliver": "DELIVER_SUYA_CARGO",
+    "cargoEarnedGN": 1800,
+    "afterStage5Idx": 5,
+    "milestones": {
+      "enteredHome": true,
+      "usedHomeItem": true,
+      "exitedHome": true,
+      "boughtShopItem": true,
+      "completedStreetJob": true,
+      "completedDrive": true,
+      "completedCargo": true,
+      "completedCulture": false
+    }
+  },
+  "hudHistory": [
+    "boot→interact",
+    "interact→home",
+    "home→planner",
+    "planner→home",
+    "home→interact",
+    "interact→home",
+    "home→interact",
+    "interact→driving",
+    "driving→interact",
+    "interact→atlas",
+    "atlas→interact",
+    "interact→atlas",
+    "atlas→interact",
+    "interact→street",
+    "street→interact",
+    "interact→street",
+    "street→interact",
+    "interact→home",
+    "home→planner",
+    "planner→home",
+    "home→interact",
+    "interact→driving",
+    "driving→interact",
+    "interact→atlas",
+    "atlas→interact",
+    "interact→hustle",
+    "hustle→driving"
+  ],
+  "visibilityDiagnostics": {
+    "evaluated": 2077,
+    "visible": 167,
+    "hidden": {
+      "OUT_OF_FRUSTUM": 658,
+      "OUT_OF_RANGE": 1178,
+      "INTERIOR_BOUNDARY_OCCLUDED": 74
+    },
+    "raycasts": 31
+  },
+  "summary": {
+    "passed": 64,
+    "failed": 0
+  }
+}

@@ -1,0 +1,44 @@
+name: Project Eko — Production Readiness CI Gate
+
+on:
+  push:
+    branches: [ main, staging, release/* ]
+  pull_request:
+    branches: [ main, staging ]
+
+env:
+  NODE_ENV: test
+  PROJECT_EKO_EVIDENCE_HMAC_KEY: ci-verification-managed-secret-key-minimum-32-bytes-long
+  PROJECT_EKO_ENABLE_LIVE_FIAT_PAYOUTS: 'false'
+
+jobs:
+  build-and-verify:
+    name: Build, Identity, Durability, Production Readiness & Domain Suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies cleanly
+        run: npm install
+
+      - name: Compile all TypeScript workspaces
+        run: npm run build
+
+      - name: Phase 1 — Identity & Session Boundary Verification
+        run: npm run verify:phase1
+
+      - name: Phase 2 — Multi-Account Durability & Settlement Verification
+        run: npm run verify:phase2
+
+      - name: Production Readiness Gate Verification (Phases 0-11)
+        run: npm run verify:prod-readiness
+
+      - name: Full Domain & Simulation Test Suite
+        run: npm test

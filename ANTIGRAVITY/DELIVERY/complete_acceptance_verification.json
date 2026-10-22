@@ -1,0 +1,678 @@
+{
+  "timestamp": "2026-10-17T16:44:57.540Z",
+  "sectionA_EndToEnd": {
+    "livingLagos": {
+      "spawnState": {
+        "isDriving": false,
+        "x": -83.8,
+        "z": -208,
+        "anim": "idle"
+      },
+      "walkAnim": "walk_forward",
+      "walkedDist": 0.64,
+      "turnedLeft": true,
+      "turnedRight": true,
+      "dialogueOpened": true,
+      "enteredVehicle": true,
+      "driveSeatedAnim": "driving",
+      "drivingSpeed": 15.3,
+      "droveForward": true,
+      "onboardAfterStop": 4,
+      "cashBeforeMission": 48150,
+      "cashAfterMission": 49350
+    },
+    "characterControls": {
+      "statesObserved": {
+        "idle": "idle",
+        "walk_forward": "walk_forward",
+        "run": "run",
+        "walk_backward": "walk_backward",
+        "turn_left": "turn_left",
+        "turn_right": "turn_right"
+      },
+      "camerasVisited": [
+        "front",
+        "portrait",
+        "chase",
+        "front"
+      ],
+      "supportedStatesCount": 22
+    },
+    "mobileExploration": {
+      "touchControlsVisible": true,
+      "joyForwardAnim": "run",
+      "movedForwardDist": 2.12,
+      "turnedLeftViaJoystick": true,
+      "runLatched": false,
+      "cameraSwitchedViaTouch": true
+    },
+    "mobileDriving": {
+      "enteredViaTouch": true,
+      "speedAccelerating": 10.3,
+      "steeredLeft": true,
+      "steeredRight": true,
+      "speedAfterBrake": 6.8,
+      "distanceDriven": 3.12,
+      "exitedViaTouch": true
+    },
+    "danfoHustle": {
+      "settlementOk": true,
+      "earnedGN": 1260,
+      "earnedHC": 42,
+      "initialGN": 49350,
+      "postRunGN": 50610,
+      "initialHC": 80,
+      "postRunHC": 122,
+      "returnedToLivingLagos": true
+    },
+    "economyAndExistingSystems": {
+      "ledgerStatus": 200,
+      "ledgerBalanced": true,
+      "authoritativeBalanceGN": 49350,
+      "authoritativeBalanceHC": 80,
+      "realtimeWorkerStatus": "ok",
+      "fleetDispatchStatus": 200,
+      "bizCollectStatus": 200,
+      "existingClientSystems": {
+        "phoneOpen": true,
+        "appsChecked": [
+          "wallet",
+          "jobs",
+          "biz",
+          "fleet",
+          "motors"
+        ],
+        "summonedOkada": true,
+        "ownedVehiclesCount": 1
+      }
+    }
+  },
+  "sectionB_RegressionTests": {
+    "b1_characterOrientation": {
+      "passed": true,
+      "forwardDot": 1,
+      "anatomicalLeftHipX": 0.1081,
+      "anatomicalRightHipX": -0.1081
+    },
+    "b2_walkAnimSync": {
+      "passed": true,
+      "walkingState": "walk_forward",
+      "stoppedState": "idle",
+      "gaitFrequencyHz": 1.281
+    },
+    "b3_footSliding": {
+      "passed": true,
+      "minStanceFootClearanceM": 0,
+      "strideLengthM": 1.9733,
+      "stanceFoot": "left"
+    },
+    "b4_leftRightCorrectness": {
+      "passed": true,
+      "onFootLeftRightOk": true,
+      "drivingSteerOk": true,
+      "arcadeLaneSwitchOk": true
+    },
+    "b5_keyboardTouchConflict": {
+      "passed": true,
+      "keyWPreservedAfterTouchRelease": true,
+      "touchHoldPreservedAfterKeyUp": true,
+      "bothReleasedCleanly": true
+    },
+    "b6_vehicleSteering": {
+      "passed": true,
+      "vYaw0": 0,
+      "vYawLeft": 0.1794,
+      "vYawRight": -0.0197
+    },
+    "b7_vehicleCollision": {
+      "passed": true,
+      "collBefore": 0,
+      "collAfter": 1
+    },
+    "b8_pedestrianCollision": {
+      "passed": true,
+      "pedestrianHits": 1,
+      "scoreBeforePed": 1000,
+      "scoreAfterPed": 0
+    },
+    "b9_vehicleSpawning": {
+      "passed": true,
+      "spawnedClasses": [
+        {
+          "key": "sedan",
+          "validPos": true,
+          "groundY": 0.05
+        },
+        {
+          "key": "danfo",
+          "validPos": true,
+          "groundY": 0.05
+        },
+        {
+          "key": "okada",
+          "validPos": true,
+          "groundY": 0.05
+        },
+        {
+          "key": "keke",
+          "validPos": true,
+          "groundY": 0.05
+        },
+        {
+          "key": "brt",
+          "validPos": true,
+          "groundY": 0.05
+        }
+      ]
+    },
+    "b10_passengerBoarding": {
+      "passed": true,
+      "midBoardingCompleted": false,
+      "midBoardingProgress": 0.23,
+      "finishedBoardingCompleted": true
+    },
+    "b13_coinDuplication": {
+      "passed": true,
+      "coinsBefore": 0,
+      "coinsAfterFirstPass": 1,
+      "coinsAfterSecondPass": 1
+    },
+    "b14_repeatedButtonPresses": {
+      "passed": true,
+      "suppressionsBefore": 0,
+      "suppressionsAfter": 2
+    },
+    "b16_interruptedNetworkRequests": {
+      "passed": true,
+      "queuedDuringOutage": 1,
+      "flushedCount": 1,
+      "remainingQueue": 0
+    },
+    "b18_assetFailureFallback": {
+      "passed": true,
+      "fallbackSim": {
+        "fallbackTriggered": true,
+        "fallbackMeshCreated": true,
+        "boneCount": 15,
+        "characterCountActive": 34,
+        "playerRigIntact": true,
+        "assetDiagnostics": {
+          "manifestLoaded": true,
+          "verifiedGLBCount": 4,
+          "totalGLBBytes": 273052,
+          "failedAssets": [
+            {
+              "uri": "/assets/characters/missing_test_rig.glb",
+              "reason": "HTTP_404",
+              "fallback": "PROCEDURAL_15_BONE_SKINNED_MESH",
+              "timestamp": 1792255512269
+            }
+          ],
+          "proceduralFallbackCount": 1,
+          "proceduralFallbackReady": true
+        }
+      }
+    },
+    "b11_rewardIdempotency": {
+      "passed": true,
+      "firstStatus": 200,
+      "duplicateStatus": 409,
+      "duplicateData": {
+        "error": "DUPLICATE_TRANSACTION",
+        "idempotentReplay": true,
+        "transactionId": "tx_trip_mission_reg_b11_1792255512271_639",
+        "message": "Idempotency key 'idem_reg_b11_1792255512270' already settled in transaction 'tx_trip_mission_reg_b11_1792255512271_639'.",
+        "newBalance": 57940
+      }
+    },
+    "b12_gameNairaLedgerBalance": {
+      "passed": true,
+      "clientCash": 57940,
+      "serverBalance": 57940
+    },
+    "b15_browserRefresh": {
+      "passed": true,
+      "beforeReloadState": {
+        "cash": 57940,
+        "hc": 80,
+        "equippedLivery": "unlock_livery_eko_gold"
+      },
+      "afterReloadState": {
+        "cash": 57940,
+        "hc": 80,
+        "equippedLivery": "unlock_livery_eko_gold",
+        "danfoHex": 16096779
+      }
+    },
+    "b17_responsiveUILayout": {
+      "passed": true,
+      "audits": {
+        "mobile_portrait_390x844": {
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "aspect": 0.462
+          },
+          "orientation": "portrait_mobile",
+          "mode": "onfoot",
+          "measuredElementCount": 5,
+          "boxes": [
+            {
+              "id": "minimap-card",
+              "left": 6,
+              "top": 6,
+              "right": 143,
+              "bottom": 54,
+              "width": 137,
+              "height": 48
+            },
+            {
+              "id": "hud-meta-right",
+              "left": 149,
+              "top": 9,
+              "right": 384,
+              "bottom": 51,
+              "width": 235,
+              "height": 42
+            },
+            {
+              "id": "gauge-cluster",
+              "left": 27,
+              "top": 665,
+              "right": 363,
+              "bottom": 710,
+              "width": 336,
+              "height": 45
+            },
+            {
+              "id": "touch-cluster-onfoot-left",
+              "left": 6,
+              "top": 754,
+              "right": 152,
+              "bottom": 838,
+              "width": 146,
+              "height": 84
+            },
+            {
+              "id": "touch-cluster-onfoot-right",
+              "left": 238,
+              "top": 755,
+              "right": 384,
+              "bottom": 838,
+              "width": 146,
+              "height": 83
+            }
+          ],
+          "overlapCount": 0,
+          "overlaps": [],
+          "outOfBoundsCount": 0,
+          "outOfBounds": []
+        },
+        "mobile_landscape_780x360": {
+          "viewport": {
+            "width": 780,
+            "height": 360,
+            "aspect": 2.167
+          },
+          "orientation": "landscape_mobile",
+          "mode": "onfoot",
+          "measuredElementCount": 5,
+          "boxes": [
+            {
+              "id": "minimap-card",
+              "left": 6,
+              "top": 6,
+              "right": 184,
+              "bottom": 54,
+              "width": 178,
+              "height": 48
+            },
+            {
+              "id": "hud-meta-right",
+              "left": 539,
+              "top": 9,
+              "right": 774,
+              "bottom": 51,
+              "width": 235,
+              "height": 42
+            },
+            {
+              "id": "gauge-cluster",
+              "left": 222,
+              "top": 309,
+              "right": 558,
+              "bottom": 354,
+              "width": 336,
+              "height": 45
+            },
+            {
+              "id": "touch-cluster-onfoot-left",
+              "left": 10,
+              "top": 282,
+              "right": 168,
+              "bottom": 354,
+              "width": 158,
+              "height": 72
+            },
+            {
+              "id": "touch-cluster-onfoot-right",
+              "left": 612,
+              "top": 271,
+              "right": 770,
+              "bottom": 354,
+              "width": 158,
+              "height": 83
+            }
+          ],
+          "overlapCount": 0,
+          "overlaps": [],
+          "outOfBoundsCount": 0,
+          "outOfBounds": []
+        },
+        "desktop_1366x768": {
+          "viewport": {
+            "width": 1366,
+            "height": 768,
+            "aspect": 1.779
+          },
+          "orientation": "desktop_landscape",
+          "mode": "onfoot",
+          "measuredElementCount": 5,
+          "boxes": [
+            {
+              "id": "minimap-card",
+              "left": 24,
+              "top": 105,
+              "right": 333,
+              "bottom": 239,
+              "width": 309,
+              "height": 134
+            },
+            {
+              "id": "hud-meta-right",
+              "left": 667,
+              "top": 24,
+              "right": 1342,
+              "bottom": 112,
+              "width": 675,
+              "height": 88
+            },
+            {
+              "id": "gauge-cluster",
+              "left": 985,
+              "top": 616,
+              "right": 1342,
+              "bottom": 744,
+              "width": 357,
+              "height": 128
+            },
+            {
+              "id": "quick-controls-card",
+              "left": 24,
+              "top": 538,
+              "right": 404,
+              "bottom": 652,
+              "width": 380,
+              "height": 114
+            },
+            {
+              "id": "brand-cluster",
+              "left": 24,
+              "top": 24,
+              "right": 333,
+              "bottom": 95,
+              "width": 309,
+              "height": 71
+            }
+          ],
+          "overlapCount": 0,
+          "overlaps": [],
+          "outOfBoundsCount": 0,
+          "outOfBounds": []
+        }
+      }
+    }
+  },
+  "sectionC_PerformanceGate": {
+    "living_lagos_desktop_1366x768": {
+      "viewport": "1366x768",
+      "cpuThrottlingRate": "1x",
+      "mode": "living_lagos",
+      "preset": "desktop_high",
+      "measuredFps": 60,
+      "frameTimeMs": {
+        "min": 14.9,
+        "avg": 16.64,
+        "p50": 16.7,
+        "p95": 18.4,
+        "p99": 18.4,
+        "max": 18.4
+      },
+      "drawCalls": 50,
+      "triangles": 32592,
+      "memory": {
+        "usedJSHeapMB": 44.53,
+        "totalJSHeapMB": 68.36,
+        "jsHeapLimitMB": 4192,
+        "webglGeometries": 88,
+        "webglTextures": 32
+      },
+      "loadTimeMs": 218,
+      "assetPayload": {
+        "htmlDocumentBytes": 1220552,
+        "glbCharacterAssetsBytes": 273052,
+        "totalPayloadBytes": 1493604,
+        "totalPayloadKB": 1458.6
+      },
+      "touchResponsiveness": {
+        "touchEventsProcessed": 1,
+        "lastTouchLatencyMs": 4.7,
+        "avgTouchLatencyMs": 4.7
+      },
+      "npcFullRateCount": 11,
+      "npcThrottledCount": 14,
+      "npcCulledCount": 6
+    },
+    "living_lagos_mobile_portrait_390x844_4xCPU": {
+      "viewport": "390x844",
+      "cpuThrottlingRate": "4x",
+      "mode": "living_lagos",
+      "preset": "mobile_balanced",
+      "measuredFps": 60,
+      "frameTimeMs": {
+        "min": 15.1,
+        "avg": 16.64,
+        "p50": 16.7,
+        "p95": 18.5,
+        "p99": 18.6,
+        "max": 18.6
+      },
+      "drawCalls": 49,
+      "triangles": 28184,
+      "memory": {
+        "usedJSHeapMB": 37.39,
+        "totalJSHeapMB": 69.78,
+        "jsHeapLimitMB": 4192,
+        "webglGeometries": 88,
+        "webglTextures": 32
+      },
+      "loadTimeMs": 218,
+      "assetPayload": {
+        "htmlDocumentBytes": 1220462,
+        "glbCharacterAssetsBytes": 273052,
+        "totalPayloadBytes": 1493514,
+        "totalPayloadKB": 1458.5
+      },
+      "touchResponsiveness": {
+        "touchEventsProcessed": 2,
+        "lastTouchLatencyMs": 0.5,
+        "avgTouchLatencyMs": 2.6
+      },
+      "npcFullRateCount": 3,
+      "npcThrottledCount": 17,
+      "npcCulledCount": 11
+    },
+    "living_lagos_mobile_landscape_780x360_4xCPU": {
+      "viewport": "780x360",
+      "cpuThrottlingRate": "4x",
+      "mode": "living_lagos",
+      "preset": "mobile_low",
+      "measuredFps": 61,
+      "frameTimeMs": {
+        "min": 11,
+        "avg": 16.42,
+        "p50": 16.7,
+        "p95": 18.1,
+        "p99": 18.4,
+        "max": 18.4
+      },
+      "drawCalls": 40,
+      "triangles": 26804,
+      "memory": {
+        "usedJSHeapMB": 42.86,
+        "totalJSHeapMB": 70.94,
+        "jsHeapLimitMB": 4192,
+        "webglGeometries": 90,
+        "webglTextures": 32
+      },
+      "loadTimeMs": 218,
+      "assetPayload": {
+        "htmlDocumentBytes": 1220551,
+        "glbCharacterAssetsBytes": 273052,
+        "totalPayloadBytes": 1493603,
+        "totalPayloadKB": 1458.6
+      },
+      "touchResponsiveness": {
+        "touchEventsProcessed": 3,
+        "lastTouchLatencyMs": 1,
+        "avgTouchLatencyMs": 2.067
+      },
+      "npcFullRateCount": 2,
+      "npcThrottledCount": 15,
+      "npcCulledCount": 14
+    },
+    "danfo_hustle_desktop_1366x768": {
+      "viewport": "1366x768",
+      "cpuThrottlingRate": "1x",
+      "mode": "danfo_hustle",
+      "preset": "desktop_high",
+      "measuredFps": 60,
+      "frameTimeMs": {
+        "min": 15.3,
+        "avg": 16.62,
+        "p50": 16.6,
+        "p95": 18.4,
+        "p99": 18.4,
+        "max": 18.4
+      },
+      "drawCalls": 82,
+      "triangles": 24706,
+      "memory": {
+        "usedJSHeapMB": 38.66,
+        "totalJSHeapMB": 72.28,
+        "jsHeapLimitMB": 4192,
+        "webglGeometries": 118,
+        "webglTextures": 32
+      },
+      "loadTimeMs": 218,
+      "assetPayload": {
+        "htmlDocumentBytes": 1218407,
+        "glbCharacterAssetsBytes": 273052,
+        "totalPayloadBytes": 1491459,
+        "totalPayloadKB": 1456.5
+      },
+      "touchResponsiveness": {
+        "touchEventsProcessed": 4,
+        "lastTouchLatencyMs": 0.1,
+        "avgTouchLatencyMs": 1.575
+      },
+      "npcFullRateCount": 0,
+      "npcThrottledCount": 3,
+      "npcCulledCount": 28
+    },
+    "danfo_hustle_mobile_portrait_390x844_4xCPU": {
+      "viewport": "390x844",
+      "cpuThrottlingRate": "4x",
+      "mode": "danfo_hustle",
+      "preset": "mobile_balanced",
+      "measuredFps": 60,
+      "frameTimeMs": {
+        "min": 14.5,
+        "avg": 16.68,
+        "p50": 16.9,
+        "p95": 18.8,
+        "p99": 18.8,
+        "max": 18.8
+      },
+      "drawCalls": 83,
+      "triangles": 24770,
+      "memory": {
+        "usedJSHeapMB": 43.34,
+        "totalJSHeapMB": 73.44,
+        "jsHeapLimitMB": 4192,
+        "webglGeometries": 120,
+        "webglTextures": 32
+      },
+      "loadTimeMs": 218,
+      "assetPayload": {
+        "htmlDocumentBytes": 1218406,
+        "glbCharacterAssetsBytes": 273052,
+        "totalPayloadBytes": 1491458,
+        "totalPayloadKB": 1456.5
+      },
+      "touchResponsiveness": {
+        "touchEventsProcessed": 5,
+        "lastTouchLatencyMs": 0.1,
+        "avgTouchLatencyMs": 1.28
+      },
+      "npcFullRateCount": 0,
+      "npcThrottledCount": 3,
+      "npcCulledCount": 28
+    },
+    "danfo_hustle_mobile_landscape_780x360_4xCPU": {
+      "viewport": "780x360",
+      "cpuThrottlingRate": "4x",
+      "mode": "danfo_hustle",
+      "preset": "mobile_low",
+      "measuredFps": 60,
+      "frameTimeMs": {
+        "min": 11.8,
+        "avg": 16.54,
+        "p50": 16.4,
+        "p95": 18.7,
+        "p99": 19.2,
+        "max": 19.2
+      },
+      "drawCalls": 85,
+      "triangles": 24738,
+      "memory": {
+        "usedJSHeapMB": 48.19,
+        "totalJSHeapMB": 74.61,
+        "jsHeapLimitMB": 4192,
+        "webglGeometries": 120,
+        "webglTextures": 32
+      },
+      "loadTimeMs": 218,
+      "assetPayload": {
+        "htmlDocumentBytes": 1218405,
+        "glbCharacterAssetsBytes": 273052,
+        "totalPayloadBytes": 1491457,
+        "totalPayloadKB": 1456.5
+      },
+      "touchResponsiveness": {
+        "touchEventsProcessed": 6,
+        "lastTouchLatencyMs": 1.1,
+        "avgTouchLatencyMs": 1.25
+      },
+      "npcFullRateCount": 1,
+      "npcThrottledCount": 2,
+      "npcCulledCount": 28
+    }
+  },
+  "screenshots": {
+    "mobileOnFootPortrait": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/acceptance_mobile_onfoot_390x844.png",
+    "mobileDrivingLandscape": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/acceptance_mobile_driving_780x360.png",
+    "danfoHustleArcade": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/acceptance_danfo_hustle_1366x768.png"
+  },
+  "allPassed": true
+}

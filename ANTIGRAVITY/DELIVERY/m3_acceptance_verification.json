@@ -1,0 +1,238 @@
+{
+  "timestamp": "2026-10-19T16:20:14.895Z",
+  "acceptanceChecks": {
+    "test1_openDesktopAndMobile": {
+      "passed": true,
+      "desktopOpenLatencyMs": 23.7,
+      "mobileFitsViewport": true
+    },
+    "test2_panZoomAndClustering": {
+      "passed": true,
+      "panZoomLatencyMs": 1.3,
+      "lowZoomClusterCount": 4,
+      "highZoomMarkerCount": 22
+    },
+    "test3_searchAndSelectCMS": {
+      "passed": true,
+      "selectedId": "ent_cms_bus_terminal",
+      "displayName": "CMS Bus Terminal"
+    },
+    "test4_viewCMSDetails": {
+      "passed": true,
+      "details": {
+        "selectedId": "ent_cms_bus_terminal",
+        "displayName": "CMS Bus Terminal",
+        "availability": "PLAYABLE",
+        "coords": {
+          "x": -110.2,
+          "y": 0,
+          "z": -200
+        },
+        "cardHasDetails": true,
+        "routePreviewActive": true,
+        "nearbyPopulated": true,
+        "eventsPopulated": true
+      }
+    },
+    "test5_navigateAtlasToWorld": {
+      "passed": true,
+      "details": {
+        "navSuccess": true,
+        "atlasClosed": true,
+        "gpsTargetKey": "ent_cms_bus_terminal",
+        "beaconVisibleDuringNav": true,
+        "hudBannerText": "🧭 EKOATLAS GPS DESTINATION • 28M WEST ◀\n🧭 EKOATLAS GPS: CMS BUS TERMINAL\nRoute: 61m (19s ETA) • Arrive & Press [E] to Interact\n⚡ Interact\n🗺️ Map\n⏭️ Next\n✕",
+        "routeDistanceM": 61,
+        "balBefore": 619870
+      }
+    },
+    "test6_reachAndInteractCMS": {
+      "passed": true,
+      "details": {
+        "cmsArrivalSuccess": true,
+        "cmsActionExecuted": "BOARD_TRANSIT",
+        "playerReachedCmsCoords": true,
+        "balanceIncreasedAtCms": true,
+        "tbsContinuityVerified": true
+      }
+    },
+    "test7_openAndFilterEkoPlaces": {
+      "passed": true,
+      "categoryCounts": {
+        "TRANSPORT": 10,
+        "FOOD": 2,
+        "RETAIL": 2,
+        "ENTERTAINMENT": 4,
+        "GARAGES": 1,
+        "DEALERSHIPS": 1,
+        "JOBS": 3,
+        "PROPERTIES": 5,
+        "EVENTS": 1,
+        "PLAYER_BUSINESSES": 3,
+        "LANDMARKS": 10
+      }
+    },
+    "test8_viewBusinessSupportedState": {
+      "passed": true,
+      "businessState": {
+        "id": "ent_haruna_suya_grill",
+        "ownershipState": "PLAYER_OWNED",
+        "interactions": [
+          "NAVIGATE",
+          "OPEN_BUSINESS",
+          "OPEN_BUSINESS"
+        ]
+      }
+    },
+    "test9_approvedBillboardInWorld": {
+      "passed": true,
+      "details": {
+        "slotCount": 8,
+        "formatsCount": 8,
+        "spawned3DBillboardCount": 3,
+        "gantryWorldCoords": {
+          "x": -98,
+          "y": 7.8,
+          "z": -192
+        },
+        "statusBeforePause": "ACTIVE",
+        "statusWhenPaused": "VACANT",
+        "statusAfterResume": "ACTIVE",
+        "tbsLandmarkProtected": true
+      }
+    },
+    "test10_virtualParcelPermittedUsesAndDevelop": {
+      "passed": true,
+      "details": {
+        "permittedUses": [
+          "TRANSIT_KIOSK",
+          "FOOD_COURT",
+          "RETAIL_KIOSK"
+        ],
+        "allCarryVirtualRightsNotice": true,
+        "restrictedRejected": true,
+        "realMoneyPropRejected": true,
+        "rewardFiatPayoutLocked": true,
+        "acquiredSuccess": true,
+        "developedSuccess": true,
+        "finalBuildState": "DEVELOPED_OPERATING",
+        "finalOperatingStatus": "OPEN",
+        "spawned3DBuilding": true,
+        "ledgerBalanced": true
+      }
+    },
+    "test12_noRealWorldOwnershipClaim": {
+      "passed": true,
+      "allCarryVirtualRightsNotice": true,
+      "restrictedCivicReserveBlocked": true
+    },
+    "test13_realMoneyPayoutDisabled": {
+      "passed": true,
+      "realMoneyPropertyBlocked": true,
+      "fiatRewardPayoutLocked": true
+    },
+    "test11_unifiedEntityIdsAcrossSurfaces": {
+      "passed": true,
+      "details": {
+        "atlasCmsId": "ent_cms_bus_terminal",
+        "atlasByStopId": "ent_cms_bus_terminal",
+        "gpsCmsEntityId": "ent_cms_bus_terminal",
+        "phoneUsesSameEntityId": true,
+        "zeroDuplicateIds": true,
+        "all21EntityTypesPresent": true
+      }
+    },
+    "test14_noUnnecessaryHighDetailDistrictLoads": {
+      "passed": true,
+      "details": {
+        "geometriesBefore": 115,
+        "geometriesAfter": 115,
+        "zeroExtra3DGeometriesLoaded": true,
+        "texturesBefore": 47,
+        "texturesAfter": 47,
+        "deferredDistrict3DLoadsPrevented": 2,
+        "viNotice": "🔒 Victoria Island & Eko Atlantic (M4 Planned): PLANNED — 3D District Geometry Not Loaded (0 Memory Overhead)",
+        "yabaNotice": "🔒 Yaba Tech Corridor & Mainland Approach (Locked): LOCKED — 3D District Geometry Not Loaded (0 Memory Overhead)"
+      }
+    },
+    "test15_performanceAndTestSuites": {
+      "passed": true,
+      "viewports": {
+        "desktop_1440x900": {
+          "fps": 60,
+          "frameTimeMs": 16.67,
+          "p95FrameTimeMs": 17.4,
+          "drawCalls": 32,
+          "triangles": 21320,
+          "jsHeapMB": 17,
+          "qualityPreset": "desktop_high",
+          "gatePassed": true
+        },
+        "mobile_portrait_390x844": {
+          "fps": 60,
+          "frameTimeMs": 16.65,
+          "p95FrameTimeMs": 17.2,
+          "drawCalls": 28,
+          "triangles": 19068,
+          "jsHeapMB": 19,
+          "qualityPreset": "mobile_balanced",
+          "gatePassed": true
+        },
+        "mobile_landscape_844x390": {
+          "fps": 60,
+          "frameTimeMs": 16.65,
+          "p95FrameTimeMs": 17.5,
+          "drawCalls": 28,
+          "triangles": 19068,
+          "jsHeapMB": 20,
+          "qualityPreset": "mobile_balanced",
+          "gatePassed": true
+        }
+      }
+    }
+  },
+  "performanceMetrics": {
+    "desktop_1440x900": {
+      "fps": 60,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 17.4,
+      "drawCalls": 32,
+      "triangles": 21320,
+      "jsHeapMB": 17,
+      "qualityPreset": "desktop_high",
+      "gatePassed": true
+    },
+    "mobile_portrait_390x844": {
+      "fps": 60,
+      "frameTimeMs": 16.65,
+      "p95FrameTimeMs": 17.2,
+      "drawCalls": 28,
+      "triangles": 19068,
+      "jsHeapMB": 19,
+      "qualityPreset": "mobile_balanced",
+      "gatePassed": true
+    },
+    "mobile_landscape_844x390": {
+      "fps": 60,
+      "frameTimeMs": 16.65,
+      "p95FrameTimeMs": 17.5,
+      "drawCalls": 28,
+      "triangles": 19068,
+      "jsHeapMB": 20,
+      "qualityPreset": "mobile_balanced",
+      "gatePassed": true
+    }
+  },
+  "screenshots": {
+    "desktopAtlasOverview": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_01_ekoatlas_desktop_overview.png",
+    "mobileAtlasPortrait": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_02_ekoatlas_mobile_portrait.png",
+    "cmsSelectedInspector": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_03_ekoatlas_cms_selected_details.png",
+    "streetNavigationActive": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_04_street_navigation_beacon_active.png",
+    "ekoPlacesDirectory": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_05_ekoplaces_directory_filtered.png",
+    "ekoMediaAdmin": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_06_ekomedia_admin_inventory.png",
+    "ekoPropertiesGrid": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_07_ekoproperties_virtual_parcels.png",
+    "ekoPhoneM3Apps": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_08_ekophone_m3_apps.png",
+    "mobileAtlasLandscape": "/Users/divinity/Documents/Project Eko/ANTIGRAVITY/DELIVERY/screenshots/m3_09_ekoatlas_mobile_landscape.png"
+  },
+  "allPassed": true
+}

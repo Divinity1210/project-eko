@@ -1,0 +1,100 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: project_eko_prod
+      POSTGRES_USER: eko_prod
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+    volumes:
+      - eko_pgdata:/var/lib/postgresql/data
+      - ../database/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eko_prod -d project_eko_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/deployment/Dockerfile
+    command: ["node", "services/api/dist/server.js"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PROJECT_EKO_API_PORT: "3001"
+      DATABASE_URL: postgresql://eko_prod:${POSTGRES_PASSWORD}@postgres:5432/project_eko_prod
+      PROJECT_EKO_CORS_ORIGINS: ${PROJECT_EKO_CORS_ORIGINS:-https://play.projecteko.ng}
+      PROJECT_EKO_EVIDENCE_HMAC_KEY: ${PROJECT_EKO_EVIDENCE_HMAC_KEY:?PROJECT_EKO_EVIDENCE_HMAC_KEY required}
+      PROJECT_EKO_ENABLE_LIVE_FIAT_PAYOUTS: "false"
+      PROJECT_EKO_ALLOW_SANDBOX_GRANTS: "false"
+      PROJECT_EKO_DATA_DIR: /var/lib/project-eko/data
+    volumes:
+      - eko_appdata:/var/lib/project-eko/data
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/readyz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  realtime:
+    build:
+      context: ../..
+      dockerfile: infra/deployment/Dockerfile
+    command: ["node", "services/realtime/dist/server.js"]
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PROJECT_EKO_REALTIME_PORT: "3002"
+      PROJECT_EKO_CORS_ORIGINS: ${PROJECT_EKO_CORS_ORIGINS:-https://play.projecteko.ng}
+      PROJECT_EKO_EVIDENCE_HMAC_KEY: ${PROJECT_EKO_EVIDENCE_HMAC_KEY:?PROJECT_EKO_EVIDENCE_HMAC_KEY required}
+      PROJECT_EKO_DATA_DIR: /var/lib/project-eko/data
+    volumes:
+      - eko_appdata:/var/lib/project-eko/data
+    ports:
+      - "3002:3002"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3002/readyz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  game-web:
+    build:
+      context: ../..
+      dockerfile: infra/deployment/Dockerfile
+    command: ["node", "apps/game/server.js"]
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      realtime:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PROJECT_EKO_GAME_PORT: "3000"
+      PROJECT_EKO_PUBLIC_API_URL: ${PROJECT_EKO_PUBLIC_API_URL:-https://api.projecteko.ng}
+      PROJECT_EKO_PUBLIC_REALTIME_URL: ${PROJECT_EKO_PUBLIC_REALTIME_URL:-https://realtime.projecteko.ng}
+      PROJECT_EKO_CORS_ORIGINS: ${PROJECT_EKO_CORS_ORIGINS:-https://play.projecteko.ng}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/readyz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  eko_pgdata:
+  eko_appdata:

@@ -1,0 +1,86 @@
+{
+  "version": "2.0.0",
+  "generatedAt": "2026-10-16T14:37:17.047Z",
+  "ipClassification": "Class B — In-House Original Procedural & Rigged GLB Assets",
+  "licence": "Project Eko Proprietary / First-Party Original (Zero Unlicensed Third-Party Content)",
+  "canonicalAxes": {
+    "forward": "+Z",
+    "up": "+Y",
+    "left": "+X"
+  },
+  "skeletonBones": [
+    "Root",
+    "Hips",
+    "Spine",
+    "Neck",
+    "Head",
+    "ShoulderL",
+    "ElbowL",
+    "ShoulderR",
+    "ElbowR",
+    "HipL",
+    "KneeL",
+    "AnkleL",
+    "HipR",
+    "KneeR",
+    "AnkleR"
+  ],
+  "models": [
+    {
+      "id": "eko_humanoid_female",
+      "uri": "/assets/characters/eko_humanoid_female.glb",
+      "description": "Proportionate Nigerian Female Citizen Rig (15-Bone Skeleton, +Z Forward)",
+      "bytes": 68256,
+      "vertices": 950,
+      "triangles": 1416,
+      "scale": {
+        "shoulderW": 0.92,
+        "waistW": 0.84,
+        "hipW": 1.06,
+        "height": 0.97
+      }
+    },
+    {
+      "id": "eko_humanoid_male",
+      "uri": "/assets/characters/eko_humanoid_male.glb",
+      "description": "Proportionate Nigerian Male Citizen Rig (15-Bone Skeleton, +Z Forward)",
+      "bytes": 68244,
+      "vertices": 950,
+      "triangles": 1416,
+      "scale": {
+        "shoulderW": 1.06,
+        "waistW": 0.94,
+        "hipW": 0.95,
+        "height": 1.02
+      }
+    },
+    {
+      "id": "eko_humanoid_athletic",
+      "uri": "/assets/characters/eko_humanoid_athletic.glb",
+      "description": "Athletic Lagos Transport & Hustle Citizen Rig (15-Bone Skeleton, +Z Forward)",
+      "bytes": 68280,
+      "vertices": 950,
+      "triangles": 1416,
+      "scale": {
+        "shoulderW": 1.12,
+        "waistW": 0.88,
+        "hipW": 0.94,
+        "height": 1.03
+      }
+    },
+    {
+      "id": "eko_humanoid_elder",
+      "uri": "/assets/characters/eko_humanoid_elder.glb",
+      "description": "Distinguished Lagos Elder & Market Merchant Rig (15-Bone Skeleton, +Z Forward)",
+      "bytes": 68272,
+      "vertices": 950,
+      "triangles": 1416,
+      "scale": {
+        "shoulderW": 1.02,
+        "waistW": 1.08,
+        "hipW": 1.04,
+        "height": 0.96
+      }
+    }
+  ]
+}

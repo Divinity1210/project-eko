@@ -1,0 +1,17 @@
+{
+  "name": "@project-eko/realtime",
+  "version": "0.1.0",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "node dist/server.js",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@project-eko/anti-cheat": "*",
+    "@project-eko/contracts": "*",
+    "@project-eko/physics": "*",
+    "@project-eko/telemetry": "*",
+    "@project-eko/world": "*"
+  }
+}

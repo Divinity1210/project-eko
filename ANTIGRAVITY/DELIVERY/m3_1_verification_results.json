@@ -1,0 +1,301 @@
+{
+  "timestamp": "2026-10-19T20:22:50.672Z",
+  "checks": [
+    {
+      "name": "Living Lagos Street Mode Draw-Call Budget & Telemetry",
+      "passed": true,
+      "details": "calls=52, tris=26940, fps=60, frameTimeMs=16.67ms"
+    },
+    {
+      "name": "Atlas-specific UI hidden in Street-Level Gameplay",
+      "passed": true,
+      "details": "aerialCardHidden=true, topPillHidden=true"
+    },
+    {
+      "name": "Aerial Zoom Tier [LOW] Zero Marker-Label Overlap & Draw-Call Budget",
+      "passed": true,
+      "details": "visiblePins=3, clusters=2, overlaps=0, calls=47, fps=60"
+    },
+    {
+      "name": "Aerial Zoom Tier [MEDIUM] Zero Marker-Label Overlap & Draw-Call Budget",
+      "passed": true,
+      "details": "visiblePins=5, clusters=0, overlaps=0, calls=35, fps=60"
+    },
+    {
+      "name": "Aerial Zoom Tier [HIGH] Zero Marker-Label Overlap & Draw-Call Budget",
+      "passed": true,
+      "details": "visiblePins=10, clusters=0, overlaps=0, calls=47, fps=60"
+    },
+    {
+      "name": "Zoom-Dependent Label Visibility & Clustering Progression (LOW -> MEDIUM -> HIGH)",
+      "passed": true,
+      "details": "LOW=3 pins (2 clusters), MED=5 pins, HIGH=10 pins"
+    },
+    {
+      "name": "100% Canonical Entity Resolution & Driving Controls Hidden in Aerial View",
+      "passed": true,
+      "details": "allPinsCanonical=true, drivingControlsHidden=true"
+    },
+    {
+      "name": "Selected Place Opens Compact Contextual Details Card with Inspect, Navigate & Visit Actions",
+      "passed": true,
+      "details": "entity=ent_balogun_wholesale_market, actions=[Inspect, Navigate, Visit]"
+    },
+    {
+      "name": "Aerial-to-Street Navigation Transitions to Exact Same Canonical World Entity",
+      "passed": true,
+      "details": "target=ent_balogun_wholesale_market, dist=105m, streetView=true"
+    },
+    {
+      "name": "Responsive Mobile/Tablet Viewport [phone_portrait_390x844] Layout & Zero Overlap",
+      "passed": true,
+      "details": "preset=mobile_balanced, calls=36, fps=60, overlaps=0"
+    },
+    {
+      "name": "Responsive Mobile/Tablet Viewport [phone_landscape_844x390] Layout & Zero Overlap",
+      "passed": true,
+      "details": "preset=mobile_balanced, calls=42, fps=60, overlaps=0"
+    },
+    {
+      "name": "Responsive Mobile/Tablet Viewport [tablet_768x1024] Layout & Zero Overlap",
+      "passed": true,
+      "details": "preset=mobile_balanced, calls=44, fps=60, overlaps=0"
+    },
+    {
+      "name": "Danfo Hustle Mode Independent Performance & Draw-Call Budget",
+      "passed": true,
+      "details": "calls=75, tris=24482, fps=60, frameTimeMs=16.68ms"
+    },
+    {
+      "name": "Sponsored Advertisements Visually Distinct from Organic Landmarks & Businesses",
+      "passed": true,
+      "details": "catSponsored=true, badge=true, provenance=true"
+    },
+    {
+      "name": "EkoAtlas 2.5D Directory Modal Independent Performance & Telemetry",
+      "passed": true,
+      "details": "calls=57, tris=23574, fps=61, frameTimeMs=16.45ms"
+    }
+  ],
+  "modeProfiles": {
+    "livingLagos_1440x900": {
+      "drawCalls": 52,
+      "triangles": 26940,
+      "fps": 60,
+      "instantFps": 67,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.2,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 308,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      }
+    },
+    "ekoAtlasAerial_1440x900": {
+      "drawCalls": 35,
+      "triangles": 19482,
+      "fps": 60,
+      "instantFps": 55,
+      "frameTimeMs": 16.69,
+      "p95FrameTimeMs": 18.6,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 308,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      }
+    },
+    "danfoHustle_1440x900": {
+      "drawCalls": 75,
+      "triangles": 24482,
+      "fps": 60,
+      "instantFps": 60,
+      "frameTimeMs": 16.68,
+      "p95FrameTimeMs": 18.4,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 308,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      }
+    },
+    "ekoAtlasModal_1440x900": {
+      "drawCalls": 57,
+      "triangles": 23574,
+      "fps": 61,
+      "instantFps": 58,
+      "frameTimeMs": 16.45,
+      "p95FrameTimeMs": 18.3,
+      "qualityPreset": "desktop_high",
+      "loadTimeMs": 308,
+      "gatePassed": true,
+      "budget": {
+        "maxCalls": 75,
+        "targetCalls": 60,
+        "maxTriangles": 35000
+      }
+    }
+  },
+  "viewportTests": {
+    "phone_portrait_390x844": {
+      "width": 390,
+      "height": 844,
+      "qualityPreset": "mobile_balanced",
+      "drawCalls": 36,
+      "triangles": 18984,
+      "fps": 60,
+      "frameTimeMs": 16.67,
+      "p95FrameTimeMs": 18.4,
+      "visiblePins": 1,
+      "overlaps": 0,
+      "withinViewport": true
+    },
+    "phone_landscape_844x390": {
+      "width": 844,
+      "height": 390,
+      "qualityPreset": "mobile_balanced",
+      "drawCalls": 42,
+      "triangles": 17982,
+      "fps": 60,
+      "frameTimeMs": 16.69,
+      "p95FrameTimeMs": 18.5,
+      "visiblePins": 2,
+      "overlaps": 0,
+      "withinViewport": true
+    },
+    "tablet_768x1024": {
+      "width": 768,
+      "height": 1024,
+      "qualityPreset": "mobile_balanced",
+      "drawCalls": 44,
+      "triangles": 19182,
+      "fps": 60,
+      "frameTimeMs": 16.7,
+      "p95FrameTimeMs": 18.1,
+      "visiblePins": 5,
+      "overlaps": 0,
+      "withinViewport": true
+    }
+  },
+  "zoomTierTests": {
+    "LOW": {
+      "tier": "LOW",
+      "cameraOrbitDist": 148,
+      "visiblePinIds": [
+        "pin_dist_island",
+        "pin_tbs_arch",
+        "pin_church"
+      ],
+      "clusterCount": 2,
+      "solverOverlapCount": 0,
+      "domOverlaps": 0,
+      "allPinsCanonical": true,
+      "drivingControlsHidden": true,
+      "perf": {
+        "drawCalls": 47,
+        "triangles": 21522,
+        "fps": 60,
+        "instantFps": 64,
+        "frameTimeMs": 16.66,
+        "p95FrameTimeMs": 18.1,
+        "qualityPreset": "desktop_high",
+        "loadTimeMs": 308,
+        "gatePassed": true,
+        "budget": {
+          "maxCalls": 75,
+          "targetCalls": 60,
+          "maxTriangles": 35000
+        }
+      }
+    },
+    "MEDIUM": {
+      "tier": "MEDIUM",
+      "cameraOrbitDist": 86,
+      "visiblePinIds": [
+        "pin_dist_island",
+        "pin_church",
+        "pin_balogun",
+        "pin_home",
+        "pin_depot"
+      ],
+      "clusterCount": 0,
+      "solverOverlapCount": 0,
+      "domOverlaps": 0,
+      "allPinsCanonical": true,
+      "drivingControlsHidden": true,
+      "perf": {
+        "drawCalls": 35,
+        "triangles": 19482,
+        "fps": 60,
+        "instantFps": 55,
+        "frameTimeMs": 16.69,
+        "p95FrameTimeMs": 18.6,
+        "qualityPreset": "desktop_high",
+        "loadTimeMs": 308,
+        "gatePassed": true,
+        "budget": {
+          "maxCalls": 75,
+          "targetCalls": 60,
+          "maxTriangles": 35000
+        }
+      }
+    },
+    "HIGH": {
+      "tier": "HIGH",
+      "cameraOrbitDist": 38,
+      "visiblePinIds": [
+        "pin_church",
+        "pin_balogun",
+        "pin_home",
+        "pin_depot",
+        "pin_suya",
+        "pin_bukka",
+        "pin_lasdri",
+        "pin_parcel_04",
+        "pin_ad_cms",
+        "pin_ad_broad"
+      ],
+      "clusterCount": 0,
+      "solverOverlapCount": 0,
+      "domOverlaps": 0,
+      "allPinsCanonical": true,
+      "drivingControlsHidden": true,
+      "perf": {
+        "drawCalls": 47,
+        "triangles": 21146,
+        "fps": 60,
+        "instantFps": 63,
+        "frameTimeMs": 16.66,
+        "p95FrameTimeMs": 18.7,
+        "qualityPreset": "desktop_high",
+        "loadTimeMs": 308,
+        "gatePassed": true,
+        "budget": {
+          "maxCalls": 75,
+          "targetCalls": 60,
+          "maxTriangles": 35000
+        }
+      }
+    }
+  },
+  "screenshots": [
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_living_lagos_street.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_aerial_low_zoom.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_aerial_med_zoom.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_aerial_high_zoom.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_entity_card_selected.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_mobile_portrait_390x844.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_mobile_landscape_844x390.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_tablet_768x1024.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_danfo_hustle_mode.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_sponsored_ad_card.png",
+    "/Users/divinity/.gemini/antigravity/brain/373060db-e611-4061-ad6f-776311ec92be/m3_1_after_ekoatlas_modal.png"
+  ]
+}

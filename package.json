@@ -1,0 +1,26 @@
+{
+  "name": "project-eko",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Project Eko — Real-Economy Open-World African Urban Simulation",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:game": "cd apps/game && npm run dev",
+    "dev:api": "cd services/api && npm run dev",
+    "dev:realtime": "cd services/realtime && npm run dev",
+    "build": "npm run build --workspace=@project-eko/contracts && npm run build --workspace=@project-eko/world && npm run build --workspace=@project-eko/physics && npm run build --workspace=@project-eko/economy && npm run build --workspace=@project-eko/anti-cheat && npm run build --workspace=@project-eko/telemetry && npm run build --workspace=@project-eko/assets && npm run build --workspace=@project-eko/ui && npm run build --workspace=@project-eko/game-core && npm run build --workspace=@project-eko/payouts && npm run build --workspace=@project-eko/rewards && npm run build --workspace=@project-eko/realtime && npm run build --workspace=@project-eko/api",
+    "verify:phase1": "node scripts/verify_phase1_identity.js",
+    "verify:phase2": "node scripts/verify_phase2_durability.js",
+    "verify:prod-readiness": "node scripts/verify_production_readiness.js",
+    "test": "node scripts/run_all_tests.js"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "milestone": "M4.9_LIVING_LAGOS_TRAFFIC_DANFO_OPERATIONS_AND_ROAD_INCIDENTS",
+  "timestamp": "2026-10-21T13:55:54.407Z",
+  "totalTests": 33,
+  "passedCount": 33,
+  "failedCount": 0,
+  "results": [
+    {
+      "id": "T01",
+      "name": "NPC Danfo approaches a designated bus stop (APPROACHING_STOP)",
+      "passed": true,
+      "detail": "State=APPROACHING_STOP, pulling into bay x=-102.68m"
+    },
+    {
+      "id": "T02",
+      "name": "NPC Danfo slows and stops in the bus stop bay (-110.2m)",
+      "passed": true,
+      "detail": "speed=0 km/h, bayX=-110.2m, z=-150m"
+    },
+    {
+      "id": "T03",
+      "name": "Doors open when stopped at the bus stop bay",
+      "passed": true,
+      "detail": "slidingDoorState=OPEN, doorOpenRatio=1"
+    },
+    {
+      "id": "T04",
+      "name": "Passenger alights through doorway and returns to ON_FOOT",
+      "passed": true,
+      "detail": "state=ON_FOOT, door=RIGHT_SLIDING_DOOR"
+    },
+    {
+      "id": "T05",
+      "name": "Passenger seat is released and journey settles once",
+      "passed": true,
+      "detail": "availableSeats: 9 -> 10"
+    },
+    {
+      "id": "T06",
+      "name": "Remaining NPC passengers stay seated inside the Danfo",
+      "passed": true,
+      "detail": "remainingSeatedPassengers=2 (Mama Ngozi & Babatunde stay seated)"
+    },
+    {
+      "id": "T07",
+      "name": "Doors close after stop operations complete (DOORS_CLOSING -> CLOSED)",
+      "passed": true,
+      "detail": "slidingDoorState=CLOSED, doorOpenRatio=0"
+    },
+    {
+      "id": "T08",
+      "name": "Danfo checks traffic, merges laterally out of stop bay (-110.2m), and departs on major road (-98.0m) toward next stop",
+      "passed": true,
+      "detail": "merged via x=-98.45m -> cruising x=-98m (GENERAL_TRAFFIC_LEFT) at 38 km/h"
+    },
+    {
+      "id": "T09",
+      "name": "If the merge lane is blocked, the Danfo waits stationary in CHECKING_DEPARTURE",
+      "passed": true,
+      "detail": "state=CHECKING_DEPARTURE, holdingForTrafficGap=true, speed=0"
+    },
+    {
+      "id": "T10",
+      "name": "When the blockage clears, the Danfo departs cleanly without lane oscillation",
+      "passed": true,
+      "detail": "advanced to z=-125.59m on GENERAL_TRAFFIC_LEFT"
+    },
+    {
+      "id": "T11",
+      "name": "A human-driven Danfo is not hijacked by automatic NPC departure",
+      "passed": true,
+      "detail": "clientSuppressed=true, serverSuppressed=true"
+    },
+    {
+      "id": "T12",
+      "name": "Danfo routes use general traffic lanes & bus stop bays, and Conductor stands while Passenger sits",
+      "passed": true,
+      "detail": "Danfo path=[\"node_cms_bus_park\",\"node_outer_marina_loop\",\"node_national_theatre_connector\"], ConductorState=conductor_call (kneeLX=0.03), PassengerState=sit_vehicle (kneeLX=1.252)"
+    },
+    {
+      "id": "T13",
+      "name": "Yellow Danfo does not enter BRT_ONLY lanes",
+      "passed": true,
+      "detail": "Danfo->BRT gate rejected (Start or destination node is on a lane forbidden for DANFO (e.g., BRT_ONLY or RESTRICTED_ACCESS).); corridor usesBrtOnly=false"
+    },
+    {
+      "id": "T14",
+      "name": "Blue BRT vehicles use BRT_ONLY lanes (-108.5m & node_cms_brt_gate)",
+      "passed": true,
+      "detail": "BRT path=[\"node_cms_bus_park\",\"node_cms_brt_gate\"], heroBRT x=-108.5m on BRT_ONLY"
+    },
+    {
+      "id": "T15",
+      "name": "Private cars and Kekes cannot enter BRT_ONLY lanes",
+      "passed": true,
+      "detail": "PrivateCar->BRT rejected=true; non-BRT traffic on BRT_ONLY=0"
+    },
+    {
+      "id": "T16",
+      "name": "Vehicles divert around a temporarily blocked lane/node",
+      "passed": true,
+      "detail": "Diverted path around node_broad_st_mid: [\"node_cms_bus_park\",\"node_broad_st_north\",\"node_odunlami_st\",\"node_catholic_mission_st\",\"node_tbs_plaza\"]"
+    },
+    {
+      "id": "T17",
+      "name": "Vehicles maintain following distance and queue behind slower vehicles",
+      "passed": true,
+      "detail": "activeNPCVehicles=12, CALM gap=12.5m"
+    },
+    {
+      "id": "T18",
+      "name": "Vehicles change lanes smoothly without teleporting",
+      "passed": true,
+      "detail": "intermediate lateral merge coordinate x=-98.45m verified between -110.2m and -98.0m"
+    },
+    {
+      "id": "T19",
+      "name": "Assertive and impatient driver profiles accept smaller gaps than calm and inexperienced drivers",
+      "passed": true,
+      "detail": "mergeGaps: IMPATIENT=7.5m < ASSERTIVE=9m < CALM=14m < INEXPERIENCED=16m"
+    },
+    {
+      "id": "T20",
+      "name": "Commercial Danfos pull into bus stop bays (-110.2m) and merge back into general traffic (-98.0m)",
+      "passed": true,
+      "detail": "stopBayX=-110.2m -> generalTrafficX=-98m"
+    },
+    {
+      "id": "T21",
+      "name": "Vehicles brake and yield for pedestrians (PEDESTRIAN_EMERGENCY_BRAKE)",
+      "passed": true,
+      "detail": "incidentType=PEDESTRIAN_EMERGENCY_BRAKE, zero pedestrian-hit damage severity=0"
+    },
+    {
+      "id": "T22",
+      "name": "Rain reduces vehicle speeds and increases braking distance",
+      "passed": true,
+      "detail": "rainSpeedFactor=0.78 (22% wet-tarmac speed reduction)"
+    },
+    {
+      "id": "T23",
+      "name": "Vehicle-to-vehicle collision applies component damage (body, tyres, steering, engine, lighting) with zero reward",
+      "passed": true,
+      "detail": "condition=86%, components={\"body\":81,\"tyres\":91,\"steering\":90,\"engine\":86,\"lighting\":84}, rewardGN=0"
+    },
+    {
+      "id": "T24",
+      "name": "Static obstacle collision applies damage without infinite bounce or physics NaN",
+      "passed": true,
+      "detail": "condition=73%, tyres=77%"
+    },
+    {
+      "id": "T25",
+      "name": "Collision cooldown and incidentId deduplication prevent repeated frame-by-frame penalties",
+      "passed": true,
+      "detail": "cooldownSuppressed=true, duplicateIgnored=true"
+    },
+    {
+      "id": "T26",
+      "name": "Severe damage transitions vehicle to DISABLED / RECOVERY_REQUIRED with hazard lights and 0 top speed",
+      "passed": true,
+      "detail": "status=RECOVERY_REQUIRED, condition=20%, hazardLights=true"
+    },
+    {
+      "id": "T27",
+      "name": "Recovery and Workshop Repair restore all 5 subsystems to 100% and settle once in Game Naira ledger",
+      "passed": true,
+      "detail": "towCost=350 GN, repairCost=1058 GN, conditionAfter=100%, idempotentReplay=true"
+    },
+    {
+      "id": "T28",
+      "name": "Innocent passengers are never charged driver crash penalties and collisions award zero money",
+      "passed": true,
+      "detail": "passengerProtectedFromPenalty=true, playerPenaltyGN=0, rewardGN=0"
+    },
+    {
+      "id": "T29",
+      "name": "Vehicle cut-in or blocked lane triggers a contextual spatial horn",
+      "passed": true,
+      "detail": "hornId=horn_1792590948799_950, gain=0.586"
+    },
+    {
+      "id": "T30",
+      "name": "Per-vehicle horn cooldown prevents continuous horn spam",
+      "passed": true,
+      "detail": "second immediate horn blocked (HORN_COOLDOWN_ACTIVE, remaining=3.5s)"
+    },
+    {
+      "id": "T31",
+      "name": "Lagos road banter triggers across all 9 contextual categories",
+      "passed": true,
+      "detail": "emittedCategories=ROAD_OBSTRUCTION, AGGRESSIVE_MERGE, MISSED_JUNCTION, NEAR_COLLISION, BUS_STOP_DEPARTURE, PASSENGER_BOARDING, FARE_DISPUTE, TRAFFIC_QUEUE, DRIVER_WARNING"
+    },
+    {
+      "id": "T32",
+      "name": "Mute/volume mixer controls horn/voice gain and centralized aria-live=\"polite\" caption banner updates",
+      "passed": true,
+      "detail": "mutedHornGain=0, ariaLive=polite, caption=\"[DRIVER_WARNING]Conductor Tunde:\"Watch pedestrian for zebra crossing! Hold brake!\"\""
+    },
+    {
+      "id": "T33",
+      "name": "Zero uncaught runtime exceptions and responsive mobile portrait/landscape HUDs",
+      "passed": true,
+      "detail": "Mobile 390x844 portrait and 844x390 landscape screenshots captured with zero CDP exceptions."
+    }
+  ]
+}
