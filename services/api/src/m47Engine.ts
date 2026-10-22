@@ -717,10 +717,20 @@ export interface M47AccountRecord {
   character: {
     displayName: string;
     appearance: {
+      gender?: 'male' | 'female';
+      styleSet?: 'casual' | 'casual2' | 'smart' | 'party';
+      fabricStyle?: 'ankara' | 'asooke' | 'plain';
       bodyType: string;
       skinTone: string;
       hairStyle: string;
       outfitPreset: string;
+      shoesStyle?: string;
+      bagStyle?: string;
+      topColor?: string;
+      bottomColor?: string;
+      hairColor?: string;
+      shoeColor?: string;
+      bagColor?: string;
       accentColor: string;
     };
     starterProfileId: string;
@@ -3022,12 +3032,34 @@ export async function handleM47ApiRoutes(
       return true;
     }
 
-    const chosenOutfit = String(body.initialOutfitId || body.appearance?.outfitPreset || 'outfit_street_hustler');
+    const OUTFIT_ALIASES: Record<string, string> = {
+      smart_ankara_casual: 'outfit_street_hustler',
+      sunday_senator_native: 'outfit_sunday_senator',
+      marina_workwear: 'outfit_marina_workwear',
+      smart_island_corporate: 'outfit_corporate_suit',
+      asooke_agbada_party: 'outfit_owambe_agbada',
+      ankara_gown_dress: 'outfit_ankara_gown',
+      buba_iro_wrapper: 'outfit_buba_wrapper',
+      smart_corporate_dress: 'outfit_female_corporate',
+      asooke_owambe_dress: 'outfit_asooke_gown',
+    };
+    const rawOutfit = String(body.initialOutfitId || body.appearance?.outfitPreset || 'outfit_street_hustler');
+    const chosenOutfit = OUTFIT_ALIASES[rawOutfit] || rawOutfit;
+    const rawGender = String(body.appearance?.gender || body.gender || 'male').toLowerCase() === 'female' ? 'female' : 'male';
+    const rawStyleSet = String(body.appearance?.styleSet || body.styleSet || 'casual') as 'casual' | 'casual2' | 'smart' | 'party';
+    const rawFabric = String(body.appearance?.fabricStyle || body.fabricStyle || 'ankara') as 'ankara' | 'asooke' | 'plain';
+
     acc.username = displayName;
     acc.characterCreated = true;
     acc.wearableEquipped = chosenOutfit;
     if (!acc.onboarding.ownedOutfits) {
-      acc.onboarding.ownedOutfits = ['outfit_street_hustler', 'outfit_sunday_senator'];
+      acc.onboarding.ownedOutfits = [
+        'outfit_street_hustler',
+        'outfit_sunday_senator',
+        'outfit_ankara_gown',
+        'outfit_buba_wrapper',
+        'outfit_marina_workwear',
+      ];
     }
     if (!acc.onboarding.ownedOutfits.includes(chosenOutfit)) {
       acc.onboarding.ownedOutfits.push(chosenOutfit);
@@ -3036,11 +3068,21 @@ export async function handleM47ApiRoutes(
     acc.character = {
       displayName,
       appearance: {
+        gender: rawGender,
+        styleSet: rawStyleSet,
+        fabricStyle: rawFabric,
         bodyType: String(body.appearance?.bodyType || body.bodyType || 'athletic_lagos'),
         skinTone: String(body.appearance?.skinTone || body.skinTone || '#6B3E26'),
-        hairStyle: String(body.appearance?.hairStyle || body.hairStyle || 'low_fade'),
-        outfitPreset: chosenOutfit,
-        accentColor: String(body.appearance?.accentColor || body.accentColor || '#10B981'),
+        hairStyle: String(body.appearance?.hairStyle || body.hairStyle || (rawGender === 'female' ? 'braids_classic' : 'low_fade')),
+        outfitPreset: rawOutfit,
+        shoesStyle: String(body.appearance?.shoesStyle || body.shoesStyle || 'white_sneakers'),
+        bagStyle: String(body.appearance?.bagStyle || body.bagStyle || 'none'),
+        topColor: String(body.appearance?.topColor || body.topColor || (rawGender === 'female' ? '#EC4899' : '#10B981')),
+        bottomColor: String(body.appearance?.bottomColor || body.bottomColor || '#1E293B'),
+        hairColor: String(body.appearance?.hairColor || body.hairColor || '#1A1110'),
+        shoeColor: String(body.appearance?.shoeColor || body.shoeColor || '#F8FAFC'),
+        bagColor: String(body.appearance?.bagColor || body.bagColor || '#D97706'),
+        accentColor: String(body.appearance?.accentColor || body.accentColor || '#F4B41A'),
       },
       starterProfileId: profileDef.profileId,
       starterHomeId: profileDef.starterHomeId,

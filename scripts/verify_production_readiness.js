@@ -305,6 +305,40 @@ async function main() {
     const deletedSessionCheck = await request(API_PORT, '/api/v1/auth/session', { token: privToken });
     assert.strictEqual(deletedSessionCheck.body.authenticated, false, 'Deleted account session must be invalidated');
 
+    // Verify Lagos Life Character Creation (Female & Male Gender + Dress/Clothes + Ankara/Asooke Fabric + Gele/Shoes/Bag/Colors)
+    const femaleCharRes = await request(API_PORT, '/api/v1/character/create', {
+      method: 'POST',
+      token: activeDriverToken,
+      body: {
+        displayName: 'Bimpe_Island_Queen',
+        starterProfileId: 'profile_new_arrival',
+        appearance: {
+          gender: 'female',
+          styleSet: 'party',
+          bodyType: 'athletic_lagos',
+          skinTone: '#6B3E26',
+          hairStyle: 'gele_headwrap',
+          outfitPreset: 'ankara_gown_dress',
+          fabricStyle: 'ankara',
+          shoesStyle: 'gold_heels',
+          bagStyle: 'mini_bag',
+          topColor: '#EC4899',
+          bottomColor: '#831843',
+          hairColor: '#9D174D',
+          shoeColor: '#F4B41A',
+          bagColor: '#F4B41A',
+          accentColor: '#EC4899',
+        },
+      },
+    });
+    assert.strictEqual(femaleCharRes.status, 200, 'Female character creation with Ankara dress & Gele must succeed');
+    assert.strictEqual(femaleCharRes.body.account.character.appearance.gender, 'female');
+    assert.strictEqual(femaleCharRes.body.account.character.appearance.outfitPreset, 'ankara_gown_dress');
+    assert.strictEqual(femaleCharRes.body.account.character.appearance.hairStyle, 'gele_headwrap');
+    assert.strictEqual(femaleCharRes.body.account.character.appearance.shoesStyle, 'gold_heels');
+    assert.strictEqual(femaleCharRes.body.account.character.appearance.bagStyle, 'mini_bag');
+    assert.ok(femaleCharRes.body.account.onboarding.ownedOutfits.includes('outfit_ankara_gown'), 'Female Ankara gown must be unlocked in ownedOutfits');
+
     // Staff RBAC & Audit Log check
     const nonStaffMod = await request(API_PORT, '/api/v1/ops/moderation/review', {
       method: 'POST',

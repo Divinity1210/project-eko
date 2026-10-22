@@ -8937,24 +8937,34 @@
         if (outfitSpec.skinHex !== undefined) charGroup.userData.skinHex = outfitSpec.skinHex;
         if (outfitSpec.hairHex !== undefined) charGroup.userData.hairHex = outfitSpec.hairHex;
         if (outfitSpec.bodyType !== undefined) charGroup.userData.bodyType = outfitSpec.bodyType;
+        if (outfitSpec.gender !== undefined) charGroup.userData.gender = outfitSpec.gender;
+        if (outfitSpec.hairStyle !== undefined) charGroup.userData.hairStyle = outfitSpec.hairStyle;
+        if (outfitSpec.bagStyle !== undefined) charGroup.userData.bagStyle = outfitSpec.bagStyle;
+        if (outfitSpec.bagHex !== undefined) charGroup.userData.bagHex = outfitSpec.bagHex;
 
         const outfitId = outfitSpec.id || charGroup.activeOutfitId || 'outfit_street_hustler';
-        const topHex = outfitSpec.topHex !== undefined ? outfitSpec.topHex : 0x10B981;
+        const isFemale = charGroup.userData.gender === 'female' ||
+          ['outfit_ankara_gown', 'outfit_buba_wrapper', 'outfit_female_corporate', 'outfit_asooke_gown'].includes(outfitId);
+        const topHex = outfitSpec.topHex !== undefined ? outfitSpec.topHex : (isFemale ? 0xEC4899 : 0x10B981);
         const bottomHex = outfitSpec.bottomHex !== undefined ? outfitSpec.bottomHex : 0x1E293B;
         const accentHex = outfitSpec.accentHex !== undefined
           ? outfitSpec.accentHex
-          : (outfitId === 'outfit_owambe_agbada' ? 0xDC2626 : (outfitId === 'outfit_corporate_suit' ? 0xF8FAFC : 0xF4B41A));
+          : (outfitId === 'outfit_owambe_agbada' || outfitId === 'outfit_asooke_gown' ? 0xDC2626 : (outfitId === 'outfit_corporate_suit' || outfitId === 'outfit_female_corporate' ? 0xF8FAFC : 0xF4B41A));
         const shoeHex = outfitSpec.shoeHex !== undefined
           ? outfitSpec.shoeHex
-          : (outfitId === 'outfit_owambe_agbada' ? 0xD97706 : (outfitId === 'outfit_corporate_suit' ? 0x0F172A : (outfitId === 'outfit_sunday_senator' ? 0x451A03 : 0xF8FAFC)));
+          : (outfitId === 'outfit_owambe_agbada' || outfitId === 'outfit_asooke_gown' ? 0xD97706 : (outfitId === 'outfit_corporate_suit' ? 0x0F172A : (outfitId === 'outfit_sunday_senator' ? 0x451A03 : 0xF8FAFC)));
         const skinHex = charGroup.userData.skinHex;
-        const hairHex = charGroup.userData.hairHex;
+        const hairHex = charGroup.userData.hairHex !== undefined ? charGroup.userData.hairHex : 0x1A1110;
+        const bagHex = charGroup.userData.bagHex !== undefined ? charGroup.userData.bagHex : 0xD97706;
+        const hairStyle = charGroup.userData.hairStyle || '';
+        const bagStyle = charGroup.userData.bagStyle || 'none';
 
-        if (charGroup.userData.bodyType) {
-          const bt = charGroup.userData.bodyType;
-          const sx = bt === 'compact_runner' ? 0.93 : (bt === 'tall_executive' ? 1.05 : 1.0);
+        if (charGroup.userData.bodyType || charGroup.userData.gender) {
+          const bt = charGroup.userData.bodyType || 'athletic_lagos';
+          const genderScaleY = isFemale ? 0.97 : 1.0;
+          const sx = bt === 'compact_runner' ? 0.93 : (bt === 'tall_executive' ? 1.05 : (isFemale ? 0.96 : 1.0));
           const sz = bt === 'compact_runner' ? 0.93 : (bt === 'tall_executive' ? 1.04 : 1.0);
-          charGroup.scale.set(sx, 1.0, sz);
+          charGroup.scale.set(sx, genderScaleY, sz);
         }
 
         if (colorAttr && Array.isArray(slots) && Array.isArray(shades)) {
@@ -9003,7 +9013,77 @@
         const spineParts = [];
         const headParts = [];
 
-        if (outfitId === 'outfit_owambe_agbada') {
+        // Female bust contour on Spine bone when female gender is selected
+        if (isFemale) {
+          const bustContour = new THREE.SphereGeometry(0.112, 8, 6);
+          bustContour.scale(1.34, 0.78, 0.90);
+          bustContour.translate(0, 0.21, 0.068);
+          spineParts.push({ geo: bustContour, hex: topHex, ao: 1.05 });
+        }
+
+        if (outfitId === 'outfit_ankara_gown') {
+          // Vibrant Ankara Flare Dress / Gown + Gold Waist Belt + Patterned Hem
+          const waistBelt = new THREE.CylinderGeometry(0.162, 0.168, 0.055, 10);
+          waistBelt.scale(1.0, 1.0, 0.72);
+          waistBelt.translate(0, 0.02, 0);
+          spineParts.push({ geo: waistBelt, hex: accentHex, ao: 1.10 });
+
+          const flareSkirt = new THREE.CylinderGeometry(0.165, 0.285, 0.56, 12);
+          flareSkirt.scale(1.04, 1.0, 0.84);
+          flareSkirt.translate(0, -0.27, 0);
+          spineParts.push({ geo: flareSkirt, hex: topHex, ao: 1.02 });
+
+          const hemBorder = new THREE.CylinderGeometry(0.275, 0.292, 0.075, 12);
+          hemBorder.scale(1.04, 1.0, 0.84);
+          hemBorder.translate(0, -0.52, 0);
+          spineParts.push({ geo: hemBorder, hex: bottomHex, ao: 1.08 });
+        } else if (outfitId === 'outfit_asooke_gown') {
+          // Royal Woven Asooke Corset Gown + Ipele Shoulder Sash + Gold Beadwork
+          const corsetBodice = new THREE.CylinderGeometry(0.175, 0.155, 0.26, 10);
+          corsetBodice.scale(1.02, 1.0, 0.74);
+          corsetBodice.translate(0, 0.16, 0.01);
+          spineParts.push({ geo: corsetBodice, hex: topHex, ao: 1.06 });
+
+          const asookeSkirt = new THREE.CylinderGeometry(0.165, 0.255, 0.64, 12);
+          asookeSkirt.scale(1.02, 1.0, 0.80);
+          asookeSkirt.translate(0, -0.31, 0);
+          spineParts.push({ geo: asookeSkirt, hex: bottomHex, ao: 1.04 });
+
+          const ipeleSash = new THREE.BoxGeometry(0.24, 0.12, 0.24);
+          ipeleSash.rotateZ(0.18);
+          ipeleSash.translate(-0.11, 0.29, 0);
+          spineParts.push({ geo: ipeleSash, hex: accentHex, ao: 1.12 });
+
+          const coralNecklace = new THREE.TorusGeometry(0.088, 0.018, 6, 10);
+          coralNecklace.rotateX(Math.PI / 2);
+          coralNecklace.translate(0, 0.35, 0.015);
+          spineParts.push({ geo: coralNecklace, hex: 0xDC2626, ao: 1.12 });
+        } else if (outfitId === 'outfit_buba_wrapper') {
+          // Traditional Lagos Buba Peplum Blouse & Draped Iro Wrapper Skirt
+          const bubaPeplum = new THREE.CylinderGeometry(0.162, 0.215, 0.18, 10);
+          bubaPeplum.scale(1.0, 1.0, 0.76);
+          bubaPeplum.translate(0, -0.02, 0);
+          spineParts.push({ geo: bubaPeplum, hex: topHex, ao: 1.06 });
+
+          const iroWrapper = new THREE.CylinderGeometry(0.178, 0.220, 0.54, 10);
+          iroWrapper.scale(1.0, 1.0, 0.78);
+          iroWrapper.translate(0, -0.30, 0);
+          spineParts.push({ geo: iroWrapper, hex: bottomHex, ao: 1.02 });
+        } else if (outfitId === 'outfit_female_corporate') {
+          // Victoria Island Smart Sheath Dress & Tailored Blazer
+          const blazerLapel = new THREE.BoxGeometry(0.40, 0.28, 0.22);
+          blazerLapel.translate(0, 0.19, 0);
+          spineParts.push({ geo: blazerLapel, hex: topHex, ao: 1.05 });
+
+          const innerShell = new THREE.BoxGeometry(0.13, 0.25, 0.035);
+          innerShell.translate(0, 0.20, 0.106);
+          spineParts.push({ geo: innerShell, hex: 0xF8FAFC, ao: 1.12 });
+
+          const pencilSkirt = new THREE.CylinderGeometry(0.168, 0.188, 0.44, 10);
+          pencilSkirt.scale(1.0, 1.0, 0.75);
+          pencilSkirt.translate(0, -0.23, 0);
+          spineParts.push({ geo: pencilSkirt, hex: bottomHex, ao: 1.02 });
+        } else if (outfitId === 'outfit_owambe_agbada') {
           // Voluminous Royal Gold Aso-Oke Agbada Tunic + Wide Wing Sleeves + Burgundy & Gold Embroidery + Yorùbá Fila Cap
           const wingShoulders = new THREE.BoxGeometry(0.58, 0.34, 0.27);
           wingShoulders.translate(0, 0.19, 0);
@@ -9030,19 +9110,20 @@
           backGoldCrest.translate(0, 0.19, -0.132);
           spineParts.push({ geo: backGoldCrest, hex: 0xFEF08A, ao: 1.12 });
 
-          // Royal Burgundy & Gold Yorùbá Fila Cap / Gele Crown on Head Bone
-          const filaBase = new THREE.CylinderGeometry(0.124, 0.118, 0.09, 10);
-          filaBase.translate(0, 0.175, -0.005);
-          headParts.push({ geo: filaBase, hex: 0x7F1D1D, ao: 1.06 });
+          if (!hairStyle || hairStyle === 'fila_kufi_cap') {
+            const filaBase = new THREE.CylinderGeometry(0.124, 0.118, 0.09, 10);
+            filaBase.translate(0, 0.175, -0.005);
+            headParts.push({ geo: filaBase, hex: 0x7F1D1D, ao: 1.06 });
 
-          const filaBand = new THREE.CylinderGeometry(0.128, 0.126, 0.032, 10);
-          filaBand.translate(0, 0.142, -0.005);
-          headParts.push({ geo: filaBand, hex: 0xF4B41A, ao: 1.12 });
+            const filaBand = new THREE.CylinderGeometry(0.128, 0.126, 0.032, 10);
+            filaBand.translate(0, 0.142, -0.005);
+            headParts.push({ geo: filaBand, hex: 0xF4B41A, ao: 1.12 });
 
-          const filaPeak = new THREE.CylinderGeometry(0.095, 0.118, 0.085, 10);
-          filaPeak.rotateZ(0.22);
-          filaPeak.translate(0.018, 0.245, -0.008);
-          headParts.push({ geo: filaPeak, hex: 0xF4B41A, ao: 1.10 });
+            const filaPeak = new THREE.CylinderGeometry(0.095, 0.118, 0.085, 10);
+            filaPeak.rotateZ(0.22);
+            filaPeak.translate(0.018, 0.245, -0.008);
+            headParts.push({ geo: filaPeak, hex: 0xF4B41A, ao: 1.10 });
+          }
         } else if (outfitId === 'outfit_corporate_suit') {
           // Tailored Cobalt/Indigo Executive Work Shirt & Blazer + Crisp White Collar + Crimson Silk Tie
           const blazerShoulders = new THREE.BoxGeometry(0.43, 0.30, 0.23);
@@ -9079,19 +9160,96 @@
           senatorBackTrim.translate(0, 0.25, -0.112);
           spineParts.push({ geo: senatorBackTrim, hex: 0xF4B41A, ao: 1.08 });
 
-          const senFila = new THREE.CylinderGeometry(0.116, 0.114, 0.11, 10);
-          senFila.rotateZ(0.12);
-          senFila.translate(0.008, 0.195, -0.005);
-          headParts.push({ geo: senFila, hex: 0x0F172A, ao: 1.05 });
+          if (!hairStyle || hairStyle === 'fila_kufi_cap') {
+            const senFila = new THREE.CylinderGeometry(0.116, 0.114, 0.11, 10);
+            senFila.rotateZ(0.12);
+            senFila.translate(0.008, 0.195, -0.005);
+            headParts.push({ geo: senFila, hex: 0x0F172A, ao: 1.05 });
 
-          const senFilaRim = new THREE.CylinderGeometry(0.120, 0.120, 0.028, 10);
-          senFilaRim.translate(0, 0.148, -0.005);
-          headParts.push({ geo: senFilaRim, hex: 0xF4B41A, ao: 1.12 });
+            const senFilaRim = new THREE.CylinderGeometry(0.120, 0.120, 0.028, 10);
+            senFilaRim.translate(0, 0.148, -0.005);
+            headParts.push({ geo: senFilaRim, hex: 0xF4B41A, ao: 1.12 });
+          }
         } else {
           // Default Street Hustler Bomber Collar & Gold Back Stripe
           const streetStripe = new THREE.BoxGeometry(0.18, 0.08, 0.035);
           streetStripe.translate(0, 0.24, -0.112);
-          spineParts.push({ geo: streetStripe, hex: 0xF4B41A, ao: 1.08 });
+          spineParts.push({ geo: streetStripe, hex: accentHex, ao: 1.08 });
+        }
+
+        // Bag / Accessory Overlay on Spine (Lagos Life Reference: Duffel Bag or Mini Bag)
+        if (bagStyle === 'duffel_bag') {
+          const strap = new THREE.BoxGeometry(0.035, 0.36, 0.24);
+          strap.rotateZ(-0.48);
+          strap.translate(0.02, 0.16, 0);
+          spineParts.push({ geo: strap, hex: 0x1E293B, ao: 1.04 });
+
+          const duffel = new THREE.CylinderGeometry(0.075, 0.075, 0.28, 8);
+          duffel.rotateZ(Math.PI / 2);
+          duffel.translate(-0.18, -0.02, -0.06);
+          spineParts.push({ geo: duffel, hex: bagHex, ao: 1.08 });
+        } else if (bagStyle === 'mini_bag') {
+          const chain = new THREE.BoxGeometry(0.018, 0.38, 0.22);
+          chain.rotateZ(0.52);
+          chain.translate(0, 0.15, 0);
+          spineParts.push({ geo: chain, hex: 0xF4B41A, ao: 1.12 });
+
+          const miniBag = new THREE.BoxGeometry(0.065, 0.11, 0.14);
+          miniBag.translate(0.175, -0.04, 0.03);
+          spineParts.push({ geo: miniBag, hex: bagHex, ao: 1.10 });
+        }
+
+        // Explicit Hair & Headpiece Overlays on Head Bone (Lagos Life Reference)
+        if (hairStyle === 'gele_headwrap' || (outfitId === 'outfit_asooke_gown' && !hairStyle)) {
+          const geleBase = new THREE.SphereGeometry(0.142, 10, 8);
+          geleBase.scale(1.22, 0.84, 1.14);
+          geleBase.translate(0, 0.19, -0.01);
+          headParts.push({ geo: geleBase, hex: accentHex, ao: 1.08 });
+
+          const geleFan = new THREE.TorusGeometry(0.118, 0.044, 6, 12);
+          geleFan.rotateX(Math.PI / 2 - 0.28);
+          geleFan.translate(0, 0.235, 0.012);
+          headParts.push({ geo: geleFan, hex: topHex, ao: 1.12 });
+        } else if (hairStyle === 'bonestraight_glam') {
+          const topCrown = new THREE.SphereGeometry(0.118, 8, 6);
+          topCrown.scale(0.98, 1.04, 1.05);
+          topCrown.translate(0, 0.135, -0.01);
+          headParts.push({ geo: topCrown, hex: hairHex, ao: 0.96 });
+
+          const leftCurtain = new THREE.BoxGeometry(0.042, 0.28, 0.15);
+          leftCurtain.translate(0.105, 0.01, -0.01);
+          headParts.push({ geo: leftCurtain, hex: hairHex, ao: 0.94 });
+
+          const rightCurtain = new THREE.BoxGeometry(0.042, 0.28, 0.15);
+          rightCurtain.translate(-0.105, 0.01, -0.01);
+          headParts.push({ geo: rightCurtain, hex: hairHex, ao: 0.94 });
+
+          const backSheet = new THREE.BoxGeometry(0.20, 0.30, 0.045);
+          backSheet.translate(0, 0.0, -0.105);
+          headParts.push({ geo: backSheet, hex: hairHex, ao: 0.92 });
+        } else if (hairStyle === 'curly_natural' || hairStyle === 'afro_twist') {
+          const afroPuff = new THREE.SphereGeometry(0.145, 10, 8);
+          afroPuff.scale(1.08, 1.02, 1.08);
+          afroPuff.translate(0, 0.175, -0.015);
+          headParts.push({ geo: afroPuff, hex: hairHex, ao: 0.96 });
+        } else if (hairStyle === 'braids_classic') {
+          const braidCrown = new THREE.SphereGeometry(0.078, 8, 6);
+          braidCrown.translate(0, 0.245, -0.03);
+          headParts.push({ geo: braidCrown, hex: hairHex, ao: 1.0 });
+
+          const goldCuff = new THREE.TorusGeometry(0.068, 0.014, 6, 10);
+          goldCuff.rotateX(Math.PI / 2 - 0.2);
+          goldCuff.translate(0, 0.21, -0.03);
+          headParts.push({ geo: goldCuff, hex: 0xF4B41A, ao: 1.12 });
+        } else if (hairStyle === 'fila_kufi_cap' && headParts.length === 0) {
+          const filaCap = new THREE.CylinderGeometry(0.118, 0.115, 0.11, 10);
+          filaCap.rotateZ(0.14);
+          filaCap.translate(0.01, 0.195, -0.005);
+          headParts.push({ geo: filaCap, hex: hairHex || 0x0F172A, ao: 1.06 });
+
+          const filaTrim = new THREE.CylinderGeometry(0.122, 0.122, 0.028, 10);
+          filaTrim.translate(0, 0.148, -0.005);
+          headParts.push({ geo: filaTrim, hex: accentHex, ao: 1.12 });
         }
 
         if (spineParts.length > 0 && charGroup.rig && charGroup.rig.spine) {
@@ -26073,18 +26231,34 @@
 
       // Lagos Wardrobe Outfits (Visibly recolors & dresses 3D Player Avatar!)
       currentOutfitId: 'outfit_street_hustler',
-      ownedOutfitIds: ['outfit_street_hustler', 'outfit_sunday_senator'],
+      ownedOutfitIds: [
+        'outfit_street_hustler',
+        'outfit_sunday_senator',
+        'outfit_ankara_gown',
+        'outfit_buba_wrapper',
+        'outfit_marina_workwear'
+      ],
       characterAppearance: {
+        gender: 'male',
+        styleSet: 'casual',
+        fabricStyle: 'ankara',
         bodyType: 'athletic_lagos',
         skinTone: '#6B3E26',
         hairStyle: 'braids_classic',
+        shoesStyle: 'white_sneakers',
+        bagStyle: 'none',
+        topColor: '#10B981',
+        bottomColor: '#1E293B',
+        hairColor: '#1A1110',
+        shoeColor: '#F8FAFC',
+        bagColor: '#D97706',
         skinHex: 0x6B3E26,
         hairHex: 0x1A1110
       },
       outfits: [
         {
           id: 'outfit_street_hustler',
-          name: 'Lagos Street Hustler Fit',
+          name: 'Lagos Street Hustler Fit (Ankara Shirt & Chinos)',
           badge: 'STARTER OWNED',
           priceGN: 0,
           shopItemId: null,
@@ -26093,11 +26267,37 @@
           accentHex: 0xF4B41A,
           shoeHex: 0x0F172A,
           perk: '+10% On-Foot Sprint & Conductor Reflex',
-          desc: 'Emerald Eko jersey with rugged denim — built for CMS bus stops and Balogun market runs.'
+          desc: 'Emerald Ankara print shirt with rugged chinos — built for CMS bus stops and Balogun market runs.'
+        },
+        {
+          id: 'outfit_ankara_gown',
+          name: 'Vibrant Ankara Flare Dress / Gown',
+          badge: 'STARTER OWNED',
+          priceGN: 0,
+          shopItemId: null,
+          topHex: 0xEC4899,
+          bottomHex: 0x7C3AED,
+          accentHex: 0xF4B41A,
+          shoeHex: 0xF8FAFC,
+          perk: '+15% Lagos Social Rapport & +10% On-Foot Comfort',
+          desc: 'Tailored Nigerian Ankara flare dress with gold waist belt and patterned hem — effortless everyday Lagos style.'
+        },
+        {
+          id: 'outfit_buba_wrapper',
+          name: 'Lagos Buba & Iro Wrapper Skirt Set',
+          badge: 'STARTER OWNED',
+          priceGN: 0,
+          shopItemId: null,
+          topHex: 0x06B6D4,
+          bottomHex: 0x0E7490,
+          accentHex: 0xF4B41A,
+          shoeHex: 0xD97706,
+          perk: '+20% Market Bargaining Rapport & +15% Cultural Grace',
+          desc: 'Classic peplum Buba blouse paired with a draped Nigerian Iro wrapper skirt.'
         },
         {
           id: 'outfit_sunday_senator',
-          name: 'Sunday Senator Native Wear',
+          name: 'Sunday Senator Native Wear & Fila',
           badge: 'STARTER OWNED',
           priceGN: 0,
           shopItemId: null,
@@ -26109,8 +26309,47 @@
           desc: 'Tailored sky-blue Nigerian Senator kaftan with embroidered chest pocket, fila cap and polished loafers.'
         },
         {
+          id: 'outfit_marina_workwear',
+          name: 'Casual Lagos Street Tee & Cargo Denim',
+          badge: 'STARTER OWNED',
+          priceGN: 0,
+          shopItemId: null,
+          topHex: 0xF59E0B,
+          bottomHex: 0x1E293B,
+          accentHex: 0x10B981,
+          shoeHex: 0xF8FAFC,
+          perk: '+12% Courier Delivery Speed & Stamina Conservation',
+          desc: 'Clean everyday plain cotton street tee with utility denim and white sneakers.'
+        },
+        {
+          id: 'outfit_female_corporate',
+          name: 'Victoria Island Smart Sheath Dress & Blazer',
+          badge: 'ISLAND SMART',
+          priceGN: 4500,
+          shopItemId: 'itm_everyday_shirt',
+          topHex: 0x4F46E5,
+          bottomHex: 0x1E1B4B,
+          accentHex: 0xF8FAFC,
+          shoeHex: 0x111827,
+          perk: '+20% Property, Tech & Corporate Yields across Lagos Island',
+          desc: 'Structured executive blazer over a tailored sheath dress — ready for Victoria Island and Yaba boardrooms.'
+        },
+        {
+          id: 'outfit_asooke_gown',
+          name: 'Royal Asooke Corset Gown & Gele Set',
+          badge: 'OWAMBE QUEEN',
+          priceGN: 22000,
+          shopItemId: 'itm_ceremonial_asoebi',
+          topHex: 0xE11D48,
+          bottomHex: 0x9F1239,
+          accentHex: 0xF4B41A,
+          shoeHex: 0xD97706,
+          perk: '+30% Owambe Vibes & +25% Clout at Social Venues',
+          desc: 'Ceremonial hand-woven Asooke corset gown with Ipele shoulder sash, coral beads, and pleated Gele crown.'
+        },
+        {
           id: 'outfit_owambe_agbada',
-          name: 'Royal Owambe Gold Agbada',
+          name: 'Royal Owambe Gold Asooke Agbada',
           badge: 'OWAMBE VIP',
           priceGN: 22000,
           shopItemId: 'itm_ceremonial_asoebi',
@@ -26123,7 +26362,7 @@
         },
         {
           id: 'outfit_corporate_suit',
-          name: 'Broad Street Corporate Suit',
+          name: 'Broad Street Corporate Suit & Tie',
           badge: 'MARINA EXECUTIVE',
           priceGN: 4500,
           shopItemId: 'itm_everyday_shirt',
@@ -27850,16 +28089,25 @@
         if (typeof playerAvatar !== 'undefined' && playerAvatar) {
           if (typeof EkoHumanCharacterSystem !== 'undefined' && typeof EkoHumanCharacterSystem.applyOutfitToCharacter === 'function') {
             const app = this.characterAppearance || {};
+            const useCustomPalette = Boolean(opts && opts.useCustomPalette);
             EkoHumanCharacterSystem.applyOutfitToCharacter(playerAvatar, {
               ...fit,
+              topHex: (useCustomPalette && app.topHex !== undefined) ? app.topHex : fit.topHex,
+              bottomHex: (useCustomPalette && app.bottomHex !== undefined) ? app.bottomHex : fit.bottomHex,
+              shoeHex: (useCustomPalette && app.shoeHex !== undefined) ? app.shoeHex : fit.shoeHex,
+              accentHex: (useCustomPalette && app.accentHex !== undefined) ? app.accentHex : fit.accentHex,
+              bagHex: app.bagHex !== undefined ? app.bagHex : 0xD97706,
               skinHex: app.skinHex,
               hairHex: app.hairHex,
-              bodyType: app.bodyType
+              bodyType: app.bodyType,
+              gender: app.gender || 'male',
+              hairStyle: app.hairStyle,
+              bagStyle: app.bagStyle || 'none'
             });
           }
           if (typeof EkoAnimStateMachine !== 'undefined') {
             playerAnimTransitionTimer = 0.65;
-            EkoAnimStateMachine.setState(playerAvatar, fit.id === 'outfit_owambe_agbada' ? 'celebrate' : 'talk_gesture');
+            EkoAnimStateMachine.setState(playerAvatar, (fit.id === 'outfit_owambe_agbada' || fit.id === 'outfit_asooke_gown') ? 'celebrate' : 'talk_gesture');
           }
         }
         if (!opts || (!opts.silent && !opts.silentToast)) {
@@ -34795,20 +35043,33 @@
         { id: 'profile_creator_remote', title: 'Creative / Remote Hustler', home: 'Tier 1 Improved Courtyard Room (Yaba)', grantGN: 5000, career: 'Creative Media & Tech', jobs: 'Yaba Hub Event Assistant, Shop Assistant' }
       ],
       charForm: {
+        gender: 'male',
+        styleSet: 'casual',
+        fabricStyle: 'ankara',
         bodyType: 'athletic_lagos',
         skinTone: '#6B3E26',
         hairStyle: 'braids_classic',
         outfitPreset: 'smart_ankara_casual',
-        accentColor: '#10B981',
+        shoesStyle: 'white_sneakers',
+        bagStyle: 'none',
+        topColor: '#10B981',
+        bottomColor: '#1E293B',
+        hairColor: '#1A1110',
+        shoeColor: '#F8FAFC',
+        bagColor: '#D97706',
+        accentColor: '#F4B41A',
         displayName: '',
-        starterProfileId: 'profile_new_arrival'
+        starterProfileId: 'profile_new_arrival',
+        previewYawDeg: 0
       },
 
       async init() {
         const restored = await this.restoreExistingSession();
         const params = new URLSearchParams(window.location.search);
-        if (!restored || (params.get('onboarding') === '1' && !this.characterCreated)) {
+        if (!restored) {
           this.openModal('entry');
+        } else if (!this.characterCreated || params.get('onboarding') === '1') {
+          this.openModal('character');
         }
         this.updateTopBadge();
       },
@@ -34857,6 +35118,24 @@
           const found = this.starterProfiles.find(p => p.id === this.starterProfileId);
           if (found) this.starterProfileTitle = found.title;
         }
+        if (acc.character && acc.character.appearance) {
+          const ap = acc.character.appearance;
+          if (ap.gender) this.charForm.gender = ap.gender;
+          if (ap.styleSet) this.charForm.styleSet = ap.styleSet;
+          if (ap.fabricStyle) this.charForm.fabricStyle = ap.fabricStyle;
+          if (ap.bodyType) this.charForm.bodyType = ap.bodyType;
+          if (ap.skinTone) this.charForm.skinTone = ap.skinTone;
+          if (ap.hairStyle) this.charForm.hairStyle = ap.hairStyle;
+          if (ap.outfitPreset) this.charForm.outfitPreset = ap.outfitPreset;
+          if (ap.shoesStyle) this.charForm.shoesStyle = ap.shoesStyle;
+          if (ap.bagStyle) this.charForm.bagStyle = ap.bagStyle;
+          if (ap.topColor) this.charForm.topColor = ap.topColor;
+          if (ap.bottomColor) this.charForm.bottomColor = ap.bottomColor;
+          if (ap.hairColor) this.charForm.hairColor = ap.hairColor;
+          if (ap.shoeColor) this.charForm.shoeColor = ap.shoeColor;
+          if (ap.bagColor) this.charForm.bagColor = ap.bagColor;
+          if (ap.accentColor) this.charForm.accentColor = ap.accentColor;
+        }
         if (typeof acc.gameNairaBalance === 'number') {
           if (typeof EkoBackendSync !== 'undefined' && EkoBackendSync) {
             EkoBackendSync.reconcileBalance(acc.gameNairaBalance, 'M47_AUTH_RESTORE');
@@ -34873,6 +35152,9 @@
           }
           if (acc.onboarding && acc.onboarding.equippedOutfitId) {
             life.currentOutfitId = acc.onboarding.equippedOutfitId;
+          }
+          if (acc.character && acc.character.appearance) {
+            this.previewCharacterAppearance(true);
           }
           if (acc.onboarding && acc.onboarding.activeJobShift !== undefined) {
             life.activeJobShift = acc.onboarding.activeJobShift;
@@ -34909,53 +35191,412 @@
         }
       },
 
+      resolveOutfitIdFromPreset(preset) {
+        const map = {
+          smart_ankara_casual: 'outfit_street_hustler',
+          sunday_senator_native: 'outfit_sunday_senator',
+          marina_workwear: 'outfit_marina_workwear',
+          smart_island_corporate: 'outfit_corporate_suit',
+          asooke_agbada_party: 'outfit_owambe_agbada',
+          ankara_gown_dress: 'outfit_ankara_gown',
+          buba_iro_wrapper: 'outfit_buba_wrapper',
+          smart_corporate_dress: 'outfit_female_corporate',
+          asooke_owambe_dress: 'outfit_asooke_gown'
+        };
+        return map[preset] || preset || 'outfit_street_hustler';
+      },
+
+      setGenderSelection(gender, skipRender = false) {
+        this.syncCharFormFromDom();
+        const g = gender === 'female' ? 'female' : 'male';
+        this.charForm.gender = g;
+        if (g === 'female') {
+          if (['smart_ankara_casual', 'sunday_senator_native', 'asooke_agbada_party', 'smart_island_corporate'].includes(this.charForm.outfitPreset)) {
+            this.charForm.outfitPreset = 'ankara_gown_dress';
+          }
+          if (this.charForm.hairStyle === 'low_fade' || this.charForm.hairStyle === 'fila_kufi_cap') {
+            this.charForm.hairStyle = 'bonestraight_glam';
+          }
+          if (this.charForm.topColor === '#10B981') {
+            this.charForm.topColor = '#EC4899';
+            this.charForm.bottomColor = '#7C3AED';
+          }
+          if (this.charForm.bagStyle === 'none') {
+            this.charForm.bagStyle = 'mini_bag';
+          }
+        } else {
+          if (['ankara_gown_dress', 'buba_iro_wrapper', 'smart_corporate_dress', 'asooke_owambe_dress'].includes(this.charForm.outfitPreset)) {
+            this.charForm.outfitPreset = 'smart_ankara_casual';
+          }
+          if (this.charForm.hairStyle === 'bonestraight_glam' || this.charForm.hairStyle === 'gele_headwrap') {
+            this.charForm.hairStyle = 'low_fade';
+          }
+          if (this.charForm.topColor === '#EC4899') {
+            this.charForm.topColor = '#10B981';
+            this.charForm.bottomColor = '#1E293B';
+          }
+        }
+        this.previewCharacterAppearance(true);
+        if (!skipRender) this.renderModal();
+      },
+
+      applyLagosLifeStyleSet(styleSet) {
+        this.syncCharFormFromDom();
+        this.charForm.styleSet = styleSet;
+        const isFemale = this.charForm.gender === 'female';
+        if (styleSet === 'casual') {
+          this.charForm.fabricStyle = 'ankara';
+          this.charForm.outfitPreset = isFemale ? 'ankara_gown_dress' : 'smart_ankara_casual';
+          this.charForm.hairStyle = isFemale ? 'curly_natural' : 'low_fade';
+          this.charForm.shoesStyle = 'white_sneakers';
+          this.charForm.bagStyle = isFemale ? 'mini_bag' : 'duffel_bag';
+          this.charForm.topColor = isFemale ? '#EC4899' : '#10B981';
+          this.charForm.bottomColor = isFemale ? '#7C3AED' : '#1E293B';
+          this.charForm.shoeColor = '#F8FAFC';
+          this.charForm.bagColor = '#D97706';
+        } else if (styleSet === 'casual2') {
+          this.charForm.fabricStyle = isFemale ? 'ankara' : 'plain';
+          this.charForm.outfitPreset = isFemale ? 'buba_iro_wrapper' : 'marina_workwear';
+          this.charForm.hairStyle = isFemale ? 'braids_classic' : 'gold_tinted';
+          this.charForm.shoesStyle = 'white_sneakers';
+          this.charForm.bagStyle = 'duffel_bag';
+          this.charForm.topColor = isFemale ? '#06B6D4' : '#F59E0B';
+          this.charForm.bottomColor = isFemale ? '#0E7490' : '#1E293B';
+          this.charForm.shoeColor = '#F8FAFC';
+          this.charForm.bagColor = '#0F172A';
+        } else if (styleSet === 'smart') {
+          this.charForm.fabricStyle = 'plain';
+          this.charForm.outfitPreset = isFemale ? 'smart_corporate_dress' : 'sunday_senator_native';
+          this.charForm.hairStyle = isFemale ? 'bonestraight_glam' : 'fila_kufi_cap';
+          this.charForm.shoesStyle = 'smart_oxfords';
+          this.charForm.bagStyle = isFemale ? 'mini_bag' : 'none';
+          this.charForm.topColor = isFemale ? '#4F46E5' : '#38BDF8';
+          this.charForm.bottomColor = '#0F172A';
+          this.charForm.shoeColor = '#111827';
+          this.charForm.bagColor = '#1E293B';
+        } else if (styleSet === 'party') {
+          this.charForm.fabricStyle = 'asooke';
+          this.charForm.outfitPreset = isFemale ? 'asooke_owambe_dress' : 'asooke_agbada_party';
+          this.charForm.hairStyle = isFemale ? 'gele_headwrap' : 'fila_kufi_cap';
+          this.charForm.shoesStyle = 'gold_heels';
+          this.charForm.bagStyle = isFemale ? 'mini_bag' : 'none';
+          this.charForm.topColor = isFemale ? '#E11D48' : '#F4B41A';
+          this.charForm.bottomColor = isFemale ? '#9F1239' : '#78350F';
+          this.charForm.shoeColor = '#D97706';
+          this.charForm.bagColor = '#F4B41A';
+        }
+        this.previewCharacterAppearance(true);
+        this.renderModal();
+      },
+
+      randomizeLagosLook() {
+        this.syncCharFormFromDom();
+        const styles = ['casual', 'casual2', 'smart', 'party'];
+        const skins = ['#6B3E26', '#3B2219', '#8D5524', '#261610'];
+        const bodies = ['athletic_lagos', 'compact_runner', 'tall_executive'];
+        this.charForm.skinTone = skins[Math.floor(Math.random() * skins.length)];
+        this.charForm.bodyType = bodies[Math.floor(Math.random() * bodies.length)];
+        const chosenStyle = styles[Math.floor(Math.random() * styles.length)];
+        this.applyLagosLifeStyleSet(chosenStyle);
+      },
+
+      rotatePreviewAvatar(deltaDeg) {
+        this.charForm.previewYawDeg = ((this.charForm.previewYawDeg || 0) + deltaDeg) % 360;
+        if (typeof playerAvatar !== 'undefined' && playerAvatar) {
+          playerAvatar.rotation.y += (deltaDeg * Math.PI) / 180;
+        }
+        const stageEl = document.getElementById('m47-char-live-stage');
+        if (stageEl) {
+          stageEl.innerHTML = this.renderLiveAvatarSvg();
+        }
+      },
+
       syncCharFormFromDom() {
         const dnEl = document.getElementById('m47-char-displayname');
         const profEl = document.getElementById('m47-char-profile');
+        const genderEl = document.getElementById('m47-char-gender');
+        const styleEl = document.getElementById('m47-char-styleset');
+        const fabricEl = document.getElementById('m47-char-fabric');
         const bodyEl = document.getElementById('m47-char-body');
         const skinEl = document.getElementById('m47-char-skin');
         const hairEl = document.getElementById('m47-char-hair');
         const outfitEl = document.getElementById('m47-char-outfit');
+        const shoesEl = document.getElementById('m47-char-shoes');
+        const bagEl = document.getElementById('m47-char-bag');
+        const topColEl = document.getElementById('m47-char-top-color');
+        const botColEl = document.getElementById('m47-char-bottom-color');
+        const hairColEl = document.getElementById('m47-char-hair-color');
+        const shoeColEl = document.getElementById('m47-char-shoe-color');
+        const bagColEl = document.getElementById('m47-char-bag-color');
+
         if (dnEl) this.charForm.displayName = dnEl.value;
         if (profEl) this.charForm.starterProfileId = profEl.value;
+        if (genderEl) this.charForm.gender = genderEl.value;
+        if (styleEl) this.charForm.styleSet = styleEl.value;
+        if (fabricEl) this.charForm.fabricStyle = fabricEl.value;
         if (bodyEl) this.charForm.bodyType = bodyEl.value;
         if (skinEl) this.charForm.skinTone = skinEl.value;
         if (hairEl) this.charForm.hairStyle = hairEl.value;
         if (outfitEl) this.charForm.outfitPreset = outfitEl.value;
+        if (shoesEl) this.charForm.shoesStyle = shoesEl.value;
+        if (bagEl) this.charForm.bagStyle = bagEl.value;
+        if (topColEl) this.charForm.topColor = topColEl.value;
+        if (botColEl) this.charForm.bottomColor = botColEl.value;
+        if (hairColEl) this.charForm.hairColor = hairColEl.value;
+        if (shoeColEl) this.charForm.shoeColor = shoeColEl.value;
+        if (bagColEl) this.charForm.bagColor = bagColEl.value;
       },
 
-      previewCharacterAppearance() {
+      onOutfitPresetChanged(newPreset) {
         this.syncCharFormFromDom();
+        this.charForm.outfitPreset = newPreset;
+        const presetDefaults = {
+          smart_ankara_casual: { fabric: 'ankara', top: '#10B981', bottom: '#1E293B', shoe: '#F8FAFC' },
+          ankara_gown_dress: { fabric: 'ankara', top: '#EC4899', bottom: '#7C3AED', shoe: '#F8FAFC' },
+          buba_iro_wrapper: { fabric: 'ankara', top: '#06B6D4', bottom: '#0E7490', shoe: '#D97706' },
+          sunday_senator_native: { fabric: 'plain', top: '#38BDF8', bottom: '#0F172A', shoe: '#451A03' },
+          marina_workwear: { fabric: 'plain', top: '#F59E0B', bottom: '#1E293B', shoe: '#F8FAFC' },
+          smart_corporate_dress: { fabric: 'plain', top: '#4F46E5', bottom: '#1E1B4B', shoe: '#111827' },
+          smart_island_corporate: { fabric: 'plain', top: '#2563EB', bottom: '#0F172A', shoe: '#111827' },
+          asooke_owambe_dress: { fabric: 'asooke', top: '#E11D48', bottom: '#9F1239', shoe: '#D97706' },
+          asooke_agbada_party: { fabric: 'asooke', top: '#F4B41A', bottom: '#78350F', shoe: '#451A03' }
+        };
+        const def = presetDefaults[newPreset];
+        if (def) {
+          this.charForm.fabricStyle = def.fabric;
+          this.charForm.topColor = def.top;
+          this.charForm.bottomColor = def.bottom;
+          this.charForm.shoeColor = def.shoe;
+        }
+        this.previewCharacterAppearance();
+        this.renderModal();
+      },
 
-        const skinHex = parseInt(String(this.charForm.skinTone || '#6B3E26').replace('#', '0x'), 16) || 0x6B3E26;
+      previewCharacterAppearance(skipDomSync = false) {
+        if (!skipDomSync) this.syncCharFormFromDom();
+
+        const parseHex = (str, fallback) => {
+          const n = parseInt(String(str || '').replace('#', '0x'), 16);
+          return Number.isFinite(n) ? n : fallback;
+        };
+        const skinHex = parseHex(this.charForm.skinTone, 0x6B3E26);
         const hairMap = {
           braids_classic: 0x1A1110,
           low_fade: 0x0F172A,
+          curly_natural: 0x1F120E,
+          bonestraight_glam: 0x111827,
+          gele_headwrap: 0xF4B41A,
+          fila_kufi_cap: 0x0F172A,
           afro_twist: 0x291711,
           gold_tinted: 0xB45309
         };
-        const hairHex = hairMap[this.charForm.hairStyle] || 0x1A1110;
-        const initialOutfitId = (this.charForm.outfitPreset === 'sunday_senator_native') ? 'outfit_sunday_senator' : 'outfit_street_hustler';
+        const hairHex = this.charForm.hairStyle === 'gold_tinted'
+          ? 0xB45309
+          : parseHex(this.charForm.hairColor, hairMap[this.charForm.hairStyle] || 0x1A1110);
+        const topHex = parseHex(this.charForm.topColor, this.charForm.gender === 'female' ? 0xEC4899 : 0x10B981);
+        const bottomHex = parseHex(this.charForm.bottomColor, 0x1E293B);
+        const shoeHex = parseHex(
+          this.charForm.shoeColor,
+          this.charForm.shoesStyle === 'gold_heels' ? 0xD97706 : (this.charForm.shoesStyle === 'smart_oxfords' ? 0x111827 : 0xF8FAFC)
+        );
+        const bagHex = parseHex(this.charForm.bagColor, 0xD97706);
+        const initialOutfitId = this.resolveOutfitIdFromPreset(this.charForm.outfitPreset);
 
         if (window.__PROJECT_EKO_LIFE__) {
           const life = window.__PROJECT_EKO_LIFE__;
           life.characterAppearance = {
+            gender: this.charForm.gender || 'male',
+            styleSet: this.charForm.styleSet || 'casual',
+            fabricStyle: this.charForm.fabricStyle || 'ankara',
             bodyType: this.charForm.bodyType,
             skinTone: this.charForm.skinTone,
             hairStyle: this.charForm.hairStyle,
+            shoesStyle: this.charForm.shoesStyle || 'white_sneakers',
+            bagStyle: this.charForm.bagStyle || 'none',
+            topColor: this.charForm.topColor,
+            bottomColor: this.charForm.bottomColor,
+            hairColor: this.charForm.hairColor,
+            shoeColor: this.charForm.shoeColor,
+            bagColor: this.charForm.bagColor,
             skinHex,
-            hairHex
+            hairHex,
+            topHex,
+            bottomHex,
+            shoeHex,
+            bagHex
           };
-          life.equipOutfit(initialOutfitId, { silentToast: true, suppressEvent: true });
+          life.equipOutfit(initialOutfitId, { silentToast: true, suppressEvent: true, useCustomPalette: true });
         }
+
+        const stageEl = document.getElementById('m47-char-live-stage');
+        if (stageEl) {
+          stageEl.innerHTML = this.renderLiveAvatarSvg();
+        }
+
         return {
+          gender: this.charForm.gender,
+          styleSet: this.charForm.styleSet,
+          fabricStyle: this.charForm.fabricStyle,
           bodyType: this.charForm.bodyType,
           skinTone: this.charForm.skinTone,
           hairStyle: this.charForm.hairStyle,
           outfitId: initialOutfitId,
+          shoesStyle: this.charForm.shoesStyle,
+          bagStyle: this.charForm.bagStyle,
           skinHex,
-          hairHex
+          hairHex,
+          topHex,
+          bottomHex,
+          shoeHex,
+          bagHex
         };
+      },
+
+      renderLiveAvatarSvg() {
+        const cf = this.charForm;
+        const isFemale = cf.gender === 'female';
+        const skin = cf.skinTone || '#6B3E26';
+        const top = cf.topColor || (isFemale ? '#EC4899' : '#10B981');
+        const bot = cf.bottomColor || '#1E293B';
+        const hairCol = cf.hairStyle === 'gold_tinted' ? '#D97706' : (cf.hairColor || '#1A1110');
+        const shoeCol = cf.shoesStyle === 'gold_heels' ? '#F59E0B' : (cf.shoesStyle === 'smart_oxfords' ? '#1E293B' : (cf.shoeColor || '#F8FAFC'));
+        const bagCol = cf.bagColor || '#D97706';
+        const isDress = ['ankara_gown_dress', 'asooke_owambe_dress', 'smart_corporate_dress', 'buba_iro_wrapper'].includes(cf.outfitPreset);
+        const isAgbada = cf.outfitPreset === 'asooke_agbada_party';
+        const isSenator = cf.outfitPreset === 'sunday_senator_native';
+        const isSuit = cf.outfitPreset === 'smart_island_corporate' || cf.outfitPreset === 'smart_corporate_dress';
+
+        const bodyWidthScale = cf.bodyType === 'compact_runner' ? 0.93 : (cf.bodyType === 'tall_executive' ? 1.05 : 1.0);
+        const yawLabel = `${((cf.previewYawDeg % 360) + 360) % 360}°`;
+
+        // Fabric pattern defs (Ankara geometric diamonds vs Asooke woven stripes vs Plain)
+        const patternOverlay = cf.fabricStyle === 'ankara'
+          ? `<pattern id="ekoFabricPat" width="14" height="14" patternUnits="userSpaceOnUse">
+               <circle cx="7" cy="7" r="4.5" fill="none" stroke="#F4B41A" stroke-width="1.4" opacity="0.72"/>
+               <circle cx="7" cy="7" r="1.8" fill="#FDE047" opacity="0.8"/>
+             </pattern>`
+          : cf.fabricStyle === 'asooke'
+            ? `<pattern id="ekoFabricPat" width="12" height="8" patternUnits="userSpaceOnUse">
+                 <line x1="0" y1="2" x2="12" y2="2" stroke="#F4B41A" stroke-width="1.3" opacity="0.65"/>
+                 <line x1="0" y1="6" x2="12" y2="6" stroke="#FEF08A" stroke-width="0.9" opacity="0.45"/>
+               </pattern>`
+            : `<pattern id="ekoFabricPat" width="10" height="10" patternUnits="userSpaceOnUse"></pattern>`;
+
+        // Hair / Headpiece SVG
+        let headwearSvg = '';
+        if (cf.hairStyle === 'gele_headwrap' || (cf.outfitPreset === 'asooke_owambe_dress' && !cf.hairStyle)) {
+          headwearSvg = `
+            <ellipse cx="100" cy="40" rx="34" ry="18" fill="${top}" stroke="#F4B41A" stroke-width="2"/>
+            <path d="M 70 44 Q 100 18 130 44 Z" fill="#F4B41A" opacity="0.85"/>
+          `;
+        } else if (cf.hairStyle === 'fila_kufi_cap') {
+          headwearSvg = `
+            <path d="M 76 48 L 80 25 L 124 21 L 124 48 Z" fill="${hairCol}" stroke="#F4B41A" stroke-width="2"/>
+            <rect x="75" y="44" width="50" height="5" rx="2" fill="#F4B41A"/>
+          `;
+        } else if (cf.hairStyle === 'bonestraight_glam') {
+          headwearSvg = `
+            <path d="M 72 46 Q 100 22 128 46 L 132 106 L 118 106 L 118 56 L 82 56 L 82 106 L 68 106 Z" fill="${hairCol}"/>
+          `;
+        } else if (cf.hairStyle === 'curly_natural' || cf.hairStyle === 'afro_twist') {
+          headwearSvg = `
+            <circle cx="82" cy="38" r="14" fill="${hairCol}"/>
+            <circle cx="100" cy="32" r="16" fill="${hairCol}"/>
+            <circle cx="118" cy="38" r="14" fill="${hairCol}"/>
+          `;
+        } else if (cf.hairStyle === 'braids_classic') {
+          headwearSvg = `
+            <circle cx="100" cy="24" r="12" fill="${hairCol}" stroke="#F4B41A" stroke-width="2"/>
+            <path d="M 75 48 Q 100 28 125 48" fill="${hairCol}"/>
+          `;
+        } else {
+          headwearSvg = `<path d="M 76 48 Q 100 26 124 48 Z" fill="${hairCol}"/>`;
+        }
+
+        // Torso + Lower Garment SVG (Female Dress/Skirt vs Male Shirt/Agbada/Senator)
+        let garmentSvg = '';
+        if (isDress) {
+          garmentSvg = `
+            <!-- Female Contoured Bodice & Flared Lagos Dress/Skirt -->
+            <path d="M 74 88 L 126 88 L 116 130 L 84 130 Z" fill="${top}"/>
+            <path d="M 74 88 L 126 88 L 116 130 L 84 130 Z" fill="url(#ekoFabricPat)"/>
+            <!-- Waist Belt -->
+            <rect x="82" y="126" width="36" height="7" rx="3" fill="#F4B41A"/>
+            <!-- Flared Gown / Iro Wrapper Skirt -->
+            <path d="M 82 132 L 118 132 L 142 206 L 58 206 Z" fill="${cf.outfitPreset === 'ankara_gown_dress' ? top : bot}"/>
+            <path d="M 82 132 L 118 132 L 142 206 L 58 206 Z" fill="url(#ekoFabricPat)"/>
+            <rect x="59" y="198" width="82" height="8" rx="3" fill="${bot}"/>
+            ${isSuit ? `<path d="M 72 88 L 92 88 L 95 130 L 70 130 Z" fill="${top}"/><path d="M 128 88 L 108 88 L 105 130 L 130 130 Z" fill="${top}"/><polygon points="93,88 107,88 100,118" fill="#F8FAFC"/>` : ''}
+          `;
+        } else if (isAgbada) {
+          garmentSvg = `
+            <!-- Voluminous Woven Asooke Agbada -->
+            <path d="M 52 86 L 148 86 L 138 175 L 62 175 Z" fill="${top}" stroke="#F4B41A" stroke-width="1.5"/>
+            <path d="M 52 86 L 148 86 L 138 175 L 62 175 Z" fill="url(#ekoFabricPat)"/>
+            <polygon points="88,88 112,88 106,138 94,138" fill="#7F1D1D" stroke="#FEF08A" stroke-width="1.5"/>
+            <rect x="78" y="172" width="18" height="44" rx="5" fill="${bot}"/>
+            <rect x="104" y="172" width="18" height="44" rx="5" fill="${bot}"/>
+          `;
+        } else {
+          const tunicHeight = isSenator ? 74 : 52;
+          garmentSvg = `
+            <!-- Male/Unisex Torso Shirt / Senator Kaftan / Blazer -->
+            <rect x="${isFemale ? 75 : 70}" y="86" width="${isFemale ? 50 : 60}" height="${tunicHeight}" rx="8" fill="${top}"/>
+            <rect x="${isFemale ? 75 : 70}" y="86" width="${isFemale ? 50 : 60}" height="${tunicHeight}" rx="8" fill="url(#ekoFabricPat)"/>
+            ${isSenator ? `<rect x="97" y="88" width="6" height="40" fill="#F4B41A"/><rect x="108" y="102" width="12" height="10" rx="2" fill="#F4B41A"/>` : ''}
+            ${isSuit ? `<polygon points="92,86 108,86 100,122" fill="#F8FAFC"/><rect x="98" y="92" width="4" height="28" fill="#DC2626"/>` : ''}
+            <!-- Trousers -->
+            <rect x="77" y="136" width="19" height="80" rx="6" fill="${bot}"/>
+            <rect x="104" y="136" width="19" height="80" rx="6" fill="${bot}"/>
+          `;
+        }
+
+        // Bag / Accessory SVG
+        let bagSvg = '';
+        if (cf.bagStyle === 'duffel_bag') {
+          bagSvg = `
+            <line x1="78" y1="88" x2="128" y2="146" stroke="#0F172A" stroke-width="4"/>
+            <rect x="118" y="134" width="28" height="18" rx="7" fill="${bagCol}" stroke="#F4B41A" stroke-width="1.5"/>
+          `;
+        } else if (cf.bagStyle === 'mini_bag') {
+          bagSvg = `
+            <line x1="122" y1="88" x2="74" y2="148" stroke="#F4B41A" stroke-width="2.2" stroke-dasharray="3,2"/>
+            <rect x="62" y="142" width="20" height="16" rx="4" fill="${bagCol}" stroke="#F4B41A" stroke-width="1.5"/>
+          `;
+        }
+
+        return `
+          <svg viewBox="0 0 200 250" width="100%" height="225" style="display:block;margin:0 auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,0.55));">
+            <defs>${patternOverlay}</defs>
+            <!-- Stage Floor Glow -->
+            <ellipse cx="100" cy="232" rx="56" ry="11" fill="rgba(16,185,129,0.22)" stroke="rgba(16,185,129,0.55)" stroke-width="1.5"/>
+            <g transform="translate(100,125) scale(${bodyWidthScale},1) translate(-100,-125)">
+              <!-- Arms -->
+              <rect x="54" y="90" width="14" height="58" rx="7" fill="${skin}"/>
+              <rect x="132" y="90" width="14" height="58" rx="7" fill="${skin}"/>
+              <rect x="53" y="88" width="16" height="26" rx="6" fill="${top}"/>
+              <rect x="131" y="88" width="16" height="26" rx="6" fill="${top}"/>
+              <!-- Lower Legs (visible under dress or trousers) -->
+              <rect x="81" y="185" width="12" height="36" rx="5" fill="${isDress ? skin : bot}"/>
+              <rect x="107" y="185" width="12" height="36" rx="5" fill="${isDress ? skin : bot}"/>
+              ${garmentSvg}
+              ${bagSvg}
+              <!-- Shoes -->
+              <rect x="75" y="216" width="22" height="12" rx="5" fill="${shoeCol}" stroke="#0F172A" stroke-width="1"/>
+              <rect x="103" y="216" width="22" height="12" rx="5" fill="${shoeCol}" stroke="#0F172A" stroke-width="1"/>
+              <!-- Neck & Head -->
+              <rect x="92" y="74" width="16" height="16" rx="5" fill="${skin}"/>
+              <ellipse cx="100" cy="56" rx="23" ry="25" fill="${skin}"/>
+              <!-- Eyes & Smile -->
+              <circle cx="91" cy="54" r="2.6" fill="#0F172A"/>
+              <circle cx="109" cy="54" r="2.6" fill="#0F172A"/>
+              <path d="M 92 66 Q 100 ${isFemale ? 72 : 70} 108 66" fill="none" stroke="${isFemale ? '#BE185D' : '#261610'}" stroke-width="${isFemale ? 2.8 : 2.2}" stroke-linecap="round"/>
+              ${isFemale ? `<circle cx="75" cy="60" r="2.8" fill="#F4B41A"/><circle cx="125" cy="60" r="2.8" fill="#F4B41A"/>` : ''}
+              ${headwearSvg}
+            </g>
+            <text x="10" y="18" fill="#94A3B8" font-size="9.5" font-family="monospace">${isFemale ? '👩🏾 FEMALE' : '👨🏾 MALE'} • ${String(cf.styleSet || 'casual').toUpperCase()} • ${String(cf.fabricStyle || 'ankara').toUpperCase()} • ${yawLabel}</text>
+          </svg>
+        `;
       },
 
       async resetTestFixture() {
@@ -35212,11 +35853,21 @@
               displayName: this.charForm.displayName || this.username,
               starterProfileId: this.charForm.starterProfileId,
               appearance: {
+                gender: this.charForm.gender || 'male',
+                styleSet: this.charForm.styleSet || 'casual',
                 bodyType: this.charForm.bodyType,
                 skinTone: this.charForm.skinTone,
                 hairStyle: this.charForm.hairStyle,
                 outfitPreset: this.charForm.outfitPreset,
-                accentColor: this.charForm.accentColor
+                fabricStyle: this.charForm.fabricStyle || 'ankara',
+                shoesStyle: this.charForm.shoesStyle || 'white_sneakers',
+                bagStyle: this.charForm.bagStyle || 'none',
+                topColor: this.charForm.topColor || '#0D9488',
+                bottomColor: this.charForm.bottomColor || '#1E293B',
+                hairColor: this.charForm.hairColor || '#141218',
+                shoeColor: this.charForm.shoeColor || '#F8FAFC',
+                bagColor: this.charForm.bagColor || '#92400E',
+                accentColor: this.charForm.accentColor || '#10B981'
               }
             })
           });
@@ -35277,32 +35928,43 @@
           : '';
 
         if (this.activeView === 'entry') {
+          const isFemaleEntry = this.charForm.gender === 'female';
           const activeBanner = this.sessionToken
             ? `<div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
                   <div>🟢 <strong>Active Session:</strong> ${this.escapeAttr(this.username)} <span style="color:#A7F3D0;">(${this.isGuest ? 'Guest Session' : 'Registered Citizen'})</span></div>
                   <div style="display:flex;gap:6px;">
                     ${this.isGuest ? `<button type="button" id="m47-entry-promote-guest-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('promote')" style="background:#F4B41A;color:#0F172A;border:none;border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:900;cursor:pointer;">✨ Promote Guest</button>` : ''}
-                    <button type="button" id="m47-entry-customize-char-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('character')" style="background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid rgba(56,189,248,0.45);border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:800;cursor:pointer;">🎨 Character</button>
+                    <button type="button" id="m47-entry-customize-char-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('character')" style="background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid rgba(56,189,248,0.45);border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:800;cursor:pointer;">👗 Dress & Look</button>
                     <button type="button" id="m47-entry-logout-btn" onclick="window.__PROJECT_EKO_AUTH__.logout()" style="background:rgba(239,68,68,0.2);color:#FCA5A5;border:1px solid rgba(239,68,68,0.45);border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:800;cursor:pointer;">🚪 Log Out</button>
                   </div>
                 </div>
               </div>`
             : '';
           modal.innerHTML = `
-            <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.8);">
+            <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:500px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.8);">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:800;color:#10B981;letter-spacing:0.06em;">PROJECT EKO • LIVE. DRIVE. BUILD. EARN.</span>
                 <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" style="background:transparent;color:#94A3B8;border:none;font-size:14px;cursor:pointer;">✕</button>
               </div>
               <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:900;">Welcome to Living Lagos</h2>
-              <p style="margin:0 0 14px 0;font-size:12px;color:#CBD5E1;line-height:1.45;">
-                An account enables saved progress across sessions, your 3D starter home, authoritative Game Naira ledger, and live multiplayer crews. <strong>Zero payment information is required to play.</strong>
+              <p style="margin:0 0 12px 0;font-size:12px;color:#CBD5E1;line-height:1.45;">
+                Choose your citizen gender & starting style below, then start as a Guest or create your Citizen Account. <strong>Zero payment information is required to play.</strong>
               </p>
               ${activeBanner}
               ${errHtml}
+              <div style="background:rgba(30,41,59,0.75);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 12px;margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <span style="font-size:11px;font-weight:800;color:#F4B41A;letter-spacing:0.04em;">👤 FIRST PLAYER GENDER & STARTING LOOK</span>
+                  <span style="font-size:10px;color:#94A3B8;">Customize dress, Ankara/Asooke & hair in Step 1</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <button type="button" id="m47-entry-gender-male" onclick="window.__PROJECT_EKO_AUTH__.setGenderSelection('male')" style="background:${!isFemaleEntry ? 'rgba(16,185,129,0.22)' : '#1E293B'};color:${!isFemaleEntry ? '#34D399' : '#CBD5E1'};border:1.5px solid ${!isFemaleEntry ? '#10B981' : 'rgba(255,255,255,0.15)'};border-radius:8px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;">👨 Male Citizen (Ankara / Senator / Agbada)</button>
+                  <button type="button" id="m47-entry-gender-female" onclick="window.__PROJECT_EKO_AUTH__.setGenderSelection('female')" style="background:${isFemaleEntry ? 'rgba(236,72,153,0.22)' : '#1E293B'};color:${isFemaleEntry ? '#F472B6' : '#CBD5E1'};border:1.5px solid ${isFemaleEntry ? '#EC4899' : 'rgba(255,255,255,0.15)'};border-radius:8px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;">👩 Female Citizen (Ankara Dress / Buba / Gele)</button>
+                </div>
+              </div>
               <div style="display:flex;flex-direction:column;gap:10px;">
-                <button type="button" id="m47-entry-start-journey-btn" onclick="window.__PROJECT_EKO_AUTH__.startGuestJourney()" style="background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">🚀 Start Your Journey (Quick Guest Entry — Promotable)</button>
+                <button type="button" id="m47-entry-start-journey-btn" onclick="window.__PROJECT_EKO_AUTH__.startGuestJourney()" style="background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">🚀 Start Your Journey & Customize First Dress/Clothes →</button>
                 <button type="button" id="m47-entry-create-account-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('register')" style="background:#1E293B;color:#38BDF8;border:1px solid rgba(56,189,248,0.45);border-radius:10px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;min-height:44px;">✨ Create Citizen Account</button>
                 <button type="button" id="m47-entry-login-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('login')" style="background:rgba(255,255,255,0.06);color:#F8FAFC;border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;min-height:44px;">🔑 Log In to Existing Account</button>
               </div>
@@ -35400,58 +36062,172 @@
           return;
         }
 
-        // Character Creation 5-Step View
+        // Character Creation & Lagos Life Wardrobe Studio (Steps 1–5)
         const selectedProf = this.starterProfiles.find(p => p.id === this.charForm.starterProfileId) || this.starterProfiles[0];
+        const isFemale = this.charForm.gender === 'female';
+        const curStyle = this.charForm.styleSet || 'casual';
+        const curFabric = this.charForm.fabricStyle || 'ankara';
         modal.innerHTML = `
-          <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:580px;width:94%;max-height:88vh;overflow-y:auto;padding:20px;color:#F8FAFC;">
+          <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.55);border-radius:16px;max-width:760px;width:95%;max-height:92vh;overflow-y:auto;padding:20px;color:#F8FAFC;box-shadow:0 24px 64px rgba(0,0,0,0.85);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-size:11px;font-weight:800;color:#10B981;">CHARACTER CREATION & STARTER PROFILE (STEPS 1–5)</span>
-              <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" style="background:transparent;color:#94A3B8;border:none;font-size:13px;cursor:pointer;">✕</button>
+              <div>
+                <span style="font-size:11px;font-weight:900;color:#10B981;letter-spacing:0.06em;">LAGOS LIFE CHARACTER STUDIO & STARTER PROFILE (STEPS 1–5)</span>
+                <div style="font-size:11px;color:#94A3B8;">Customize your gender, first dress/clothes, Ankara/Asooke fabric, hair/headpiece, shoes, bag & colours</div>
+              </div>
+              <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" style="background:transparent;color:#94A3B8;border:none;font-size:15px;cursor:pointer;">✕</button>
             </div>
             ${errHtml}
-            <form id="m47-char-form" onsubmit="return window.__PROJECT_EKO_AUTH__.submitCharacterCreation(event)" style="display:flex;flex-direction:column;gap:10px;">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">1. Body Build
-                  <select id="m47-char-body" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:12px;">
+            <form id="m47-char-form" onsubmit="return window.__PROJECT_EKO_AUTH__.submitCharacterCreation(event)" style="display:flex;flex-direction:column;gap:12px;">
+              <!-- Top Studio Split: Live Character Stage + Gender & Style Set Controls -->
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;align-items:stretch;">
+                <!-- Live Avatar Preview Stage -->
+                <div style="background:linear-gradient(180deg,#0B1120 0%,#1E293B 100%);border:1px solid rgba(56,189,248,0.35);border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;">
+                  <div style="width:100%;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#94A3B8;font-weight:800;">
+                    <span>LIVE 3D & STUDIO PREVIEW</span>
+                    <span style="color:${isFemale ? '#F472B6' : '#34D399'};">${isFemale ? '👩 FEMALE CITIZEN' : '👨 MALE CITIZEN'}</span>
+                  </div>
+                  <div id="m47-char-live-stage" style="width:100%;display:flex;justify-content:center;align-items:center;min-height:195px;">
+                    ${this.renderLiveAvatarSvg()}
+                  </div>
+                  <div style="display:flex;gap:6px;width:100%;justify-content:center;">
+                    <button type="button" id="m47-char-rotate-left-btn" onclick="window.__PROJECT_EKO_AUTH__.rotatePreviewAvatar(-1)" style="flex:1;background:#1E293B;color:#E2E8F0;border:1px solid rgba(255,255,255,0.18);border-radius:7px;padding:6px 8px;font-size:11px;font-weight:700;cursor:pointer;">↺ Rotate 3D</button>
+                    <button type="button" id="m47-char-random-look-btn" onclick="window.__PROJECT_EKO_AUTH__.randomizeLagosLook()" style="flex:1.2;background:rgba(244,180,26,0.18);color:#F4B41A;border:1px solid rgba(244,180,26,0.45);border-radius:7px;padding:6px 8px;font-size:11px;font-weight:800;cursor:pointer;">🎲 Random Look</button>
+                    <button type="button" id="m47-char-rotate-right-btn" onclick="window.__PROJECT_EKO_AUTH__.rotatePreviewAvatar(1)" style="flex:1;background:#1E293B;color:#E2E8F0;border:1px solid rgba(255,255,255,0.18);border-radius:7px;padding:6px 8px;font-size:11px;font-weight:700;cursor:pointer;">Rotate 3D ↻</button>
+                  </div>
+                </div>
+
+                <!-- Gender, Style Set & Fabric Selectors (Lagos Life Reference) -->
+                <div style="display:flex;flex-direction:column;gap:9px;justify-content:space-between;">
+                  <div style="background:rgba(30,41,59,0.65);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px;">
+                    <div style="font-size:10.5px;font-weight:800;color:#F8FAFC;margin-bottom:6px;">1A. SELECT GENDER (MALE OR FEMALE)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                      <button type="button" id="m47-char-gender-male" onclick="window.__PROJECT_EKO_AUTH__.setGenderSelection('male')" style="background:${!isFemale ? '#10B981' : '#1E293B'};color:${!isFemale ? '#052E16' : '#CBD5E1'};border:1px solid ${!isFemale ? '#10B981' : 'rgba(255,255,255,0.2)'};border-radius:8px;padding:8px;font-size:12px;font-weight:900;cursor:pointer;">👨 Male</button>
+                      <button type="button" id="m47-char-gender-female" onclick="window.__PROJECT_EKO_AUTH__.setGenderSelection('female')" style="background:${isFemale ? '#EC4899' : '#1E293B'};color:${isFemale ? '#FFFFFF' : '#CBD5E1'};border:1px solid ${isFemale ? '#EC4899' : 'rgba(255,255,255,0.2)'};border-radius:8px;padding:8px;font-size:12px;font-weight:900;cursor:pointer;">👩 Female</button>
+                    </div>
+                  </div>
+
+                  <div style="background:rgba(30,41,59,0.65);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px;">
+                    <div style="font-size:10.5px;font-weight:800;color:#F4B41A;margin-bottom:6px;">1B. LAGOS LIFE STYLE PRESETS (ONE-CLICK OUTFIT SETS)</div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;">
+                      <button type="button" id="m47-style-casual" onclick="window.__PROJECT_EKO_AUTH__.applyLagosLifeStyleSet('casual')" style="background:${curStyle === 'casual' ? '#F4B41A' : '#1E293B'};color:${curStyle === 'casual' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 4px;font-size:10.5px;font-weight:800;cursor:pointer;">Casual</button>
+                      <button type="button" id="m47-style-casual2" onclick="window.__PROJECT_EKO_AUTH__.applyLagosLifeStyleSet('casual2')" style="background:${curStyle === 'casual2' ? '#F4B41A' : '#1E293B'};color:${curStyle === 'casual2' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 4px;font-size:10.5px;font-weight:800;cursor:pointer;">Casual 2</button>
+                      <button type="button" id="m47-style-smart" onclick="window.__PROJECT_EKO_AUTH__.applyLagosLifeStyleSet('smart')" style="background:${curStyle === 'smart' ? '#F4B41A' : '#1E293B'};color:${curStyle === 'smart' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 4px;font-size:10.5px;font-weight:800;cursor:pointer;">Smart</button>
+                      <button type="button" id="m47-style-party" onclick="window.__PROJECT_EKO_AUTH__.applyLagosLifeStyleSet('party')" style="background:${curStyle === 'party' ? '#F4B41A' : '#1E293B'};color:${curStyle === 'party' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 4px;font-size:10.5px;font-weight:800;cursor:pointer;">Party / Owambe</button>
+                    </div>
+                  </div>
+
+                  <div style="background:rgba(30,41,59,0.65);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px;">
+                    <div style="font-size:10.5px;font-weight:800;color:#38BDF8;margin-bottom:6px;">1C. FABRIC TEXTURE (ANKARA • ASOOKE • PLAIN)</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
+                      <button type="button" id="m47-fabric-ankara" onclick="window.__PROJECT_EKO_AUTH__.syncCharFormFromDom();window.__PROJECT_EKO_AUTH__.charForm.fabricStyle='ankara';window.__PROJECT_EKO_AUTH__.previewCharacterAppearance();window.__PROJECT_EKO_AUTH__.renderModal();" style="background:${curFabric === 'ankara' ? '#38BDF8' : '#1E293B'};color:${curFabric === 'ankara' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(56,189,248,0.4);border-radius:7px;padding:6px;font-size:10.5px;font-weight:800;cursor:pointer;">◈ Ankara Print</button>
+                      <button type="button" id="m47-fabric-asooke" onclick="window.__PROJECT_EKO_AUTH__.syncCharFormFromDom();window.__PROJECT_EKO_AUTH__.charForm.fabricStyle='asooke';window.__PROJECT_EKO_AUTH__.previewCharacterAppearance();window.__PROJECT_EKO_AUTH__.renderModal();" style="background:${curFabric === 'asooke' ? '#38BDF8' : '#1E293B'};color:${curFabric === 'asooke' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(56,189,248,0.4);border-radius:7px;padding:6px;font-size:10.5px;font-weight:800;cursor:pointer;">▤ Woven Asooke</button>
+                      <button type="button" id="m47-fabric-plain" onclick="window.__PROJECT_EKO_AUTH__.syncCharFormFromDom();window.__PROJECT_EKO_AUTH__.charForm.fabricStyle='plain';window.__PROJECT_EKO_AUTH__.previewCharacterAppearance();window.__PROJECT_EKO_AUTH__.renderModal();" style="background:${curFabric === 'plain' ? '#38BDF8' : '#1E293B'};color:${curFabric === 'plain' ? '#0F172A' : '#CBD5E1'};border:1px solid rgba(56,189,248,0.4);border-radius:7px;padding:6px;font-size:10.5px;font-weight:800;cursor:pointer;">▢ Tailored Plain</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Granular Wardrobe & Appearance Controls -->
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:8px;">
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">First Dress / Clothes
+                  <select id="m47-char-outfit" onchange="window.__PROJECT_EKO_AUTH__.onOutfitPresetChanged(this.value)" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(16,185,129,0.45);font-size:11.5px;">
+                    <optgroup label="Female Dresses & Native Wrappers">
+                      <option value="ankara_gown_dress" ${this.charForm.outfitPreset === 'ankara_gown_dress' ? 'selected' : ''}>👗 Ankara Flared Gown Dress</option>
+                      <option value="buba_iro_wrapper" ${this.charForm.outfitPreset === 'buba_iro_wrapper' ? 'selected' : ''}>👘 Lagos Buba Blouse & Iro Wrapper</option>
+                      <option value="smart_corporate_dress" ${this.charForm.outfitPreset === 'smart_corporate_dress' ? 'selected' : ''}>💼 Victoria Island Smart Sheath Dress</option>
+                      <option value="asooke_owambe_dress" ${this.charForm.outfitPreset === 'asooke_owambe_dress' ? 'selected' : ''}>👑 Owambe Asooke Corset Gown & Ipele</option>
+                    </optgroup>
+                    <optgroup label="Male & Unisex Lagos Attire">
+                      <option value="smart_ankara_casual" ${this.charForm.outfitPreset === 'smart_ankara_casual' ? 'selected' : ''}>👕 Lagos Street Hustler Ankara Tee</option>
+                      <option value="sunday_senator_native" ${this.charForm.outfitPreset === 'sunday_senator_native' ? 'selected' : ''}>🧥 Sunday Senator Kaftan & Native</option>
+                      <option value="marina_workwear" ${this.charForm.outfitPreset === 'marina_workwear' ? 'selected' : ''}>🦺 Marina Reflective Courier Workwear</option>
+                      <option value="smart_island_corporate" ${this.charForm.outfitPreset === 'smart_island_corporate' ? 'selected' : ''}>👔 Victoria Island Corporate Blazer</option>
+                      <option value="asooke_agbada_party" ${this.charForm.outfitPreset === 'asooke_agbada_party' ? 'selected' : ''}>👑 Royal Owambe Asooke Agbada</option>
+                    </optgroup>
+                  </select>
+                </label>
+
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Hair & Headpiece (Gele / Fila)
+                  <select id="m47-char-hair" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:11.5px;">
+                    <option value="low_fade" ${this.charForm.hairStyle === 'low_fade' ? 'selected' : ''}>✂️ Clean Lagos Lowcut Fade</option>
+                    <option value="curly_natural" ${this.charForm.hairStyle === 'curly_natural' ? 'selected' : ''}>🌀 Natural Curly / Twist Crown</option>
+                    <option value="bonestraight_glam" ${this.charForm.hairStyle === 'bonestraight_glam' ? 'selected' : ''}>💁‍♀️ Bone Straight Long Hair</option>
+                    <option value="braids_classic" ${this.charForm.hairStyle === 'braids_classic' ? 'selected' : ''}>🧶 Classic Lagos Box Braids</option>
+                    <option value="gele_headwrap" ${this.charForm.hairStyle === 'gele_headwrap' ? 'selected' : ''}>👑 Traditional Gele Headwrap</option>
+                    <option value="fila_kufi_cap" ${this.charForm.hairStyle === 'fila_kufi_cap' ? 'selected' : ''}>🧢 Yoruba Fila / Senator Kufi Cap</option>
+                    <option value="afro_twist" ${this.charForm.hairStyle === 'afro_twist' ? 'selected' : ''}>🌿 High Afro Sponge Twist</option>
+                    <option value="gold_tinted" ${this.charForm.hairStyle === 'gold_tinted' ? 'selected' : ''}>⚡ Gold-Tinted Alté Street Cut</option>
+                  </select>
+                </label>
+
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Body Build
+                  <select id="m47-char-body" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:11.5px;">
                     <option value="athletic_lagos" ${this.charForm.bodyType === 'athletic_lagos' ? 'selected' : ''}>Athletic Lagos Build</option>
                     <option value="compact_runner" ${this.charForm.bodyType === 'compact_runner' ? 'selected' : ''}>Compact Runner Build</option>
                     <option value="tall_executive" ${this.charForm.bodyType === 'tall_executive' ? 'selected' : ''}>Tall Island Build</option>
                   </select>
                 </label>
+
                 <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Skin Tone
-                  <select id="m47-char-skin" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:12px;">
+                  <select id="m47-char-skin" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:11.5px;">
                     <option value="#6B3E26" ${this.charForm.skinTone === '#6B3E26' ? 'selected' : ''}>Warm Mahogany (#6B3E26)</option>
                     <option value="#3B2219" ${this.charForm.skinTone === '#3B2219' ? 'selected' : ''}>Deep Espresso (#3B2219)</option>
                     <option value="#8D5524" ${this.charForm.skinTone === '#8D5524' ? 'selected' : ''}>Golden Bronze (#8D5524)</option>
                     <option value="#261610" ${this.charForm.skinTone === '#261610' ? 'selected' : ''}>Rich Ebony (#261610)</option>
+                    <option value="#A86B3C" ${this.charForm.skinTone === '#A86B3C' ? 'selected' : ''}>Sunlit Caramel (#A86B3C)</option>
                   </select>
                 </label>
-                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Hairstyle
-                  <select id="m47-char-hair" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:12px;">
-                    <option value="braids_classic" ${this.charForm.hairStyle === 'braids_classic' ? 'selected' : ''}>Classic Lagos Braids</option>
-                    <option value="low_fade" ${this.charForm.hairStyle === 'low_fade' ? 'selected' : ''}>Clean Low Fade</option>
-                    <option value="afro_twist" ${this.charForm.hairStyle === 'afro_twist' ? 'selected' : ''}>Afro Twist Crown</option>
-                    <option value="gold_tinted" ${this.charForm.hairStyle === 'gold_tinted' ? 'selected' : ''}>Gold-Tinted Street Cut</option>
+
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Footwear / Shoes
+                  <select id="m47-char-shoes" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:11.5px;">
+                    <option value="white_sneakers" ${this.charForm.shoesStyle === 'white_sneakers' ? 'selected' : ''}>👟 Clean Lagos Sneakers</option>
+                    <option value="smart_oxfords" ${this.charForm.shoesStyle === 'smart_oxfords' ? 'selected' : ''}>👞 Smart Loafers / Flats</option>
+                    <option value="gold_heels" ${this.charForm.shoesStyle === 'gold_heels' ? 'selected' : ''}>👠 Owambe Heels / Dress Shoes</option>
                   </select>
                 </label>
-                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Starter Attire (3D Outfit)
-                  <select id="m47-char-outfit" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:12px;">
-                    <option value="smart_ankara_casual" ${this.charForm.outfitPreset === 'smart_ankara_casual' ? 'selected' : ''}>Lagos Street Hustler Ankara Tee</option>
-                    <option value="sunday_senator_native" ${this.charForm.outfitPreset === 'sunday_senator_native' ? 'selected' : ''}>Sunday Senator Native Wear & Kufi</option>
-                    <option value="marina_workwear" ${this.charForm.outfitPreset === 'marina_workwear' ? 'selected' : ''}>Marina Courier Workwear</option>
+
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Bag / Accessory
+                  <select id="m47-char-bag" onchange="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:11.5px;">
+                    <option value="none" ${this.charForm.bagStyle === 'none' ? 'selected' : ''}>🚫 No Bag</option>
+                    <option value="mini_bag" ${this.charForm.bagStyle === 'mini_bag' ? 'selected' : ''}>👜 Crossbody Mini Handbag</option>
+                    <option value="duffel_bag" ${this.charForm.bagStyle === 'duffel_bag' ? 'selected' : ''}>🎒 Lagos Hustle Duffel Bag</option>
                   </select>
                 </label>
               </div>
 
-              <label style="font-size:11px;font-weight:700;color:#CBD5E1;">2. Citizen Display Name (Unique & Moderated)
-                <input id="m47-char-displayname" class="m47-input" type="text" required minlength="3" maxlength="24" value="${this.escapeAttr(this.charForm.displayName || this.username)}" oninput="window.__PROJECT_EKO_AUTH__.charForm.displayName=this.value" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
-              </label>
+              <!-- Lagos Life Colour Palette Customizer -->
+              <div style="background:rgba(30,41,59,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px;">
+                <div style="font-size:10.5px;font-weight:800;color:#CBD5E1;margin-bottom:6px;">🎨 CUSTOM COLOUR PICKERS (DRESS/TOP • BOTTOM/WRAPPER • HAIR/GELE • SHOES • BAG)</div>
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                  <label style="font-size:10px;color:#94A3B8;display:flex;flex-direction:column;gap:3px;">Dress / Top
+                    <input id="m47-char-topcolor" type="color" value="${this.escapeAttr(this.charForm.topColor || '#0D9488')}" oninput="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;height:30px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;background:#0F172A;cursor:pointer;" />
+                  </label>
+                  <label style="font-size:10px;color:#94A3B8;display:flex;flex-direction:column;gap:3px;">Bottom / Skirt
+                    <input id="m47-char-bottomcolor" type="color" value="${this.escapeAttr(this.charForm.bottomColor || '#1E293B')}" oninput="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;height:30px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;background:#0F172A;cursor:pointer;" />
+                  </label>
+                  <label style="font-size:10px;color:#94A3B8;display:flex;flex-direction:column;gap:3px;">Hair / Gele
+                    <input id="m47-char-haircolor" type="color" value="${this.escapeAttr(this.charForm.hairColor || '#141218')}" oninput="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;height:30px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;background:#0F172A;cursor:pointer;" />
+                  </label>
+                  <label style="font-size:10px;color:#94A3B8;display:flex;flex-direction:column;gap:3px;">Shoes
+                    <input id="m47-char-shoecolor" type="color" value="${this.escapeAttr(this.charForm.shoeColor || '#F8FAFC')}" oninput="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;height:30px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;background:#0F172A;cursor:pointer;" />
+                  </label>
+                  <label style="font-size:10px;color:#94A3B8;display:flex;flex-direction:column;gap:3px;">Bag
+                    <input id="m47-char-bagcolor" type="color" value="${this.escapeAttr(this.charForm.bagColor || '#92400E')}" oninput="window.__PROJECT_EKO_AUTH__.previewCharacterAppearance()" style="width:100%;height:30px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;background:#0F172A;cursor:pointer;" />
+                  </label>
+                </div>
+              </div>
 
-              <label style="font-size:11px;font-weight:700;color:#CBD5E1;">3. Canonical Starter Profile Selection (5 Master Spec Profiles)
-                <select id="m47-char-profile" onchange="window.__PROJECT_EKO_AUTH__.syncCharFormFromDom();window.__PROJECT_EKO_AUTH__.charForm.starterProfileId=this.value;window.__PROJECT_EKO_AUTH__.renderModal();" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(16,185,129,0.45);font-size:12px;">
-                  ${this.starterProfiles.map(p => `<option value="${p.id}" ${p.id === this.charForm.starterProfileId ? 'selected' : ''}>${p.title} — ${p.career}</option>`).join('')}
-                </select>
-              </label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;">
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">2. Citizen Display Name (Unique & Moderated)
+                  <input id="m47-char-displayname" class="m47-input" type="text" required minlength="3" maxlength="24" value="${this.escapeAttr(this.charForm.displayName || this.username)}" oninput="window.__PROJECT_EKO_AUTH__.charForm.displayName=this.value" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                </label>
+
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">3. Canonical Starter Profile (5 Master Spec Profiles)
+                  <select id="m47-char-profile" onchange="window.__PROJECT_EKO_AUTH__.syncCharFormFromDom();window.__PROJECT_EKO_AUTH__.charForm.starterProfileId=this.value;window.__PROJECT_EKO_AUTH__.renderModal();" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(16,185,129,0.45);font-size:12px;">
+                    ${this.starterProfiles.map(p => `<option value="${p.id}" ${p.id === this.charForm.starterProfileId ? 'selected' : ''}>${p.title} — ${p.career}</option>`).join('')}
+                  </select>
+                </label>
+              </div>
 
               <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.35);border-radius:10px;padding:10px;font-size:11px;line-height:1.45;">
                 <div style="font-weight:800;color:#34D399;margin-bottom:4px;">4. Starting Home, Game Naira & Entry Opportunities</div>
@@ -35460,7 +36236,7 @@
                 <div>💼 <strong>Entry-Level Work:</strong> ${selectedProf.jobs} — <em>You do not need a car to start earning!</em></div>
               </div>
 
-              <button type="submit" id="m47-char-confirm-btn" style="background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">5. Confirm Character & Arrive in Lagos →</button>
+              <button type="submit" id="m47-char-confirm-btn" style="background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">5. Confirm ${isFemale ? 'Female' : 'Male'} Character & Arrive in Lagos →</button>
             </form>
           </div>
         `;
