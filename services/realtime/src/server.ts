@@ -46,6 +46,8 @@ export interface ExtendedPlayerPresence extends PlayerPresence {
   coopRole?: 'DRIVER' | 'CONDUCTOR' | null;
   vehicleOccupancyRole?: 'ON_FOOT' | 'ENTERING_VEHICLE' | 'DRIVER' | 'PASSENGER' | 'CONDUCTOR' | 'EXITING_VEHICLE';
   seatId?: string | null;
+  inHomeInterior?: boolean;
+  homeInstanceId?: string | null;
   roleTitle?: string;
   appearance?: Record<string, string> | null;
 }
@@ -792,6 +794,23 @@ const server = http.createServer(async (req, res) => {
     const mergedAppearance = (serverAppearance || clientAppearance)
       ? { ...(serverAppearance || {}), ...(clientAppearance || {}) }
       : null;
+    const posObj = p.position || prevPresence?.position || { x: -95, y: 0, z: -185 };
+    const inferredInHome =
+      p.inHomeInterior !== undefined
+        ? Boolean(p.inHomeInterior)
+        : Boolean(
+            !p.inVehicleId &&
+              !p.isDriving &&
+              posObj &&
+              Number(posObj.x) >= -65.8 &&
+              Number(posObj.x) <= -58.2 &&
+              Number(posObj.z) >= -155.8 &&
+              Number(posObj.z) <= -148.2
+          );
+    const resolvedHomeInstanceId = inferredInHome
+      ? String(p.homeInstanceId || `home_${p.playerId}`).slice(0, 80)
+      : null;
+
     const updatedPresence: ExtendedPlayerPresence = {
       playerId: p.playerId,
       username: p.username || prevPresence?.username || p.playerId,
@@ -807,8 +826,10 @@ const server = http.createServer(async (req, res) => {
       coopRole: p.coopRole !== undefined ? p.coopRole : (prevPresence?.coopRole || null),
       vehicleOccupancyRole: p.vehicleOccupancyRole !== undefined ? p.vehicleOccupancyRole : (prevPresence?.vehicleOccupancyRole || 'ON_FOOT'),
       seatId: p.seatId !== undefined ? p.seatId : (prevPresence?.seatId || null),
+      inHomeInterior: inferredInHome,
+      homeInstanceId: resolvedHomeInstanceId,
       roleTitle: p.roleTitle || prevPresence?.roleTitle || 'Authenticated Citizen (Human)',
-      position: p.position || prevPresence?.position || { x: -95, y: 0, z: -185 },
+      position: posObj,
       rotationY: typeof p.rotationY === 'number' ? p.rotationY : (prevPresence?.rotationY || 0),
       inVehicleId: p.inVehicleId !== undefined ? p.inVehicleId : (prevPresence?.inVehicleId || null),
       isDriving: Boolean(p.isDriving),

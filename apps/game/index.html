@@ -31207,7 +31207,19 @@
         }
         this.renderActiveTab();
         this.updateHomeInteriorHUD();
-        showToast('🚪 Stepped inside your 3D Starter Home (Exploration Mode)! Walk [WASD], press [E] near furniture, [C] for Planner Mode, or [H] to exit.', '🏠');
+        if (window.__PROJECT_EKO_MULTIPLAYER__) {
+          if (!this._enteringAsHomeVisitor) {
+            window.__PROJECT_EKO_MULTIPLAYER__.visitingHomeInstanceId = null;
+          }
+          this._enteringAsHomeVisitor = false;
+          if (typeof window.__PROJECT_EKO_MULTIPLAYER__.syncRemoteHumanMeshes === 'function') {
+            window.__PROJECT_EKO_MULTIPLAYER__.syncRemoteHumanMeshes();
+          }
+          if (typeof window.__PROJECT_EKO_MULTIPLAYER__.sendHeartbeat === 'function') {
+            window.__PROJECT_EKO_MULTIPLAYER__.sendHeartbeat();
+          }
+        }
+        showToast('🚪 Stepped inside your private 3D Starter Home (Exploration Mode)! Walk [WASD], press [E] near furniture, [C] for Planner Mode, or [H] to exit.', '🏠');
         if (typeof recordJourneyMilestone === 'function') {
           recordJourneyMilestone('enteredHome');
         }
@@ -31251,6 +31263,15 @@
         }
         this.renderActiveTab();
         this.updateHomeInteriorHUD();
+        if (window.__PROJECT_EKO_MULTIPLAYER__) {
+          window.__PROJECT_EKO_MULTIPLAYER__.visitingHomeInstanceId = null;
+          if (typeof window.__PROJECT_EKO_MULTIPLAYER__.syncRemoteHumanMeshes === 'function') {
+            window.__PROJECT_EKO_MULTIPLAYER__.syncRemoteHumanMeshes();
+          }
+          if (typeof window.__PROJECT_EKO_MULTIPLAYER__.sendHeartbeat === 'function') {
+            window.__PROJECT_EKO_MULTIPLAYER__.sendHeartbeat();
+          }
+        }
         if (typeof recordJourneyMilestone === 'function') {
           recordJourneyMilestone('exitedHome');
         }
@@ -37606,10 +37627,66 @@
         }
       },
 
+      visitingHomeInstanceId: null,
+
+      isPositionInsideHomeFootprint(pos) {
+        if (!pos) return false;
+        const x = Number(pos.x);
+        const z = Number(pos.z);
+        return Number.isFinite(x) && Number.isFinite(z) && x >= -65.8 && x <= -58.2 && z >= -155.8 && z <= -148.2;
+      },
+
+      getLocalHomeInstanceId() {
+        const life = window.__PROJECT_EKO_LIFE__;
+        if (!life || !life.isInsideHomeInterior) return null;
+        const auth = window.__PROJECT_EKO_AUTH__;
+        const myId = auth ? auth.accountId : 'usr_eko_hustler_01';
+        return this.visitingHomeInstanceId || `home_${myId}`;
+      },
+
+      isRemotePlayerInHome(hp) {
+        if (!hp) return false;
+        if (typeof hp.inHomeInterior === 'boolean') return hp.inHomeInterior;
+        return Boolean(!hp.inVehicleId && !hp.isDriving && this.isPositionInsideHomeFootprint(hp.position || hp.targetPos));
+      },
+
+      isRemotePlayerInSameInstance(hp) {
+        if (!hp) return false;
+        const life = window.__PROJECT_EKO_LIFE__;
+        const localInHome = Boolean(life && life.isInsideHomeInterior);
+        const localHomeId = this.getLocalHomeInstanceId();
+        const remoteInHome = this.isRemotePlayerInHome(hp);
+        const remoteHomeId = remoteInHome ? (hp.homeInstanceId || `home_${hp.playerId}`) : null;
+        if (localInHome) {
+          // Each player's 3D Starter Home is a private apartment instance (home_<accountId>).
+          // Only show another player inside the room if they are explicitly visiting the exact same homeInstanceId!
+          return Boolean(remoteInHome && localHomeId && remoteHomeId === localHomeId);
+        }
+        // When outside on the public Marina street, only render players who are also outside on the street
+        return !remoteInHome;
+      },
+
+      visitPlayerHome(targetPlayerId, targetUsername) {
+        const life = window.__PROJECT_EKO_LIFE__;
+        if (!life || typeof life.enterHomeInterior !== 'function') return;
+        this.visitingHomeInstanceId = `home_${targetPlayerId}`;
+        life._enteringAsHomeVisitor = true;
+        this.closeModal();
+        life.enterHomeInterior('exploration');
+        this.syncRemoteHumanMeshes();
+        this.sendHeartbeat();
+        if (typeof showToast === 'function') {
+          showToast(`🚪 Visiting ${targetUsername || 'Citizen'}'s Starter Apartment! Press [H] or tap Exit to step back outside.`, '🏠');
+        }
+      },
+
       async sendHeartbeat() {
         try {
           const auth = window.__PROJECT_EKO_AUTH__;
           const occ = window.__PROJECT_EKO_VEHICLE_STATE__;
+          const life = window.__PROJECT_EKO_LIFE__;
+          const inHomeInterior = Boolean(life && life.isInsideHomeInterior);
+          const homeInstanceId = inHomeInterior ? this.getLocalHomeInstanceId() : null;
           const isOcc = Boolean(occ && (occ.state === 'DRIVER' || occ.state === 'PASSENGER' || occ.state === 'CONDUCTOR'));
           const pos = (typeof playerAvatar !== 'undefined' && playerAvatar && playerAvatar.position)
             ? { x: Number(playerAvatar.position.x.toFixed(2)), y: Number(playerAvatar.position.y.toFixed(2)), z: Number(playerAvatar.position.z.toFixed(2)) }
@@ -37627,6 +37704,8 @@
               isDriving: Boolean((occ && occ.state === 'DRIVER') || (player && player.inVehicle)),
               vehicleOccupancyRole: isOcc ? occ.state : 'ON_FOOT',
               seatId: isOcc ? (occ.currentSeatId || null) : null,
+              inHomeInterior,
+              homeInstanceId,
               avatarState: isOcc ? (occ.state === 'PASSENGER' ? 'sit_vehicle' : (occ.state === 'CONDUCTOR' ? 'conductor_call' : 'driving')) : 'idle',
               appearance: this.getLocalPlayerAppearancePayload(),
               heroDanfoState: this.buildLocalHeroDanfoPayload()
@@ -37705,10 +37784,15 @@
           if (typeof hp.rotationY === 'number') {
             meshGroup.userData.targetRotY = hp.rotationY;
           }
+          meshGroup.userData.playerId = hp.playerId;
           meshGroup.userData.isDriving = Boolean(hp.isDriving);
           meshGroup.userData.inVehicleId = hp.inVehicleId || null;
           meshGroup.userData.vehicleOccupancyRole = hp.vehicleOccupancyRole || 'ON_FOOT';
           meshGroup.userData.seatId = hp.seatId || null;
+          const remoteInHome = this.isRemotePlayerInHome(hp);
+          meshGroup.userData.inHomeInterior = remoteInHome;
+          meshGroup.userData.homeInstanceId = remoteInHome ? (hp.homeInstanceId || `home_${hp.playerId}`) : null;
+          meshGroup.visible = this.isRemotePlayerInSameInstance(meshGroup.userData);
         }
 
         for (const id of Object.keys(this.remoteHumanMeshes)) {
@@ -37876,9 +37960,14 @@
           }
         }
 
-        // 2. Update remote human players (including locking passengers/conductors/drivers to their seat inside heroDanfo)
+        // 2. Update remote human players (including locking passengers/conductors/drivers to their seat inside heroDanfo,
+        //    and isolating each player's private 3D Starter Home apartment instance!)
         for (const mesh of Object.values(this.remoteHumanMeshes)) {
           const ud = mesh.userData || {};
+          const sameInstance = this.isRemotePlayerInSameInstance(ud);
+          mesh.visible = sameInstance;
+          if (!sameInstance) continue;
+
           if (
             ud.inVehicleId === 'veh_danfo_coop' &&
             (ud.vehicleOccupancyRole === 'PASSENGER' || ud.vehicleOccupancyRole === 'CONDUCTOR' || ud.vehicleOccupancyRole === 'DRIVER') &&
@@ -37981,6 +38070,8 @@
       renderModal() {
         const el = document.getElementById('m47-multiplayer-modal');
         if (!el) return;
+        const auth = window.__PROJECT_EKO_AUTH__;
+        const myId = auth ? auth.accountId : 'usr_eko_hustler_01';
         el.innerHTML = `
           <div style="background:#0F172A;border:1px solid rgba(56,189,248,0.45);border-radius:14px;max-width:650px;width:94%;max-height:85vh;overflow-y:auto;padding:18px;color:#F8FAFC;">
             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:12px;">
@@ -38008,7 +38099,18 @@
 
             <div style="font-size:11px;font-weight:800;color:#10B981;margin-bottom:4px;">LIVE AUTHENTICATED HUMAN PLAYERS IN ZONE (${this.humanPlayers.length})</div>
             <div style="margin-bottom:10px;background:rgba(0,0,0,0.25);border-radius:8px;padding:8px;">
-              ${this.humanPlayers.map(hp => `<div style="font-size:11px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);">🟢 <strong>${hp.username}</strong> <span style="background:#065F46;color:#A7F3D0;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">[HUMAN_PLAYER]</span> • Pos (${Math.round(hp.position?.x || 0)}, ${Math.round(hp.position?.z || 0)})</div>`).join('') || '<div style="font-size:11px;color:#94A3B8;">Synchronising presence...</div>'}
+              ${this.humanPlayers.map(hp => {
+                const inHome = this.isRemotePlayerInHome(hp);
+                const isMe = hp.playerId === myId;
+                return `<div style="font-size:11px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <div>
+                    🟢 <strong>${hp.username}</strong>
+                    <span style="background:#065F46;color:#A7F3D0;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">[HUMAN_PLAYER]</span>
+                    • ${inHome ? `<span style="color:#FDE047;font-weight:700;">🏠 Inside Private Apartment</span>` : `Pos (${Math.round(hp.position?.x || 0)}, ${Math.round(hp.position?.z || 0)})`}
+                  </div>
+                  ${(inHome && !isMe) ? `<button type="button" onclick="window.__PROJECT_EKO_MULTIPLAYER__.visitPlayerHome('${String(hp.playerId).replace(/'/g, '')}', '${String(hp.username || 'Citizen').replace(/'/g, '')}')" style="background:rgba(244,180,26,0.2);color:#FDE047;border:1px solid rgba(244,180,26,0.5);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:800;cursor:pointer;">🚪 Visit Flat</button>` : ''}
+                </div>`;
+              }).join('') || '<div style="font-size:11px;color:#94A3B8;">Synchronising presence...</div>'}
             </div>
 
             <div style="font-size:11px;font-weight:800;color:#FBBF24;margin-bottom:4px;">SIMULATED NPCs (NEVER COUNTED AS ONLINE HUMANS)</div>
