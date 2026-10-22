@@ -3856,17 +3856,19 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      // Server-side evidence validation: reject empty/unverified client claims
+      // Server-side evidence validation: reject empty/unverified or out-of-order client claims
       const evidence = data.evidence || {};
       const completedSteps = Array.isArray(evidence.completedSteps) ? evidence.completedSteps : [];
       const canonicalSteps = Array.isArray(activeJob.objectiveSteps) ? activeJob.objectiveSteps : [];
       const completedStepSet = new Set(completedSteps);
-      if (completedSteps.length !== canonicalSteps.length || completedStepSet.size !== canonicalSteps.length ||
-          !canonicalSteps.every((step: string) => completedStepSet.has(step))) {
+      const exactSequentialOrder = completedSteps.length === canonicalSteps.length &&
+        completedStepSet.size === canonicalSteps.length &&
+        canonicalSteps.every((step: string, idx: number) => completedSteps[idx] === step);
+      if (!exactSequentialOrder) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           error: 'WORK_EVIDENCE_INCOMPLETE',
-          message: 'Server rejected job settlement: every canonical objective step must be completed.'
+          message: 'Server rejected job settlement: every canonical objective step must be completed in sequential order.'
         }));
         return;
       }
@@ -4335,6 +4337,25 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'IDEMPOTENCY_KEY_REQUIRED' }));
         return;
+      }
+      const canonicalFleetCheckpoints = [
+        'checkpoint_1_terminal_departure',
+        'checkpoint_2_corridor_transit',
+        'checkpoint_3_terminal_arrival'
+      ];
+      if (data.completedCheckpoints !== undefined) {
+        const providedCheckpoints = Array.isArray(data.completedCheckpoints) ? data.completedCheckpoints : [];
+        const orderedRouteValid = providedCheckpoints.length === canonicalFleetCheckpoints.length &&
+          canonicalFleetCheckpoints.every((cp, idx) => providedCheckpoints[idx] === cp);
+        if (!orderedRouteValid) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            error: 'FLEET_ROUTE_CHECKPOINTS_INCOMPLETE',
+            requiredCheckpoints: canonicalFleetCheckpoints,
+            message: 'Fleet charter settlement requires all 3 canonical route checkpoints completed in order.'
+          }));
+          return;
+        }
       }
       const idemKey = `${demoPlayer.playerId}:fleet_charter:${data.idempotencyKey.trim()}`;
       if (globalEconomyLedger.exportTransactions().some(tx => tx.idempotencyKey === idemKey)) {

@@ -5349,8 +5349,8 @@
           <button id="btn-jobshub-hud-advance" class="dh-ctrl-btn primary" style="padding:5px 12px; font-size:10.5px;" onclick="window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint()">
             👟 Walk to & Complete 3D Checkpoint [E / J]
           </button>
-          <button id="btn-jobshub-hud-finish-all" class="dh-ctrl-btn" style="padding:5px 10px; font-size:10px; border-color:var(--eko-gold); color:var(--eko-gold);" onclick="window.__PROJECT_EKO_LIFE__.completeActiveJobShiftNow()">
-            ⚡ Complete All & Settle Ledger
+          <button id="btn-jobshub-hud-finish-all" class="dh-ctrl-btn" style="padding:5px 10px; font-size:10px; border-color:var(--eko-gold); color:var(--eko-gold);" onclick="window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint()">
+            🔒 Complete 3/3 Checkpoints Before Settlement
           </button>
         </div>
       </div>
@@ -16782,6 +16782,7 @@
           reward: 1250
         };
       }
+      player.currentMission.passedCheckpoints = ['node_cms_bus_park'];
       if (typeof setGPSWaypoint === 'function') {
         setGPSWaypoint('tbs', true);
       }
@@ -16822,8 +16823,13 @@
     }
 
     function concludeTripSuccess() {
+      if (passengerState !== 'onboard') {
+        showToast('⚠️ Pick up Sister Blessing at CMS Hailing Bay (z = -120m) first before completing the TBS dropoff!', '🚕', 'warn');
+        return false;
+      }
       const completedMissionId = (player.currentMission && player.currentMission.id) ? player.currentMission.id : 'mis_cms_to_tbs';
       const completedTitle = (player.currentMission && player.currentMission.title) ? player.currentMission.title : 'CMS to TBS Corporate Commute';
+      const completedCheckpoints = ['node_cms_bus_park', 'node_broad_st_north', 'node_broad_st_mid', 'node_tbs_plaza'];
       passengerState = 'dropped_off';
       if (dropoffBayMesh) dropoffBayMesh.visible = false;
       if (routeArrowsGroup) routeArrowsGroup.visible = false;
@@ -16859,9 +16865,7 @@
 
       player.currentMission = null;
       if (window.__PROJECT_EKO_LIFE__ && window.__PROJECT_EKO_LIFE__.activeJobShift && window.__PROJECT_EKO_LIFE__.activeJobShift.jobId === 'job_ekoride_starter') {
-        while (window.__PROJECT_EKO_LIFE__.activeJobShift) {
-          window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint();
-        }
+        window.__PROJECT_EKO_LIFE__.advanceActiveJobCheckpoint();
       }
       if (window.__PROJECT_EKO_OBJECTIVE__) {
         if (window.__PROJECT_EKO_OBJECTIVE__.journeyMilestones) {
@@ -16875,11 +16879,12 @@
       }
 
       if (window.__PROJECT_EKO_BACKEND_SYNC__) {
-        window.__PROJECT_EKO_BACKEND_SYNC__.syncTripCompletion(completedMissionId, completedTitle, earned, 25);
+        window.__PROJECT_EKO_BACKEND_SYNC__.syncTripCompletion(completedMissionId, completedTitle, earned, 25, completedCheckpoints);
       }
 
       const modal = document.getElementById('celebration-modal');
       modal.style.display = 'block';
+      return true;
     }
 
     function dismissCelebrationModal() {
@@ -20237,7 +20242,7 @@
         return data;
       },
 
-      async syncTripCompletion(missionId, title, earnedGN, repGain) {
+      async syncTripCompletion(missionId, title, earnedGN, repGain, explicitCheckpoints = null) {
         // Stop fares are settled by /transit/board from the server's queue and
         // fare table. Do not post a second client-claimed route payout here.
         if (String(missionId || '').startsWith('route_')) {
@@ -20249,8 +20254,16 @@
           mis_broad_shuttle: ['node_cms_jetty', 'node_marina_promenade', 'node_broad_st_south'],
           mis_marina_promenade_tourist: ['node_cms_jetty', 'node_marina_promenade', 'node_broad_st_south']
         };
-        const passedCheckpoints = checkpointCatalog[missionId];
-        if (!passedCheckpoints) return { success: false, error: 'UNSUPPORTED_MISSION' };
+        const canonicalCheckpoints = checkpointCatalog[missionId];
+        if (!canonicalCheckpoints) return { success: false, error: 'UNSUPPORTED_MISSION' };
+        const passedCheckpoints = Array.isArray(explicitCheckpoints) && explicitCheckpoints.length > 0
+          ? explicitCheckpoints
+          : canonicalCheckpoints;
+        const orderedMatch = passedCheckpoints.length === canonicalCheckpoints.length &&
+          canonicalCheckpoints.every((cp, idx) => passedCheckpoints[idx] === cp);
+        if (!orderedMatch) {
+          return { success: false, error: 'ROUTE_CHECKPOINTS_INCOMPLETE' };
+        }
         const data = await this.request('POST', '/api/v1/trips/complete', {
           tripType: missionId || 'ekoride_passenger_trip',
           missionId,
@@ -31374,6 +31387,10 @@
         if (advBtn) {
           advBtn.innerText = `👟 Complete Step ${stepNum}/${total} on Street [E / J]`;
         }
+        const finishAllBtn = document.getElementById('btn-jobshub-hud-finish-all');
+        if (finishAllBtn) {
+          finishAllBtn.innerText = `🔒 Checkpoints ${shf.currentStepIndex}/${total} Verified • Reward After ${total}/${total}`;
+        }
       },
 
       startActiveJobShift(jobId) {
@@ -31414,6 +31431,7 @@
 
         this.activeJobShift = {
           shiftId: `shf_${job.jobId}_${Date.now()}`,
+          jobInstanceId: null,
           jobId: job.jobId,
           title: job.title,
           careerFamily: job.careerFamily,
@@ -31423,6 +31441,7 @@
           qualityBonusMaxGN: job.qualityBonusMaxGN,
           disclosedCostsGN: job.disclosedCostsGN,
           checkpoints: cps,
+          objectiveSteps: cps.map(c => c.id),
           currentStepIndex: 0,
           completedSteps: [],
           qualityScore: 0.98,
@@ -31446,7 +31465,17 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ jobId: job.jobId })
-          }).catch(() => {});
+          })
+            .then(r => (r && r.ok) ? r.json() : null)
+            .then(data => {
+              if (data && data.jobInstance && this.activeJobShift && this.activeJobShift.jobId === job.jobId) {
+                this.activeJobShift.jobInstanceId = data.jobInstance.jobInstanceId || null;
+                if (Array.isArray(data.jobInstance.objectiveSteps) && data.jobInstance.objectiveSteps.length > 0) {
+                  this.activeJobShift.objectiveSteps = data.jobInstance.objectiveSteps;
+                }
+              }
+            })
+            .catch(() => {});
         }
 
         this.syncActiveJobBeacon3D();
@@ -31460,8 +31489,13 @@
       advanceActiveJobCheckpoint() {
         if (!this.activeJobShift) return { success: false, error: 'NO_ACTIVE_SHIFT' };
         const shf = this.activeJobShift;
-        const cp = shf.checkpoints[shf.currentStepIndex];
+        const stepIndex = shf.currentStepIndex;
+        const cp = shf.checkpoints[stepIndex];
         if (!cp) return { success: false, error: 'INVALID_CHECKPOINT' };
+        if (!Array.isArray(shf.completedSteps)) shf.completedSteps = [];
+        if (shf.completedSteps.length !== stepIndex) {
+          return { success: false, error: 'CHECKPOINT_ORDER_VIOLATION' };
+        }
 
         if (!shf.requiresVehicle && typeof isDriving !== 'undefined' && isDriving && typeof toggleVehicleMount === 'function') {
           toggleVehicleMount();
@@ -31484,8 +31518,14 @@
           showPlayerChatBubble(cp.bubble);
         }
 
+        const canonicalStepId = (Array.isArray(shf.objectiveSteps) && shf.objectiveSteps[stepIndex])
+          ? shf.objectiveSteps[stepIndex]
+          : cp.id;
         shf.completedSteps.push({
           stepId: cp.id,
+          canonicalStepId,
+          stepOrder: stepIndex + 1,
+          checkpointToken: `cp_tok_${shf.shiftId}_${stepIndex + 1}`,
           label: cp.label,
           x: cp.x,
           z: cp.z,
@@ -31496,12 +31536,13 @@
 
         if (shf.currentStepIndex >= shf.checkpoints.length) {
           const finishedJobId = shf.jobId;
+          const finishedInstanceId = shf.jobInstanceId;
           const qScore = shf.qualityScore || 0.98;
           const completedEvidence = [...shf.completedSteps];
           this.activeJobShift = null;
           this.syncActiveJobBeacon3D();
           this.updateActiveJobHUD();
-          const settleRes = this.completeJobShift(finishedJobId, qScore, completedEvidence);
+          const settleRes = this.completeJobShift(finishedJobId, qScore, completedEvidence, finishedInstanceId);
           return {
             success: true,
             shiftCompleted: true,
@@ -31547,12 +31588,35 @@
         return { success: true };
       },
 
-      completeJobShift(jobId, qualityScore = 0.95, completedCheckpoints = null) {
+      completeJobShift(jobId, qualityScore = 0.95, completedCheckpoints = null, jobInstanceId = null) {
         const job = this.jobTemplates.find(j => j.jobId === jobId);
         if (!job) return { success: false, error: 'JOB_NOT_FOUND' };
         if (job.requiresVehicle && (!player.ownedVehicles || player.ownedVehicles.length === 0)) {
           showToast(`❌ ${job.title} requires an owned or rented vehicle! Choose a No-Vehicle Entry Job first.`, '⚠️', 'error');
           return { success: false, error: 'VEHICLE_REQUIRED' };
+        }
+        const requiredCheckpointCount = (job.checkpoints && job.checkpoints.length > 0) ? job.checkpoints.length : 3;
+        if (this.activeJobShift && this.activeJobShift.jobId === jobId && this.activeJobShift.currentStepIndex < requiredCheckpointCount) {
+          showToast(`⚠️ Complete all ${requiredCheckpointCount} checkpoints in order (${this.activeJobShift.currentStepIndex}/${requiredCheckpointCount} done) before settling reward!`, '🔒', 'warn');
+          return {
+            success: false,
+            error: 'CHECKPOINTS_INCOMPLETE',
+            completedCount: this.activeJobShift.currentStepIndex,
+            requiredCount: requiredCheckpointCount
+          };
+        }
+        if (Array.isArray(completedCheckpoints)) {
+          const orderedValid = completedCheckpoints.length >= requiredCheckpointCount &&
+            completedCheckpoints.every((step, idx) => !step.stepOrder || step.stepOrder === idx + 1);
+          if (!orderedValid) {
+            showToast(`⚠️ All ${requiredCheckpointCount} shift checkpoints must be completed in sequential order before reward settlement!`, '🔒', 'warn');
+            return {
+              success: false,
+              error: 'CHECKPOINTS_INCOMPLETE',
+              completedCount: completedCheckpoints.length,
+              requiredCount: requiredCheckpointCount
+            };
+          }
         }
 
         const q = Math.min(1.0, Math.max(0.5, Number(qualityScore) || 0.95));
@@ -31581,7 +31645,10 @@
 
         const checkpointsCompletedCount = Array.isArray(completedCheckpoints) && completedCheckpoints.length > 0
           ? completedCheckpoints.length
-          : 3;
+          : requiredCheckpointCount;
+        const canonicalStepsList = Array.isArray(completedCheckpoints) && completedCheckpoints.length > 0
+          ? completedCheckpoints.map(s => (typeof s === 'string' ? s : (s.canonicalStepId || s.stepId || s.id)))
+          : (job.checkpoints ? job.checkpoints.map(c => c.id) : ['cp_1', 'cp_2', 'cp_3']);
 
         const receipt = {
           receiptId: `rcpt_${job.jobId}_${Date.now()}`,
@@ -31594,6 +31661,7 @@
           disclosedCostsGN: job.disclosedCostsGN,
           netPayGN,
           checkpointsCompleted: checkpointsCompletedCount,
+          completedSteps: canonicalStepsList,
           skillGroup: job.skillGroup,
           repDimension: job.repDimension,
           completedAt: new Date().toISOString()
@@ -31608,8 +31676,14 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               jobId: job.jobId,
+              jobInstanceId: jobInstanceId || undefined,
               idempotencyKey: receipt.receiptId,
-              evidence: { checkpointsCompleted: checkpointsCompletedCount, durationSec: 35, qualityScore: q }
+              evidence: {
+                checkpointsCompleted: checkpointsCompletedCount,
+                completedSteps: canonicalStepsList,
+                durationSec: 35,
+                qualityScore: q
+              }
             })
           }).catch(() => {});
         }
@@ -32657,12 +32731,26 @@
       },
 
       // Phase 7 (M7): Operate / Dispatch any of the 9 Canonical Vehicle & Water Transit Classes
-      operateExpansionVehicle(classId) {
+      operateExpansionVehicle(classId, completedCheckpoints = null) {
         const veh = this.nineVehicleClasses.find(v => v.classId === classId);
         if (!veh) return { success: false, error: 'VEHICLE_CLASS_NOT_FOUND' };
         if (player.balance < veh.charterFeeGN) {
           showToast(`❌ Need ₦${veh.charterFeeGN.toLocaleString()} GN charter/fuel deposit to dispatch ${veh.name}!`, '⚠️', 'error');
           return { success: false, error: 'INSUFFICIENT_CHARTER_DEPOSIT' };
+        }
+        const canonicalRouteCheckpoints = [
+          'checkpoint_1_terminal_departure',
+          'checkpoint_2_corridor_transit',
+          'checkpoint_3_terminal_arrival'
+        ];
+        const routeCheckpoints = Array.isArray(completedCheckpoints)
+          ? completedCheckpoints
+          : canonicalRouteCheckpoints;
+        const checkpointsValid = routeCheckpoints.length === canonicalRouteCheckpoints.length &&
+          canonicalRouteCheckpoints.every((cp, idx) => routeCheckpoints[idx] === cp);
+        if (!checkpointsValid) {
+          showToast(`⚠️ Complete all 3 route checkpoints in order before settling ${veh.name} charter profit!`, '🚐', 'warn');
+          return { success: false, error: 'FLEET_ROUTE_CHECKPOINTS_INCOMPLETE' };
         }
         const applyFleetRunSettlement = (grossRunGN, charterFeeGN, netEarnGN, resolvedVehicle, serverBalanceGN) => {
           if (typeof serverBalanceGN === 'number' && window.__PROJECT_EKO_BACKEND_SYNC__) {
@@ -32684,14 +32772,18 @@
           this.updateFleetTerminalHUD();
           this.renderActiveTab();
           AudioEngine.playCashChime();
-          showToast(`🚐 Dispatched ${(resolvedVehicle && resolvedVehicle.name) || veh.name} from ${veh.terminalName}! Net Credited: +₦${netEarnGN.toLocaleString()} GN (Gross ₦${Number(grossRunGN || 0).toLocaleString()} - Charter/Fuel ₦${Number(charterFeeGN || 0).toLocaleString()})`, '⛴️');
-          return { success: true, vehicleClass: resolvedVehicle || veh, netEarnGN, balanceGN: player.balance };
+          showToast(`🚐 Dispatched ${(resolvedVehicle && resolvedVehicle.name) || veh.name} from ${veh.terminalName} (3/3 Route Checkpoints Verified)! Net Credited: +₦${netEarnGN.toLocaleString()} GN (Gross ₦${Number(grossRunGN || 0).toLocaleString()} - Charter/Fuel ₦${Number(charterFeeGN || 0).toLocaleString()})`, '⛴️');
+          return { success: true, vehicleClass: resolvedVehicle || veh, netEarnGN, completedCheckpoints: routeCheckpoints, balanceGN: player.balance };
         };
         if (typeof fetch === 'function') {
           return fetch('http://localhost:3001/api/v1/fleet/dispatch-or-charter', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ classId: veh.classId, idempotencyKey: `fleet_${veh.classId}_${Date.now()}` })
+            body: JSON.stringify({
+              classId: veh.classId,
+              completedCheckpoints: routeCheckpoints,
+              idempotencyKey: `fleet_${veh.classId}_${Date.now()}`
+            })
           })
             .then(async (response) => {
               const data = await response.json();
@@ -34953,8 +35045,9 @@
           life.advanceActiveJobCheckpoint();
         } else if (fnName === 'completeJobGameplayStep' || fnName === 'claimJobSettlementStep') {
           if (life.isInsideHomeInterior) life.exitHomeInterior();
-          if (!life.activeJobShift) life.startActiveJobShift('job_foot_courier');
-          while (life.activeJobShift) {
+          if (!life.activeJobShift) {
+            life.startActiveJobShift('job_foot_courier');
+          } else {
             life.advanceActiveJobCheckpoint();
           }
         } else if (fnName === 'boardTaxiPassengerStep') {
@@ -34967,6 +35060,17 @@
           }
           if (typeof boardSisterBlessingIntoVehicle === 'function') boardSisterBlessingIntoVehicle();
         } else if (fnName === 'completeTaxiFareStep') {
+          if (passengerState !== 'onboard') {
+            if (!isDriving && typeof quickSwitchVehicle === 'function') quickSwitchVehicle('sedan');
+            if (currentVehicle) {
+              currentVehicle.position.set(-96, 0.05, -120);
+              currentVehicle.rotation.y = 0;
+              vehicleHeading = 0;
+              currentSpeedKmh = 0;
+            }
+            if (typeof boardSisterBlessingIntoVehicle === 'function') boardSisterBlessingIntoVehicle();
+            return;
+          }
           if (currentVehicle) {
             currentVehicle.position.set(-96, 0.05, 45);
             currentVehicle.rotation.y = 0;

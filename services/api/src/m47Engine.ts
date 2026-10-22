@@ -1621,10 +1621,57 @@ export function processProgressionEvent(
       acc.onboarding.activeJobShift.currentStepIndex = stepDone;
     }
   } else if (normalizedEventType === 'JobTaskCompleted') {
-    acc.onboarding.activeJobCheckpointsDone = Math.max(3, Number(meta.checkpointsCompleted) || 3);
+    const reportedDone = Number(meta.checkpointsCompleted ?? acc.onboarding.activeJobCheckpointsDone ?? 3);
+    if (reportedDone < 3) {
+      acc.onboarding.lastBlockedReason = 'JOB_CHECKPOINTS_INCOMPLETE';
+      recordAnalyticsFunnelEvent(acc.accountId, 'ObjectiveBlocked', { reason: 'JOB_CHECKPOINTS_INCOMPLETE', reportedDone });
+      saveStore();
+      return {
+        ok: true,
+        duplicateIgnored: false,
+        eventId,
+        eventType,
+        newlyCompletedObjectives: [],
+        playerSummary: {
+          accountId: acc.accountId,
+          gameNairaBalance: acc.gameNairaBalance,
+          xp: acc.xp,
+          level: acc.level,
+          reputation: acc.reputation,
+          completedJobsCount: acc.completedJobsCount,
+        },
+        guideState: evaluateNextBestAction(acc),
+      };
+    }
+    acc.onboarding.activeJobCheckpointsDone = Math.max(3, reportedDone);
     acc.onboarding.activeJobShift = null;
     recordAnalyticsFunnelEvent(acc.accountId, 'FirstJobCompleted', meta);
   } else if (normalizedEventType === 'JobSettlementPosted') {
+    const taskAlreadyVerified =
+      acc.onboarding.activeJobCheckpointsDone >= 3 ||
+      acc.onboarding.completedObjectiveIds.includes('obj_10_complete_job_gameplay') ||
+      Number(meta.checkpointsCompleted || 0) >= 3;
+    if (!taskAlreadyVerified) {
+      acc.onboarding.lastBlockedReason = 'JOB_CHECKPOINTS_INCOMPLETE';
+      recordAnalyticsFunnelEvent(acc.accountId, 'ObjectiveBlocked', { reason: 'JOB_CHECKPOINTS_INCOMPLETE' });
+      saveStore();
+      return {
+        ok: true,
+        duplicateIgnored: false,
+        eventId,
+        eventType,
+        newlyCompletedObjectives: [],
+        playerSummary: {
+          accountId: acc.accountId,
+          gameNairaBalance: acc.gameNairaBalance,
+          xp: acc.xp,
+          level: acc.level,
+          reputation: acc.reputation,
+          completedJobsCount: acc.completedJobsCount,
+        },
+        guideState: evaluateNextBestAction(acc),
+      };
+    }
     acc.completedJobsCount += 1;
     acc.onboarding.activeJobId = null;
     acc.onboarding.activeJobCheckpointsDone = 0;

@@ -500,6 +500,16 @@ async function main() {
   });
   assert.strictEqual(incompleteJobSettlement.status, 400,
     'Career settlement must reject incomplete objective evidence');
+  const outOfOrderJobSettlement = await request(baseUrl, '/api/v1/jobshub/complete', {
+    method: 'POST', token,
+    body: {
+      jobId: 'job_foot_courier', jobInstanceId: acceptedJob.body.jobInstance.jobInstanceId,
+      idempotencyKey: 'phase2-career-out-of-order-a',
+      evidence: { completedSteps: [...acceptedJob.body.jobInstance.objectiveSteps].reverse(), qualityScore: 1 },
+    },
+  });
+  assert.strictEqual(outOfOrderJobSettlement.status, 400,
+    'Career settlement must reject out-of-order objective checkpoints');
   const jobSettlement = await request(baseUrl, '/api/v1/jobshub/complete', {
     method: 'POST', token,
     body: {
@@ -673,6 +683,16 @@ async function main() {
     body: { classId: 'veh_okada_moto' },
   });
   assert.strictEqual(missingFleetKey.status, 400, 'Fleet charter settlement must require an idempotency key');
+  const incompleteFleetCheckpoints = await request(baseUrl, '/api/v1/fleet/dispatch-or-charter', {
+    method: 'POST', token,
+    body: {
+      classId: 'veh_okada_moto',
+      completedCheckpoints: ['checkpoint_1_terminal_departure', 'checkpoint_3_terminal_arrival'],
+      idempotencyKey: 'phase2-fleet-incomplete-checkpoints',
+    },
+  });
+  assert.strictEqual(incompleteFleetCheckpoints.status, 400,
+    'Fleet charter settlement must reject incomplete or out-of-order route checkpoints');
   const fleetProfileBeforeA = await request(baseUrl, '/api/v1/player/profile', { token });
   const fleetRunA = await request(baseUrl, '/api/v1/fleet/dispatch-or-charter', {
     method: 'POST', token,

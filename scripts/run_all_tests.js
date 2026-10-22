@@ -1517,6 +1517,10 @@ runTest('Master Vision Bible catalogs: 5 Starter Profiles, 7 Housing Tiers (0-6)
   const cp1Res = life.advanceActiveJobCheckpoint();
   assert.strictEqual(cp1Res.success, true, 'Advancing Checkpoint 1/3 must succeed');
   assert.strictEqual(cp1Res.shiftCompleted, false, 'Shift must remain active after Checkpoint 1/3');
+  const prematureSettle = life.completeJobShift('job_foot_courier', 1.0);
+  assert.strictEqual(prematureSettle.success, false, 'Premature shift settlement before Checkpoint 3/3 must be rejected');
+  assert.strictEqual(prematureSettle.error, 'CHECKPOINTS_INCOMPLETE', 'Premature shift settlement must return CHECKPOINTS_INCOMPLETE');
+  assert.strictEqual(mockPlayer.balance, balBeforeJob, 'Player wallet must not be credited before all 3 checkpoints are completed');
   const cp2Res = life.advanceActiveJobCheckpoint();
   assert.strictEqual(cp2Res.success, true, 'Advancing Checkpoint 2/3 must succeed');
   assert.strictEqual(cp2Res.shiftCompleted, false, 'Shift must remain active after Checkpoint 2/3');
