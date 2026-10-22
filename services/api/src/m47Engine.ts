@@ -1035,6 +1035,7 @@ export function validateDisplayName(name: string, excludeAccountId?: string): { 
     }
   }
   for (const acc of Object.values(store.accounts)) {
+    if (acc.deletedAt) continue;
     if (acc.accountId === excludeAccountId) continue;
     if (acc.username.toLowerCase() === lower || (acc.character && acc.character.displayName.toLowerCase() === lower)) {
       return { valid: false, error: 'Display name is already taken by another citizen in Lagos.' };

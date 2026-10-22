@@ -27,11 +27,43 @@
       if (typeof window.fetch === 'function') {
         const nativeFetch = window.fetch.bind(window);
         window.fetch = function(input, init) {
-          if (typeof input === 'string') {
-            return nativeFetch(window.resolveProjectEkoUrl(input), init);
+          const resolvedInput = (typeof input === 'string' && typeof window.resolveProjectEkoUrl === 'function')
+            ? window.resolveProjectEkoUrl(input)
+            : input;
+          let target;
+          try {
+            target = new URL(typeof resolvedInput === 'string' ? resolvedInput : resolvedInput.url, window.location.href);
+          } catch (_) {
+            return nativeFetch(resolvedInput, init);
           }
-          return nativeFetch(input, init);
+          const cfg = window.__PROJECT_EKO_CONFIG__ || {};
+          const isLocalBackend = ['3001', '3002'].includes(target.port) && ['localhost', '127.0.0.1'].includes(target.hostname);
+          const isConfiguredBackend =
+            (cfg.apiBaseUrl && target.href.startsWith(String(cfg.apiBaseUrl))) ||
+            (cfg.realtimeBaseUrl && target.href.startsWith(String(cfg.realtimeBaseUrl))) ||
+            target.pathname.startsWith('/api/');
+          if (!isLocalBackend && !isConfiguredBackend) {
+            return nativeFetch(resolvedInput, init);
+          }
+          const nextInit = Object.assign({}, init || {});
+          const headers = new Headers(nextInit.headers || (typeof Request !== 'undefined' && resolvedInput instanceof Request ? resolvedInput.headers : undefined));
+          let token = (window.__PROJECT_EKO_AUTH__ && window.__PROJECT_EKO_AUTH__.sessionToken) || null;
+          if (!token) {
+            try {
+              const rawSess = localStorage.getItem('__PROJECT_EKO_M47_SESSION__');
+              if (rawSess) {
+                const parsedSess = JSON.parse(rawSess);
+                if (parsedSess && parsedSess.sessionToken) token = parsedSess.sessionToken;
+              }
+            } catch (_) {}
+          }
+          if (token && !headers.has('X-Session-Token')) {
+            headers.set('X-Session-Token', token);
+          }
+          nextInit.headers = headers;
+          return nativeFetch(resolvedInput, nextInit);
         };
+        window.__PROJECT_EKO_API_FETCH_WRAPPED__ = true;
       }
     })();
   </script>
@@ -66,6 +98,14 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
       -webkit-font-smoothing: antialiased;
+    }
+
+    input, textarea, select {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      -webkit-touch-callout: default !important;
+      touch-action: manipulation;
+      pointer-events: auto;
     }
 
     html, body {
@@ -15199,6 +15239,29 @@
         const k = e.key.toLowerCase();
         const kb = window.__PROJECT_EKO_KEYBOARD_HELD__;
 
+        // 0. Form Control Input Guard: Never intercept typing inside <input>, <textarea>, <select>, or contenteditable
+        const targetEl = (e && e.target && e.target.tagName) ? e.target : document.activeElement;
+        const isEditableField = Boolean(
+          targetEl && (
+            targetEl.tagName === 'INPUT' ||
+            targetEl.tagName === 'TEXTAREA' ||
+            targetEl.tagName === 'SELECT' ||
+            targetEl.isContentEditable
+          )
+        );
+        if (isEditableField) {
+          if (kb) { kb.w = false; kb.a = false; kb.s = false; kb.d = false; kb.shift = false; kb.space = false; }
+          if (typeof keys !== 'undefined') { keys.w = false; keys.a = false; keys.s = false; keys.d = false; keys.shift = false; keys.space = false; }
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            if (typeof targetEl.blur === 'function') targetEl.blur();
+            if (window.__PROJECT_EKO_INTERACTION__) {
+              window.__PROJECT_EKO_INTERACTION__.handleEscapeKey();
+            }
+          }
+          return;
+        }
+
         // 1. Continuous Locomotion & Steering Keys (Held keys allowed only when no blocking modal is open)
         let modalBlocking = window.__PROJECT_EKO_INTERACTION__
           ? window.__PROJECT_EKO_INTERACTION__.isModalBlockingWorldInput()
@@ -19168,6 +19231,40 @@
       },
 
       isModalBlockingWorldInput() {
+        const activeEl = typeof document !== 'undefined' ? document.activeElement : null;
+        if (
+          activeEl &&
+          (activeEl.tagName === 'INPUT' ||
+            activeEl.tagName === 'TEXTAREA' ||
+            activeEl.tagName === 'SELECT' ||
+            activeEl.isContentEditable)
+        ) {
+          return true;
+        }
+        const authModal = document.getElementById('m47-auth-modal');
+        if (
+          authModal &&
+          authModal.style.display === 'flex' &&
+          window.__PROJECT_EKO_AUTH__ &&
+          window.__PROJECT_EKO_AUTH__.activeView !== 'entry'
+        ) {
+          return true;
+        }
+        const flexModalIds = [
+          'm481-danfo-boarding-modal',
+          'm48-qualification-modal',
+          'm47-ekoguide-modal',
+          'm47-multiplayer-modal',
+          'm47-progress-modal',
+          'm47-wardrobe-modal',
+          'm47-graduation-modal'
+        ];
+        for (const id of flexModalIds) {
+          const el = document.getElementById(id);
+          if (el && el.style.display === 'flex') {
+            return true;
+          }
+        }
         const displayBlockModalIds = [
           'npc-dialogue-modal',
           'minigame-modal',
@@ -19200,6 +19297,42 @@
       },
 
       closeTopmostModal() {
+        const authModal = document.getElementById('m47-auth-modal');
+        if (authModal && authModal.style.display === 'flex' && window.__PROJECT_EKO_AUTH__) {
+          window.__PROJECT_EKO_AUTH__.closeModal();
+          this.recordOutcome('MENU_DIALOG', 'CLOSE_AUTH_MODAL', 'EXECUTED', 'Closed Citizen Auth modal via Escape.');
+          return true;
+        }
+        const guideModal = document.getElementById('m47-ekoguide-modal');
+        if (guideModal && guideModal.style.display === 'flex' && window.__PROJECT_EKO_GUIDE__) {
+          window.__PROJECT_EKO_GUIDE__.closeWhatNextModal();
+          this.recordOutcome('MENU_DIALOG', 'CLOSE_EKOGUIDE_MODAL', 'EXECUTED', 'Closed EkoGuide modal via Escape.');
+          return true;
+        }
+        const mpModal = document.getElementById('m47-multiplayer-modal');
+        if (mpModal && mpModal.style.display === 'flex' && window.__PROJECT_EKO_MULTIPLAYER__) {
+          window.__PROJECT_EKO_MULTIPLAYER__.closeModal();
+          this.recordOutcome('MENU_DIALOG', 'CLOSE_MULTIPLAYER_MODAL', 'EXECUTED', 'Closed Multiplayer modal via Escape.');
+          return true;
+        }
+        const progModal = document.getElementById('m47-progress-modal');
+        if (progModal && progModal.style.display === 'flex' && window.__PROJECT_EKO_PROGRESS__) {
+          window.__PROJECT_EKO_PROGRESS__.closeModal();
+          this.recordOutcome('MENU_DIALOG', 'CLOSE_PROGRESS_MODAL', 'EXECUTED', 'Closed EkoProgress modal via Escape.');
+          return true;
+        }
+        const wardModal = document.getElementById('m47-wardrobe-modal');
+        if (wardModal && wardModal.style.display === 'flex' && window.__PROJECT_EKO_GUIDE__) {
+          window.__PROJECT_EKO_GUIDE__.closeWardrobeModal();
+          this.recordOutcome('MENU_DIALOG', 'CLOSE_WARDROBE_MODAL', 'EXECUTED', 'Closed Wardrobe modal via Escape.');
+          return true;
+        }
+        const gradModal = document.getElementById('m47-graduation-modal');
+        if (gradModal && gradModal.style.display === 'flex' && window.__PROJECT_EKO_GUIDE__) {
+          window.__PROJECT_EKO_GUIDE__.closeGraduationModal();
+          this.recordOutcome('MENU_DIALOG', 'CLOSE_GRADUATION_MODAL', 'EXECUTED', 'Closed Graduation modal via Escape.');
+          return true;
+        }
         const danfoBoardModal = document.getElementById('m481-danfo-boarding-modal');
         if (danfoBoardModal && danfoBoardModal.style.display === 'flex' && window.__PROJECT_EKO_VEHICLE_STATE__) {
           window.__PROJECT_EKO_VEHICLE_STATE__.closeDanfoBoardingModal();
@@ -20729,6 +20862,9 @@
         }, { capture: true, passive: true });
         window.addEventListener('touchstart', () => this.setDevice('touch', 'touchstart'), { capture: true, passive: true });
         window.addEventListener('keydown', (e) => {
+          const t = e && e.target;
+          const inFormControl = Boolean(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable));
+          if (inFormControl && this.device === 'touch') return;
           if (e.key && e.key.length && !['Unidentified', 'Process'].includes(e.key)) this.setDevice('keyboard', 'keydown');
         }, { capture: true });
         window.addEventListener('gamepadconnected', () => {
@@ -21464,6 +21600,9 @@
       bindInputs() {
         // Discrete Keyboard Lane-Switch & Hop Listeners when Danfo Hustle is active
         window.addEventListener('keydown', (e) => {
+          const t = (e && e.target && e.target.tagName) ? e.target : document.activeElement;
+          if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+          if (window.__PROJECT_EKO_INTERACTION__ && window.__PROJECT_EKO_INTERACTION__.isModalBlockingWorldInput()) return;
           if (!this.isActive || this.runState !== 'running' || this.isPaused) return;
           const code = e.code || e.key;
           if ((code === 'KeyA' || code === 'ArrowLeft') && !e.repeat) {
@@ -34616,6 +34755,21 @@
       starterProfileTitle: 'New Arrival in Lagos',
       activeView: 'entry', // 'entry' | 'register' | 'login' | 'character' | 'promote'
       lastError: null,
+      regForm: {
+        username: '',
+        email: '',
+        password: '',
+        privacyConsentAccepted: true
+      },
+      loginForm: {
+        usernameOrEmail: '',
+        password: ''
+      },
+      promoteForm: {
+        username: '',
+        email: '',
+        password: ''
+      },
       starterProfiles: [
         { id: 'profile_new_arrival', title: 'New Arrival in Lagos', home: 'Tier 0 Shared Compound Room', grantGN: 5000, career: 'Mobility & Transport', jobs: 'Foot Courier, Bus-Stop Caller (No Vehicle Required)' },
         { id: 'profile_early_career', title: 'Young Worker / Early Career', home: 'Tier 2 Self-Contained Studio', grantGN: 5000, career: 'Commerce & Market Trade', jobs: 'Balogun Shop Assistant, Foot Courier' },
@@ -34642,6 +34796,11 @@
         this.updateTopBadge();
       },
 
+      continueAsGuest() {
+        this.closeModal();
+        return { ok: true };
+      },
+
       async restoreExistingSession() {
         try {
           const raw = localStorage.getItem(this.SESSION_KEY);
@@ -34654,13 +34813,18 @@
           this.isGuest = Boolean(saved.isGuest);
           this.starterProfileId = saved.starterProfileId || 'profile_new_arrival';
 
-          const res = await fetch('http://localhost:3001/api/v1/auth/session');
+          const res = await fetch('http://localhost:3001/api/v1/auth/session', {
+            headers: { 'X-Session-Token': this.sessionToken }
+          });
           if (res.ok) {
             const data = await res.json();
             if (data && data.account) {
               this.applyAccountState(data.account, data.guideState);
               return true;
             }
+          } else if (res.status === 401 || res.status === 404) {
+            this.sessionToken = null;
+            try { localStorage.removeItem(this.SESSION_KEY); } catch (_) {}
           }
         } catch (_) {}
         return false;
@@ -34698,6 +34862,9 @@
             life.syncActiveJobBeacon3D();
             life.updateActiveJobHUD();
           }
+          if (typeof life.saveMasterBibleStateToStorage === 'function') {
+            life.saveMasterBibleStateToStorage();
+          }
         }
         if (acc.onboarding && Array.isArray(acc.onboarding.completedObjectiveIds)) {
           EkoGuideEngine.completedObjectiveIds = [...acc.onboarding.completedObjectiveIds];
@@ -34719,17 +34886,29 @@
         } catch (_) {}
         this.updateTopBadge();
         EkoGuideEngine.renderHud();
+        if (this.sessionToken && typeof EkoMultiplayerEngine !== 'undefined' && EkoMultiplayerEngine) {
+          EkoMultiplayerEngine.sendHeartbeat();
+          EkoMultiplayerEngine.fetchZoneSnapshot();
+        }
       },
 
-      previewCharacterAppearance() {
+      syncCharFormFromDom() {
+        const dnEl = document.getElementById('m47-char-displayname');
+        const profEl = document.getElementById('m47-char-profile');
         const bodyEl = document.getElementById('m47-char-body');
         const skinEl = document.getElementById('m47-char-skin');
         const hairEl = document.getElementById('m47-char-hair');
         const outfitEl = document.getElementById('m47-char-outfit');
+        if (dnEl) this.charForm.displayName = dnEl.value;
+        if (profEl) this.charForm.starterProfileId = profEl.value;
         if (bodyEl) this.charForm.bodyType = bodyEl.value;
         if (skinEl) this.charForm.skinTone = skinEl.value;
         if (hairEl) this.charForm.hairStyle = hairEl.value;
         if (outfitEl) this.charForm.outfitPreset = outfitEl.value;
+      },
+
+      previewCharacterAppearance() {
+        this.syncCharFormFromDom();
 
         const skinHex = parseInt(String(this.charForm.skinTone || '#6B3E26').replace('#', '0x'), 16) || 0x6B3E26;
         const hairMap = {
@@ -34780,6 +34959,9 @@
         this.username = 'New_Citizen';
         this.isGuest = false;
         this.characterCreated = false;
+        this.regForm = { username: '', email: '', password: '', privacyConsentAccepted: true };
+        this.loginForm = { usernameOrEmail: '', password: '' };
+        this.promoteForm = { username: '', email: '', password: '' };
         EkoGuideEngine.completedObjectiveIds = [];
         EkoGuideEngine.tutorialSkipped = false;
         EkoGuideEngine.tutorialCompleted = false;
@@ -34820,6 +35002,21 @@
         if (!modal) return;
         modal.style.display = 'flex';
         this.renderModal();
+        setTimeout(() => {
+          const focusId = view === 'register'
+            ? 'm47-reg-username'
+            : view === 'login'
+              ? 'm47-login-username'
+              : view === 'promote'
+                ? 'm47-promote-username'
+                : view === 'character'
+                  ? 'm47-char-displayname'
+                  : null;
+          if (focusId) {
+            const fEl = document.getElementById(focusId);
+            if (fEl && typeof fEl.focus === 'function') fEl.focus();
+          }
+        }, 40);
       },
 
       closeModal() {
@@ -34836,6 +35033,9 @@
             this.charForm.displayName = data.account.username;
             this.applyAccountState(data.account, data.guideState);
             this.openModal('character');
+          } else {
+            this.lastError = (data && data.error) || 'Could not start guest session.';
+            this.renderModal();
           }
         } catch (e) {
           this.lastError = 'Unable to connect to authentication service.';
@@ -34850,10 +35050,12 @@
         const pEl = document.getElementById('m47-reg-password');
         const cEl = document.getElementById('m47-reg-consent');
 
-        const username = uEl ? uEl.value.trim() : '';
-        const email = eEl ? eEl.value.trim() : '';
-        const password = pEl ? pEl.value : '';
-        const privacyConsentAccepted = cEl ? cEl.checked : false;
+        const username = uEl ? uEl.value.trim() : this.regForm.username.trim();
+        const email = eEl ? eEl.value.trim() : this.regForm.email.trim();
+        const password = pEl ? pEl.value : this.regForm.password;
+        const privacyConsentAccepted = cEl ? cEl.checked : Boolean(this.regForm.privacyConsentAccepted);
+
+        this.regForm = { username, email, password, privacyConsentAccepted };
 
         try {
           const res = await fetch('http://localhost:3001/api/v1/auth/register', {
@@ -34883,8 +35085,10 @@
         if (ev && ev.preventDefault) ev.preventDefault();
         const uEl = document.getElementById('m47-login-username');
         const pEl = document.getElementById('m47-login-password');
-        const usernameOrEmail = uEl ? uEl.value.trim() : '';
-        const password = pEl ? pEl.value : '';
+        const usernameOrEmail = uEl ? uEl.value.trim() : this.loginForm.usernameOrEmail.trim();
+        const password = pEl ? pEl.value : this.loginForm.password;
+
+        this.loginForm = { usernameOrEmail, password };
 
         try {
           const res = await fetch('http://localhost:3001/api/v1/auth/login', {
@@ -34910,26 +35114,81 @@
         }
       },
 
-      async submitCharacterCreation(ev) {
+      async submitGuestPromotion(ev) {
         if (ev && ev.preventDefault) ev.preventDefault();
-        const dnEl = document.getElementById('m47-char-displayname');
-        const profEl = document.getElementById('m47-char-profile');
-        const bodyEl = document.getElementById('m47-char-body');
-        const skinEl = document.getElementById('m47-char-skin');
-        const hairEl = document.getElementById('m47-char-hair');
-        const outfitEl = document.getElementById('m47-char-outfit');
+        const uEl = document.getElementById('m47-promote-username');
+        const eEl = document.getElementById('m47-promote-email');
+        const pEl = document.getElementById('m47-promote-password');
 
-        if (dnEl) this.charForm.displayName = dnEl.value.trim();
-        if (profEl) this.charForm.starterProfileId = profEl.value;
-        if (bodyEl) this.charForm.bodyType = bodyEl.value;
-        if (skinEl) this.charForm.skinTone = skinEl.value;
-        if (hairEl) this.charForm.hairStyle = hairEl.value;
-        if (outfitEl) this.charForm.outfitPreset = outfitEl.value;
+        const username = uEl ? uEl.value.trim() : (this.promoteForm.username || this.username).trim();
+        const email = eEl ? eEl.value.trim() : this.promoteForm.email.trim();
+        const password = pEl ? pEl.value : this.promoteForm.password;
+
+        this.promoteForm = { username, email, password };
 
         try {
+          const headers = { 'Content-Type': 'application/json' };
+          if (this.sessionToken) headers['X-Session-Token'] = this.sessionToken;
+          const res = await fetch('http://localhost:3001/api/v1/auth/promote-guest', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ username, email, password })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            this.lastError = data.error || 'Guest promotion failed. Please check your details.';
+            this.renderModal();
+            return false;
+          }
+          this.applyAccountState(data.account, data.guideState);
+          this.closeModal();
+          showToast(`✨ Guest session promoted! You are now registered as ${this.username} with all progress preserved.`, '✨');
+          return true;
+        } catch (e) {
+          this.lastError = 'Network error while promoting guest account.';
+          this.renderModal();
+          return false;
+        }
+      },
+
+      async logout() {
+        try {
+          if (this.sessionToken) {
+            await fetch('http://localhost:3001/api/v1/auth/logout', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Session-Token': this.sessionToken
+              },
+              body: JSON.stringify({})
+            });
+          }
+        } catch (_) {}
+        try {
+          localStorage.removeItem(this.SESSION_KEY);
+        } catch (_) {}
+        this.sessionToken = null;
+        this.isGuest = false;
+        this.characterCreated = false;
+        this.updateTopBadge();
+        this.openModal('entry');
+        showToast('🔒 Logged out safely. Sign in or start a new journey anytime.', '🔒');
+        return true;
+      },
+
+      async submitCharacterCreation(ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        this.syncCharFormFromDom();
+        if (this.charForm.displayName) {
+          this.charForm.displayName = this.charForm.displayName.trim();
+        }
+
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          if (this.sessionToken) headers['X-Session-Token'] = this.sessionToken;
           const res = await fetch('http://localhost:3001/api/v1/character/create', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({
               sessionToken: this.sessionToken,
               accountId: this.accountId,
@@ -34985,16 +35244,36 @@
         if (btn) btn.innerText = isPw ? 'Hide' : 'Show';
       },
 
+      escapeAttr(val) {
+        return String(val == null ? '' : val)
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      },
+
       renderModal() {
         const modal = document.getElementById('m47-auth-modal');
         if (!modal) return;
         const errHtml = this.lastError
-          ? `<div id="m47-auth-error" style="background:rgba(239,68,68,0.18);border:1px solid #EF4444;color:#FCA5A5;border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:10px;">⚠️ ${this.lastError}</div>`
+          ? `<div id="m47-auth-error" role="alert" style="background:rgba(239,68,68,0.18);border:1px solid #EF4444;color:#FCA5A5;border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:10px;">⚠️ ${this.lastError}</div>`
           : '';
 
         if (this.activeView === 'entry') {
+          const activeBanner = this.sessionToken
+            ? `<div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <div>🟢 <strong>Active Session:</strong> ${this.escapeAttr(this.username)} <span style="color:#A7F3D0;">(${this.isGuest ? 'Guest Session' : 'Registered Citizen'})</span></div>
+                  <div style="display:flex;gap:6px;">
+                    ${this.isGuest ? `<button type="button" id="m47-entry-promote-guest-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('promote')" style="background:#F4B41A;color:#0F172A;border:none;border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:900;cursor:pointer;">✨ Promote Guest</button>` : ''}
+                    <button type="button" id="m47-entry-customize-char-btn" onclick="window.__PROJECT_EKO_AUTH__.openModal('character')" style="background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid rgba(56,189,248,0.45);border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:800;cursor:pointer;">🎨 Character</button>
+                    <button type="button" id="m47-entry-logout-btn" onclick="window.__PROJECT_EKO_AUTH__.logout()" style="background:rgba(239,68,68,0.2);color:#FCA5A5;border:1px solid rgba(239,68,68,0.45);border-radius:6px;padding:4px 8px;font-size:10.5px;font-weight:800;cursor:pointer;">🚪 Log Out</button>
+                  </div>
+                </div>
+              </div>`
+            : '';
           modal.innerHTML = `
-            <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:480px;width:92%;padding:22px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.8);">
+            <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.8);">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:800;color:#10B981;letter-spacing:0.06em;">PROJECT EKO • LIVE. DRIVE. BUILD. EARN.</span>
                 <button type="button" onclick="window.__PROJECT_EKO_AUTH__.closeModal()" style="background:transparent;color:#94A3B8;border:none;font-size:14px;cursor:pointer;">✕</button>
@@ -35003,6 +35282,7 @@
               <p style="margin:0 0 14px 0;font-size:12px;color:#CBD5E1;line-height:1.45;">
                 An account enables saved progress across sessions, your 3D starter home, authoritative Game Naira ledger, and live multiplayer crews. <strong>Zero payment information is required to play.</strong>
               </p>
+              ${activeBanner}
               ${errHtml}
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <button type="button" id="m47-entry-start-journey-btn" onclick="window.__PROJECT_EKO_AUTH__.startGuestJourney()" style="background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">🚀 Start Your Journey (Quick Guest Entry — Promotable)</button>
@@ -35016,7 +35296,7 @@
 
         if (this.activeView === 'register') {
           modal.innerHTML = `
-            <div style="background:#0F172A;border:1px solid rgba(56,189,248,0.5);border-radius:16px;max-width:480px;width:92%;padding:22px;color:#F8FAFC;">
+            <div style="background:#0F172A;border:1px solid rgba(56,189,248,0.5);border-radius:16px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:11px;font-weight:800;color:#38BDF8;">CREATE CITIZEN ACCOUNT</span>
                 <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
@@ -35024,20 +35304,20 @@
               <p style="margin:0 0 12px 0;font-size:11px;color:#94A3B8;">Saves your 3D home, Game Naira balance, and multiplayer crew identity. No payment details ever required.</p>
               ${errHtml}
               <form id="m47-register-form" onsubmit="return window.__PROJECT_EKO_AUTH__.submitRegistration(event)" style="display:flex;flex-direction:column;gap:10px;">
-                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Citizen Handle (3–24 chars)
-                  <input id="m47-reg-username" class="m47-input" type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="24" placeholder="e.g. Tunde_Marina" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Citizen Handle (3–24 chars: letters, numbers, spaces, _ or -)
+                  <input id="m47-reg-username" class="m47-input" type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="24" value="${this.escapeAttr(this.regForm.username)}" oninput="window.__PROJECT_EKO_AUTH__.regForm.username=this.value" placeholder="e.g. Tunde_Marina" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
                 </label>
                 <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Email Address
-                  <input id="m47-reg-email" class="m47-input" type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" required placeholder="citizen@eko.lagos" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                  <input id="m47-reg-email" class="m47-input" type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" required value="${this.escapeAttr(this.regForm.email)}" oninput="window.__PROJECT_EKO_AUTH__.regForm.email=this.value" placeholder="citizen@eko.lagos" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
                 </label>
                 <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Password (min 8 characters)
                   <div style="display:flex;gap:6px;margin-top:4px;">
-                    <input id="m47-reg-password" class="m47-input" type="password" name="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters" style="flex:1;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;" />
+                    <input id="m47-reg-password" class="m47-input" type="password" name="password" autocomplete="new-password" required minlength="8" value="${this.escapeAttr(this.regForm.password)}" oninput="window.__PROJECT_EKO_AUTH__.regForm.password=this.value" placeholder="At least 8 characters" style="flex:1;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;" />
                     <button type="button" id="m47-reg-pw-toggle" aria-label="Show password" onclick="window.__PROJECT_EKO_AUTH__.togglePasswordVisibility('m47-reg-password','m47-reg-pw-toggle')" style="background:#334155;color:#E2E8F0;border:none;border-radius:8px;padding:0 12px;font-size:11px;cursor:pointer;">Show</button>
                   </div>
                 </label>
                 <label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#CBD5E1;cursor:pointer;">
-                  <input id="m47-reg-consent" type="checkbox" checked required style="margin-top:2px;" />
+                  <input id="m47-reg-consent" type="checkbox" ${this.regForm.privacyConsentAccepted !== false ? 'checked' : ''} onchange="window.__PROJECT_EKO_AUTH__.regForm.privacyConsentAccepted=this.checked" required style="margin-top:2px;" />
                   <span>I agree to Project Eko's privacy & community safety rules. My account stores only gameplay progress and virtual Game Naira (real-money rewards are disabled).</span>
                 </label>
                 <button type="submit" id="m47-reg-submit-btn" style="background:#10B981;color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">Create Account & Continue to Character Setup →</button>
@@ -35049,7 +35329,7 @@
 
         if (this.activeView === 'login') {
           modal.innerHTML = `
-            <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:460px;width:92%;padding:22px;color:#F8FAFC;">
+            <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:460px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span style="font-size:11px;font-weight:800;color:#10B981;">RETURNING CITIZEN LOG IN</span>
                 <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
@@ -35058,15 +35338,45 @@
               ${errHtml}
               <form id="m47-login-form" onsubmit="return window.__PROJECT_EKO_AUTH__.submitLogin(event)" style="display:flex;flex-direction:column;gap:10px;">
                 <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Username or Email
-                  <input id="m47-login-username" class="m47-input" type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Citizen handle or email" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                  <input id="m47-login-username" class="m47-input" type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required value="${this.escapeAttr(this.loginForm.usernameOrEmail)}" oninput="window.__PROJECT_EKO_AUTH__.loginForm.usernameOrEmail=this.value" placeholder="Citizen handle or email" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
                 </label>
                 <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Password
                   <div style="display:flex;gap:6px;margin-top:4px;">
-                    <input id="m47-login-password" class="m47-input" type="password" name="password" autocomplete="current-password" required placeholder="Your password" style="flex:1;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;" />
+                    <input id="m47-login-password" class="m47-input" type="password" name="password" autocomplete="current-password" required value="${this.escapeAttr(this.loginForm.password)}" oninput="window.__PROJECT_EKO_AUTH__.loginForm.password=this.value" placeholder="Your password" style="flex:1;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;" />
                     <button type="button" id="m47-login-pw-toggle" aria-label="Show password" onclick="window.__PROJECT_EKO_AUTH__.togglePasswordVisibility('m47-login-password','m47-login-pw-toggle')" style="background:#334155;color:#E2E8F0;border:none;border-radius:8px;padding:0 12px;font-size:11px;cursor:pointer;">Show</button>
                   </div>
                 </label>
                 <button type="submit" id="m47-login-submit-btn" style="background:#10B981;color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">Log In & Restore Lagos Session →</button>
+              </form>
+            </div>
+          `;
+          return;
+        }
+
+        if (this.activeView === 'promote') {
+          const defaultPromoteHandle = this.promoteForm.username || this.username || '';
+          modal.innerHTML = `
+            <div style="background:#0F172A;border:1px solid rgba(244,180,26,0.55);border-radius:16px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;padding:22px;color:#F8FAFC;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:11px;font-weight:800;color:#F4B41A;">✨ PROMOTE GUEST TO PERMANENT CITIZEN ACCOUNT</span>
+                <button type="button" onclick="window.__PROJECT_EKO_AUTH__.openModal('entry')" style="background:transparent;color:#94A3B8;border:none;font-size:12px;cursor:pointer;">← Back</button>
+              </div>
+              <p style="margin:0 0 12px 0;font-size:11px;color:#CBD5E1;">Upgrades your current guest session (<code>${this.escapeAttr(this.accountId)}</code>) into a permanent citizen account while keeping 100% of your Game Naira, 3D home items, and EkoGuide progress.</p>
+              ${errHtml}
+              <form id="m47-promote-form" onsubmit="return window.__PROJECT_EKO_AUTH__.submitGuestPromotion(event)" style="display:flex;flex-direction:column;gap:10px;">
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Permanent Citizen Handle (3–24 chars)
+                  <input id="m47-promote-username" class="m47-input" type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="24" value="${this.escapeAttr(defaultPromoteHandle)}" oninput="window.__PROJECT_EKO_AUTH__.promoteForm.username=this.value" placeholder="e.g. Tunde_Marina" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                </label>
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Email Address
+                  <input id="m47-promote-email" class="m47-input" type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" required value="${this.escapeAttr(this.promoteForm.email)}" oninput="window.__PROJECT_EKO_AUTH__.promoteForm.email=this.value" placeholder="citizen@eko.lagos" style="width:100%;margin-top:4px;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                </label>
+                <label style="font-size:11px;font-weight:700;color:#CBD5E1;">Password (min 8 characters)
+                  <div style="display:flex;gap:6px;margin-top:4px;">
+                    <input id="m47-promote-password" class="m47-input" type="password" name="password" autocomplete="new-password" required minlength="8" value="${this.escapeAttr(this.promoteForm.password)}" oninput="window.__PROJECT_EKO_AUTH__.promoteForm.password=this.value" placeholder="At least 8 characters" style="flex:1;padding:10px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;" />
+                    <button type="button" id="m47-promote-pw-toggle" aria-label="Show password" onclick="window.__PROJECT_EKO_AUTH__.togglePasswordVisibility('m47-promote-password','m47-promote-pw-toggle')" style="background:#334155;color:#E2E8F0;border:none;border-radius:8px;padding:0 12px;font-size:11px;cursor:pointer;">Show</button>
+                  </div>
+                </label>
+                <button type="submit" id="m47-promote-submit-btn" style="background:linear-gradient(135deg,#F4B41A,#D97706);color:#0F172A;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;min-height:44px;">✨ Save & Promote Guest Account →</button>
               </form>
             </div>
           `;
@@ -35117,11 +35427,11 @@
               </div>
 
               <label style="font-size:11px;font-weight:700;color:#CBD5E1;">2. Citizen Display Name (Unique & Moderated)
-                <input id="m47-char-displayname" class="m47-input" type="text" required minlength="3" maxlength="24" value="${this.charForm.displayName || this.username}" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
+                <input id="m47-char-displayname" class="m47-input" type="text" required minlength="3" maxlength="24" value="${this.escapeAttr(this.charForm.displayName || this.username)}" oninput="window.__PROJECT_EKO_AUTH__.charForm.displayName=this.value" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);font-size:13px;box-sizing:border-box;" />
               </label>
 
               <label style="font-size:11px;font-weight:700;color:#CBD5E1;">3. Canonical Starter Profile Selection (5 Master Spec Profiles)
-                <select id="m47-char-profile" onchange="window.__PROJECT_EKO_AUTH__.charForm.starterProfileId=this.value;window.__PROJECT_EKO_AUTH__.renderModal();" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(16,185,129,0.45);font-size:12px;">
+                <select id="m47-char-profile" onchange="window.__PROJECT_EKO_AUTH__.syncCharFormFromDom();window.__PROJECT_EKO_AUTH__.charForm.starterProfileId=this.value;window.__PROJECT_EKO_AUTH__.renderModal();" style="width:100%;margin-top:4px;padding:9px;border-radius:8px;background:#1E293B;color:#F8FAFC;border:1px solid rgba(16,185,129,0.45);font-size:12px;">
                   ${this.starterProfiles.map(p => `<option value="${p.id}" ${p.id === this.charForm.starterProfileId ? 'selected' : ''}>${p.title} — ${p.career}</option>`).join('')}
                 </select>
               </label>

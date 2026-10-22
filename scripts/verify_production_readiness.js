@@ -511,6 +511,103 @@ async function main() {
     assert.ok(rtMetricsRes.body.zonePersistsTotal >= 1, 'Realtime metrics must count durable zone saves');
     console.log('✅ Phase 5 & 9: Observability /metrics and global double-entry ledger reconciliation verified.');
 
+    // 8. Verify New Player Sign-Up, Character Creation, Guest Promotion, Soft-Delete Handle Reuse & Frontend UX Safeguards
+    const port3000Preflight = await request(API_PORT, '/api/v1/auth/register', {
+      method: 'OPTIONS',
+      headers: { Origin: 'http://localhost:3000' },
+    });
+    assert.strictEqual(port3000Preflight.status, 204);
+    assert.strictEqual(
+      port3000Preflight.headers['access-control-allow-origin'],
+      'http://localhost:3000',
+      'Default dev game port http://localhost:3000 must be allowed by API CORS'
+    );
+
+    const evilOriginCheck = await request(API_PORT, '/health', {
+      headers: { Origin: 'https://evil-attacker.example.com' },
+    });
+    assert.notStrictEqual(
+      evilOriginCheck.headers['access-control-allow-origin'],
+      'https://evil-attacker.example.com',
+      'Untrusted external origin must never be reflected in Access-Control-Allow-Origin'
+    );
+    assert.notStrictEqual(
+      evilOriginCheck.headers['access-control-allow-origin'],
+      '*',
+      'Access-Control-Allow-Origin must never be wildcard *'
+    );
+
+    // Guest Entry -> 5-Step Character Creation -> Guest Promotion -> Logout -> Returning Login
+    const guestEntryRes = await request(API_PORT, '/api/v1/auth/guest', {
+      method: 'POST',
+      headers: { Origin: 'http://localhost:3000', 'X-Forwarded-For': '198.51.100.12' },
+      body: { displayHint: 'Lagbaja' },
+    });
+    assert.strictEqual(guestEntryRes.status, 200, 'Guest session creation must succeed');
+    assert.strictEqual(guestEntryRes.body.account.isGuest, true);
+    const guestToken = guestEntryRes.body.sessionToken;
+
+    const guestCharCreate = await request(API_PORT, '/api/v1/character/create', {
+      method: 'POST',
+      token: guestToken,
+      headers: { Origin: 'http://localhost:3000' },
+      body: {
+        displayName: 'Lagbaja Eko',
+        starterProfileId: 'profile_new_arrival',
+        initialOutfitId: 'outfit_street_hustler',
+        appearance: {
+          bodyType: 'athletic_lagos',
+          skinTone: '#6B3E26',
+          hairStyle: 'low_fade',
+          outfitPreset: 'outfit_street_hustler',
+          accentColor: '#10B981',
+        },
+      },
+    });
+    assert.strictEqual(guestCharCreate.status, 200, '5-step character creation must succeed');
+    assert.strictEqual(guestCharCreate.body.character.displayName, 'Lagbaja Eko');
+    assert.strictEqual(guestCharCreate.body.account.characterCreated, true);
+
+    const promoteGuestRes = await request(API_PORT, '/api/v1/auth/promote-guest', {
+      method: 'POST',
+      token: guestToken,
+      headers: { Origin: 'http://localhost:3000', 'X-Forwarded-For': '198.51.100.12' },
+      body: {
+        username: 'lagbaja_permanent',
+        email: 'lagbaja@eko.ng',
+        password: 'PermanentPassword#2026',
+      },
+    });
+    assert.strictEqual(promoteGuestRes.status, 200, 'Guest promotion to permanent citizen account must succeed');
+    assert.strictEqual(promoteGuestRes.body.account.isGuest, false);
+    assert.strictEqual(promoteGuestRes.body.account.username, 'lagbaja_permanent');
+
+    const promotedLogoutRes = await request(API_PORT, '/api/v1/auth/logout', {
+      method: 'POST',
+      token: guestToken,
+      headers: { Origin: 'http://localhost:3000' },
+    });
+    assert.strictEqual(promotedLogoutRes.status, 200, 'Session logout must succeed');
+
+    const returningLoginRes = await request(API_PORT, '/api/v1/auth/login', {
+      method: 'POST',
+      headers: { Origin: 'http://localhost:3000', 'X-Forwarded-For': '198.51.100.13' },
+      body: {
+        username: 'lagbaja_permanent',
+        password: 'PermanentPassword#2026',
+      },
+    });
+    assert.strictEqual(returningLoginRes.status, 200, 'Returning login after guest promotion must succeed');
+    assert.strictEqual(returningLoginRes.body.account.character.displayName, 'lagbaja_permanent');
+
+    // Verify Frontend HTML Input & Modal Safeguards
+    const indexHtml = fs.readFileSync(path.join(ROOT, 'apps/game/index.html'), 'utf8');
+    assert.ok(indexHtml.includes('user-select: text !important'), 'index.html must allow text selection inside form inputs');
+    assert.ok(indexHtml.includes('isEditableField'), 'index.html keydown listener must guard editable form inputs');
+    assert.ok(indexHtml.includes('submitGuestPromotion'), 'index.html must expose Guest Promotion flow');
+    assert.ok(indexHtml.includes('syncCharFormFromDom'), 'index.html must preserve Character Creation form fields across re-renders');
+    console.log('✅ QA Sign-Up & UX Gate: Port 3000 CORS, New Player Sign-Up, 5-Step Character Creation, Guest Promotion, Logout, Returning Login, and Input Guards verified.');
+
     console.log('\n==============================================================');
     console.log('ALL PRODUCTION READINESS GATES (PHASES 0–11) PASSED');
     console.log('==============================================================');

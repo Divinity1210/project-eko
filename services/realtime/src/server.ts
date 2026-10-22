@@ -9,10 +9,19 @@ const PORT = Number(process.env.PROJECT_EKO_REALTIME_PORT || 3002);
 const ZONE_ID = 'zone_marina_cms';
 const REALTIME_DATA_DIR = process.env.PROJECT_EKO_DATA_DIR || path.join(__dirname, '..', 'data');
 const ZONE_STATE_STORE_PATH = path.join(REALTIME_DATA_DIR, 'zone_state_store.json');
-const ALLOWED_REALTIME_CORS_ORIGINS = (process.env.PROJECT_EKO_CORS_ORIGINS || 'http://localhost:8090,http://127.0.0.1:8090,http://localhost:8094,http://127.0.0.1:8094,http://localhost:3001,http://127.0.0.1:3001,http://localhost:3002,http://127.0.0.1:3002')
+const ALLOWED_REALTIME_CORS_ORIGINS = (process.env.PROJECT_EKO_CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080,http://localhost:5173,http://127.0.0.1:5173,http://localhost:8090,http://127.0.0.1:8090,http://localhost:8094,http://127.0.0.1:8094,http://localhost:3001,http://127.0.0.1:3001,http://localhost:3002,http://127.0.0.1:3002')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
+
+function isAllowedRealtimeCorsOrigin(origin: string | undefined): boolean {
+  if (!origin) return false;
+  if (ALLOWED_REALTIME_CORS_ORIGINS.includes(origin)) return true;
+  if (process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
+    return true;
+  }
+  return false;
+}
 
 const realtimeMetrics = {
   startedAtMs: Date.now(),
@@ -513,7 +522,7 @@ const server = http.createServer(async (req, res) => {
 
   // Security & Origin-Allowlist CORS Headers (Never Wildcard '*')
   const requestOrigin = req.headers.origin;
-  if (requestOrigin && ALLOWED_REALTIME_CORS_ORIGINS.includes(requestOrigin)) {
+  if (requestOrigin && isAllowedRealtimeCorsOrigin(requestOrigin)) {
     res.setHeader('Access-Control-Allow-Origin', requestOrigin);
     res.setHeader('Vary', 'Origin');
   } else if (ALLOWED_REALTIME_CORS_ORIGINS.length > 0) {
