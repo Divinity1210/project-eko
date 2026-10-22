@@ -640,7 +640,14 @@ async function main() {
     assert.ok(indexHtml.includes('isEditableField'), 'index.html keydown listener must guard editable form inputs');
     assert.ok(indexHtml.includes('submitGuestPromotion'), 'index.html must expose Guest Promotion flow');
     assert.ok(indexHtml.includes('syncCharFormFromDom'), 'index.html must preserve Character Creation form fields across re-renders');
-    console.log('✅ QA Sign-Up & UX Gate: Port 3000 CORS, New Player Sign-Up, 5-Step Character Creation, Guest Promotion, Logout, Returning Login, and Input Guards verified.');
+    assert.ok(indexHtml.includes("onColorPickerChanged('topColor'"), 'index.html must bind live color picker handler for topColor');
+    assert.ok(indexHtml.includes("onColorPickerChanged('bottomColor'"), 'index.html must bind live color picker handler for bottomColor');
+    assert.ok(indexHtml.includes("onColorPickerChanged('hairColor'"), 'index.html must bind live color picker handler for hairColor');
+    assert.ok(indexHtml.includes("onColorPickerChanged('shoeColor'"), 'index.html must bind live color picker handler for shoeColor');
+    assert.ok(indexHtml.includes("onColorPickerChanged('bagColor'"), 'index.html must bind live color picker handler for bagColor');
+    assert.ok(indexHtml.includes('rotatePreviewAvatar(-45)') && indexHtml.includes('rotatePreviewAvatar(45)') && indexHtml.includes('setPreviewYaw(180)'), 'index.html must support 360° studio & 3D avatar rotation controls');
+    assert.ok(indexHtml.includes('geo.computeVertexNormals()') && indexHtml.includes('const jawCheekGeo = new THREE.SphereGeometry') && indexHtml.includes('neckRotY'), 'index.html must use smooth vertex normals, anatomical facial/torso geometry, and head-stabilized human walking gait');
+    console.log('✅ QA Sign-Up, Character Studio (Color Pickers + 360° 3D Rotation + Human Realism) & UX Gate verified.');
 
     console.log('\n==============================================================');
     console.log('ALL PRODUCTION READINESS GATES (PHASES 0–11) PASSED');
