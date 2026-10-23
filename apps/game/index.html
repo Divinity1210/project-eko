@@ -26943,10 +26943,7 @@
       currentOutfitId: 'outfit_street_hustler',
       ownedOutfitIds: [
         'outfit_street_hustler',
-        'outfit_sunday_senator',
-        'outfit_ankara_gown',
-        'outfit_buba_wrapper',
-        'outfit_marina_workwear'
+        'outfit_sunday_senator'
       ],
       characterAppearance: {
         gender: 'male',
@@ -27021,9 +27018,9 @@
         {
           id: 'outfit_marina_workwear',
           name: 'Casual Lagos Street Tee & Cargo Denim',
-          badge: 'STARTER OWNED',
-          priceGN: 0,
-          shopItemId: null,
+          badge: 'STREET WORKWEAR',
+          priceGN: 2500,
+          shopItemId: 'itm_everyday_shirt',
           topHex: 0xF59E0B,
           bottomHex: 0x1E293B,
           accentHex: 0x10B981,
@@ -27098,11 +27095,11 @@
       // =======================================================================
       starterProfileId: 'profile_selfcon_starter',
       starterProfiles: [
-        { id: 'profile_hostel_youth', name: 'Shared Room / Youth Hostel Starter', tier: 0, startBalanceGN: 6000, depositGN: 3000, rentPerCycleGN: 1500, perk: '+15% Study/Tech XP' },
-        { id: 'profile_selfcon_starter', name: 'Modest Starter Room / Self-Contain', tier: 1, startBalanceGN: 10000, depositGN: 6000, rentPerCycleGN: 3000, perk: '+10% Home Rest & Cooking Recovery' },
-        { id: 'profile_family_flat', name: 'Family Support / Shared Flat Starter', tier: 2, startBalanceGN: 8500, depositGN: 8000, rentPerCycleGN: 4500, perk: '+15% Community & Event Reputation' },
-        { id: 'profile_street_hustler', name: 'Street Hustler / Market Apprentice', tier: 1, startBalanceGN: 11500, depositGN: 5000, rentPerCycleGN: 2800, perk: '+15% Market Bargaining & Trade Margin' },
-        { id: 'profile_driver_trainee', name: 'Driver Trainee / Transit Apprentice', tier: 1, startBalanceGN: 9500, depositGN: 5500, rentPerCycleGN: 3000, perk: '+15% Driving & Mechanical XP' }
+        { id: 'profile_hostel_youth', name: 'Shared Room / Youth Hostel Starter', tier: 0, startBalanceGN: 5000, depositGN: 3000, rentPerCycleGN: 1500, perk: '+15% Study/Tech XP' },
+        { id: 'profile_selfcon_starter', name: 'Modest Starter Room / Self-Contain', tier: 1, startBalanceGN: 5000, depositGN: 6000, rentPerCycleGN: 3000, perk: '+10% Home Rest & Cooking Recovery' },
+        { id: 'profile_family_flat', name: 'Family Support / Shared Flat Starter', tier: 2, startBalanceGN: 5000, depositGN: 8000, rentPerCycleGN: 4500, perk: '+15% Community & Event Reputation' },
+        { id: 'profile_street_hustler', name: 'Street Hustler / Market Apprentice', tier: 1, startBalanceGN: 5000, depositGN: 5000, rentPerCycleGN: 2800, perk: '+15% Market Bargaining & Trade Margin' },
+        { id: 'profile_driver_trainee', name: 'Driver Trainee / Transit Apprentice', tier: 1, startBalanceGN: 5000, depositGN: 5500, rentPerCycleGN: 3000, perk: '+15% Driving & Mechanical XP' }
       ],
 
       currentHousingTier: 1,
@@ -27195,7 +27192,7 @@
       // 19 Canonical Items covering all 12 categories & Appendix F2 price bands
       itemDefinitions: [
         { itemId: 'itm_mattress_starter', name: 'Starter Foam Mattress & Frame', category: 'Furniture', shopId: 'shop_furniture_home', priceGN: 8500, size: { w: 1.8, d: 2.0, h: 0.55 }, zone: 'sleep_zone', hex: 0x38BDF8, effects: { energy: 45, comfort: 20, health: 10 },actionLabel: 'Sleep & Restore Energy' },
-        { itemId: 'itm_standing_fan', name: 'Ox Breeze Standing Fan', category: 'Appliances', shopId: 'shop_furniture_home', priceGN: 5000, size: { w: 0.6, d: 0.6, h: 1.35 }, zone: 'utility_corner', hex: 0x94A3B8, effects: { comfort: 25, energy: 10 }, actionLabel: 'Switch On Cooling Breeze' },
+        { itemId: 'itm_standing_fan', name: 'Ox Breeze Standing Fan', category: 'Appliances', shopId: 'shop_furniture_home', priceGN: 1800, size: { w: 0.6, d: 0.6, h: 1.35 }, zone: 'utility_corner', hex: 0x94A3B8, effects: { comfort: 25, energy: 10 }, actionLabel: 'Switch On Cooling Breeze' },
         { itemId: 'itm_wardrobe_rack', name: 'Starter Wood Wardrobe & Storage', category: 'Storage & Organization', shopId: 'shop_furniture_home', priceGN: 9500, size: { w: 1.2, d: 0.7, h: 1.85 }, zone: 'storage_zone', hex: 0xB45309, effects: { hygiene: 10, comfort: 12 }, actionLabel: 'Organize & Freshen Wardrobe' },
         { itemId: 'itm_wash_basin', name: 'Ceramic Wash & Hygiene Station', category: 'Sanitation & Hygiene', shopId: 'shop_furniture_home', priceGN: 4200, size: { w: 0.8, d: 0.8, h: 1.1 }, zone: 'hygiene_zone', hex: 0xE2E8F0, effects: { hygiene: 45, health: 12, comfort: 10 }, actionLabel: 'Freshen Up & Wash' },
         { itemId: 'itm_table_stove', name: 'Tabletop Gas Burner & Jollof Pot', category: 'Kitchen & Cooking', shopId: 'shop_furniture_home', priceGN: 4500, size: { w: 0.9, d: 0.7, h: 0.85 }, zone: 'cooking_zone', hex: 0xF97316, effects: { hunger: 45, energy: 18, comfort: 10 }, actionLabel: 'Cook Home Jollof Meal' },
@@ -27217,20 +27214,14 @@
 
       ownedItems: [
         { instanceId: 'own_starter_bed', itemId: 'itm_mattress_starter', condition: 100, placed: true },
-        { instanceId: 'own_starter_fan', itemId: 'itm_standing_fan', condition: 100, placed: true },
         { instanceId: 'own_starter_wardrobe', itemId: 'itm_wardrobe_rack', condition: 100, placed: true },
-        { instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', condition: 100, placed: true },
-        { instanceId: 'own_starter_stove', itemId: 'itm_table_stove', condition: 100, placed: true },
-        { instanceId: 'own_starter_desk', itemId: 'itm_study_desk', condition: 100, placed: true }
+        { instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', condition: 100, placed: true }
       ],
 
       placedFurniture: [
         { placementId: 'plc_starter_bed', instanceId: 'own_starter_bed', itemId: 'itm_mattress_starter', name: 'Starter Foam Mattress & Frame', roomZone: 'sleep_zone', x: -2.6, y: 0, z: -2.5, rotY: 0, w: 1.8, d: 2.0, h: 0.55, hex: 0x38BDF8 },
-        { placementId: 'plc_starter_fan', instanceId: 'own_starter_fan', itemId: 'itm_standing_fan', name: 'Ox Breeze Standing Fan', roomZone: 'utility_corner', x: 2.8, y: 0, z: 2.4, rotY: 0, w: 0.6, d: 0.6, h: 1.35, hex: 0x94A3B8 },
         { placementId: 'plc_starter_wardrobe', instanceId: 'own_starter_wardrobe', itemId: 'itm_wardrobe_rack', name: 'Starter Wood Wardrobe & Storage', roomZone: 'storage_zone', x: 0.0, y: 0, z: -3.1, rotY: 0, w: 1.2, d: 0.7, h: 1.85, hex: 0xB45309 },
-        { placementId: 'plc_starter_wash', instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', name: 'Ceramic Wash & Hygiene Station', roomZone: 'hygiene_zone', x: 2.6, y: 0, z: -2.6, rotY: 0, w: 0.8, d: 0.8, h: 1.1, hex: 0xE2E8F0 },
-        { placementId: 'plc_starter_stove', instanceId: 'own_starter_stove', itemId: 'itm_table_stove', name: 'Tabletop Gas Burner & Jollof Pot', roomZone: 'cooking_zone', x: 2.6, y: 0, z: 0.0, rotY: 0, w: 0.9, d: 0.7, h: 0.85, hex: 0xF97316 },
-        { placementId: 'plc_starter_desk', instanceId: 'own_starter_desk', itemId: 'itm_study_desk', name: 'Starter Study & JobHub Work Desk', roomZone: 'work_study_zone', x: -2.6, y: 0, z: 0.5, rotY: 0, w: 1.3, d: 0.75, h: 0.82, hex: 0x10B981 }
+        { placementId: 'plc_starter_wash', instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', name: 'Ceramic Wash & Hygiene Station', roomZone: 'hygiene_zone', x: 2.6, y: 0, z: -2.6, rotY: 0, w: 0.8, d: 0.8, h: 1.1, hex: 0xE2E8F0 }
       ],
 
       // 11 Playable Job Cards across 12 Career Families & 8 Work Modes (8 No-Vehicle Entry Jobs!)
@@ -28765,6 +28756,9 @@
         this.clout += res.cloutBonus;
         this.rentCollectedThisShift = false;
         this.completeQuest('q_home');
+        if (window.__PROJECT_EKO_QUEST_BUS__) {
+          window.__PROJECT_EKO_QUEST_BUS__.emit('HousingUpgraded', { residenceId: res.id });
+        }
         this.updateMetersHUD();
         this.renderActiveTab();
         AudioEngine.playCashChime();
@@ -29168,19 +29162,13 @@
         };
         this.ownedItems = [
           { instanceId: 'own_starter_bed', itemId: 'itm_mattress_starter', condition: 100, placed: true },
-          { instanceId: 'own_starter_fan', itemId: 'itm_standing_fan', condition: 100, placed: true },
           { instanceId: 'own_starter_wardrobe', itemId: 'itm_wardrobe_rack', condition: 100, placed: true },
-          { instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', condition: 100, placed: true },
-          { instanceId: 'own_starter_stove', itemId: 'itm_table_stove', condition: 100, placed: true },
-          { instanceId: 'own_starter_desk', itemId: 'itm_study_desk', condition: 100, placed: true }
+          { instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', condition: 100, placed: true }
         ];
         this.placedFurniture = [
           { placementId: 'plc_starter_bed', instanceId: 'own_starter_bed', itemId: 'itm_mattress_starter', name: 'Starter Foam Mattress & Frame', roomZone: 'sleep_zone', x: -2.6, y: 0, z: -2.5, rotY: 0, w: 1.8, d: 2.0, h: 0.55, hex: 0x38BDF8 },
-          { placementId: 'plc_starter_fan', instanceId: 'own_starter_fan', itemId: 'itm_standing_fan', name: 'Ox Breeze Standing Fan', roomZone: 'utility_corner', x: 2.8, y: 0, z: 2.4, rotY: 0, w: 0.6, d: 0.6, h: 1.35, hex: 0x94A3B8 },
           { placementId: 'plc_starter_wardrobe', instanceId: 'own_starter_wardrobe', itemId: 'itm_wardrobe_rack', name: 'Starter Wood Wardrobe & Storage', roomZone: 'storage_zone', x: 0.0, y: 0, z: -3.1, rotY: 0, w: 1.2, d: 0.7, h: 1.85, hex: 0xB45309 },
-          { placementId: 'plc_starter_wash', instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', name: 'Ceramic Wash & Hygiene Station', roomZone: 'hygiene_zone', x: 2.6, y: 0, z: -2.6, rotY: 0, w: 0.8, d: 0.8, h: 1.1, hex: 0xE2E8F0 },
-          { placementId: 'plc_starter_stove', instanceId: 'own_starter_stove', itemId: 'itm_table_stove', name: 'Tabletop Gas Burner & Jollof Pot', roomZone: 'cooking_zone', x: 2.6, y: 0, z: 0.0, rotY: 0, w: 0.9, d: 0.7, h: 0.85, hex: 0xF97316 },
-          { placementId: 'plc_starter_desk', instanceId: 'own_starter_desk', itemId: 'itm_study_desk', name: 'Starter Study & JobHub Work Desk', roomZone: 'work_study_zone', x: -2.6, y: 0, z: 0.5, rotY: 0, w: 1.3, d: 0.75, h: 0.82, hex: 0x10B981 }
+          { placementId: 'plc_starter_wash', instanceId: 'own_starter_wash', itemId: 'itm_wash_basin', name: 'Ceramic Wash & Hygiene Station', roomZone: 'hygiene_zone', x: 2.6, y: 0, z: -2.6, rotY: 0, w: 0.8, d: 0.8, h: 1.1, hex: 0xE2E8F0 }
         ];
         this.syncHomeBodyClass();
         this.syncExteriorHouseShellVisibility();
@@ -32924,6 +32912,9 @@
           }
           this.contextualReputation.businessHonor.score = Math.min(100, this.contextualReputation.businessHonor.score + 3);
           this.saveMasterBibleStateToStorage();
+          if (window.__PROJECT_EKO_QUEST_BUS__) {
+            window.__PROJECT_EKO_QUEST_BUS__.emit('BusinessShiftCompleted', { bizId: biz.bizId, netProfitGN });
+          }
           this.updateMetersHUD();
           this.updateBusinessDepotHUD();
           this.renderActiveTab();
@@ -33081,6 +33072,9 @@
           this.skillsState.business_operations.xp += 30;
           this.contextualReputation.businessHonor.score = Math.min(100, this.contextualReputation.businessHonor.score + 2);
           this.saveMasterBibleStateToStorage();
+          if (window.__PROJECT_EKO_QUEST_BUS__) {
+            window.__PROJECT_EKO_QUEST_BUS__.emit('BusinessShiftCompleted', { chainId: chain.chainId, netProfitGN });
+          }
           this.updateMetersHUD();
           this.updateBusinessDepotHUD();
           this.renderActiveTab();
@@ -33252,6 +33246,9 @@
         this.clout += 60;
         this.contextualReputation.propertyStewardship.score = Math.min(100, this.contextualReputation.propertyStewardship.score + 4);
         this.saveMasterBibleStateToStorage();
+        if (window.__PROJECT_EKO_QUEST_BUS__) {
+          window.__PROJECT_EKO_QUEST_BUS__.emit('HousingUpgraded', { tier: this.currentHousingTier });
+        }
         this.updateMetersHUD();
         this.updateSocialCultureHUD();
         this.renderActiveTab();
@@ -34167,6 +34164,9 @@
         const hudZone = document.getElementById('hud-zone-name');
         if (hudZone) hudZone.textContent = dist.name.toUpperCase();
         this.saveMasterBibleStateToStorage();
+        if (window.__PROJECT_EKO_QUEST_BUS__) {
+          window.__PROJECT_EKO_QUEST_BUS__.emit('DistrictVisited', { districtId: dist.districtId });
+        }
         if (typeof fetch !== 'undefined') {
           fetch('http://localhost:3001/api/v1/districts/stream', {
             method: 'POST',
@@ -34794,6 +34794,24 @@
                     🧾 <strong>Latest Verified Ledger Receipt (${lastReceipt.receiptId}):</strong> ${lastReceipt.title} • Net Credited: <strong>+₦${lastReceipt.netPayGN.toLocaleString()} GN</strong> (Base ₦${lastReceipt.basePayGN} + Bonus ₦${lastReceipt.qualityBonusGN} - Cost ₦${lastReceipt.disclosedCostsGN})
                   </div>
                 ` : ''}
+              </div>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.92); border:1px solid rgba(244,180,26,0.55); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                <div>
+                  <div style="font-size:9.5px; font-weight:900; color:#F4B41A; letter-spacing:0.6px;">🧭 STAGE 3: CHOOSE HOW TO EARN IN LAGOS (4 CANONICAL CAREER PATHS)</div>
+                  <div style="font-size:11.5px; font-weight:800; color:#F8FAFC;">Apply for a Job • Become a Danfo Conductor • Become a Driver • Run a Business</div>
+                </div>
+                <button type="button" class="dh-ctrl-btn primary" style="padding:5px 10px; font-size:10px;" onclick="window.__PROJECT_EKO_LIFE__.closeModal(); if(window.__PROJECT_EKO_GUIDE__){window.__PROJECT_EKO_GUIDE__.openChooseHowToEarnModal();}">
+                  🧭 Open "Choose How to Earn" Selector
+                </button>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:6px;">
+                <button type="button" class="dh-ctrl-btn primary" style="padding:6px 8px; font-size:10px;" onclick="window.__PROJECT_EKO_LIFE__.startActiveJobShift('job_foot_courier')">💼 1. Apply for Job (+₦1,250 GN)</button>
+                <button type="button" class="dh-ctrl-btn" style="padding:6px 8px; font-size:10px; border-color:rgba(245,158,11,0.55); color:#FDE68A;" onclick="window.__PROJECT_EKO_LIFE__.closeModal(); if(window.__PROJECT_EKO_GUIDE__){window.__PROJECT_EKO_GUIDE__.selectEarningPath('conductor');}">🎫 2. Danfo Conductor (30–40% Split)</button>
+                <button type="button" class="dh-ctrl-btn" style="padding:6px 8px; font-size:10px; border-color:rgba(56,189,248,0.55); color:#7DD3FC;" onclick="window.__PROJECT_EKO_LIFE__.closeModal(); if(window.__PROJECT_EKO_GUIDE__){window.__PROJECT_EKO_GUIDE__.selectEarningPath('driver');}">🚐 3. Become a Driver (Lease/Drive)</button>
+                <button type="button" class="dh-ctrl-btn" style="padding:6px 8px; font-size:10px; border-color:rgba(168,85,247,0.55); color:#E9D5FF;" onclick="window.__PROJECT_EKO_LIFE__.closeModal(); if(window.__PROJECT_EKO_GUIDE__){window.__PROJECT_EKO_GUIDE__.selectEarningPath('business');}">🏪 4. Run a Business (+₦870 GN Net)</button>
               </div>
             </div>
 
@@ -35809,21 +35827,25 @@
       serverGuideState: null,
 
       steps: [
-        { id: 'obj_01_register_or_guest', step: 1, title: '1. Complete Registration or Guest Entry', why: 'Secures your saved progress, starter home, and citizen ledger.', actionLabel: 'Open Citizen Account', event: 'AccountCreated', fn: 'openAuthModal' },
-        { id: 'obj_02_create_character', step: 2, title: '2. Create Your Lagos Character', why: 'Customizes your avatar appearance and moderated citizen display name.', actionLabel: 'Customize Character', event: 'ProfileCreated', fn: 'openCharacterCreator' },
-        { id: 'obj_03_claim_starter_profile', step: 3, title: '3. Claim Starter Profile & ₦5,000 GN', why: 'Initializes your 3D starter home and ₦5,000 GN citizen grant.', actionLabel: 'Claim Starter Profile', event: 'StarterHomeClaimed', fn: 'openCharacterCreator' },
-        { id: 'obj_04_enter_starter_home', step: 4, title: '4. Discover & Enter Your 3D Starter Home', why: 'Step through the front door into your walkable 3D apartment.', actionLabel: 'Enter 3D Starter Home', event: 'HomeEntered', fn: 'enterHomeStep' },
-        { id: 'obj_05_use_household_object', step: 5, title: '5. Interact with a Household Object', why: 'Restores Energy, Hunger, Hydration, Hygiene, and Comfort.', actionLabel: 'Use Household Item', event: 'HouseholdObjectUsed', fn: 'useHomeObjectStep' },
-        { id: 'obj_06_inspect_household_needs', step: 6, title: '6. Inspect Your 8 Canonical Needs', why: 'Healthy needs prevent fatigue slowdowns and boost shift efficiency.', actionLabel: 'Inspect 8 Needs', event: 'NeedsInspected', fn: 'inspectNeedsStep' },
-        { id: 'obj_07_open_jobshub', step: 7, title: '7. Open JobsHub & View Entry Work', why: 'Discover honest no-vehicle jobs available from Day 1.', actionLabel: 'Open JobsHub', event: 'JobsHubOpened', fn: 'openJobsHubStep' },
-        { id: 'obj_08_select_no_vehicle_job', step: 8, title: '8. Select a Qualifying No-Vehicle Job', why: 'Accept CMS Foot Courier (+₦500 GN Net) with zero vehicle needed.', actionLabel: 'Accept Foot Courier Shift', event: 'JobAccepted', fn: 'acceptNoVehicleJobStep' },
-        { id: 'obj_09_reach_task_location', step: 9, title: '9. Reach the Workplace / Task Location', why: 'Step outside into Marina/CMS and reach the shift checkpoint.', actionLabel: 'Go to Task Checkpoint', event: 'JobLocationReached', fn: 'reachJobLocationStep' },
-        { id: 'obj_10_complete_job_gameplay', step: 10, title: '10. Complete All 3/3 Shift Checkpoints', why: 'Perform actual checkpoint tasks to earn server verification tokens.', actionLabel: 'Complete Shift Checkpoints', event: 'JobTaskCompleted', fn: 'completeJobGameplayStep' },
-        { id: 'obj_11_receive_job_settlement', step: 11, title: '11. Receive Authoritative Game Naira Settlement', why: 'Posts +₦500 GN net wage in the double-entry Game Naira ledger.', actionLabel: 'Claim Verified Wage (+₦500 GN)', event: 'JobSettlementPosted', fn: 'claimJobSettlementStep' },
-        { id: 'obj_12_visit_shop', step: 12, title: '12. Visit the Household & Necessities Shop', why: 'Browse valid item prices and need upgrades.', actionLabel: 'Open Household Shop', event: 'ShopVisited', fn: 'visitShopStep' },
-        { id: 'obj_13_buy_affordable_item', step: 13, title: '13. Buy an Eligible Affordable Item', why: 'Purchase an affordable item (e.g. Standing Fan ₦750 GN or Wall Clock ₦600 GN).', actionLabel: 'Buy Standing Fan (₦750 GN)', event: 'ItemPurchased', fn: 'buyAffordableItemStep' },
-        { id: 'obj_14_place_and_use_item', step: 14, title: '14. Place & Use the Item at Home', why: 'Place your new item in a collision-safe floor spot and use it.', actionLabel: 'Place & Use New Item', event: 'ItemPlaced', fn: 'placeAndUseItemStep' },
-        { id: 'obj_15_verify_persistent_progress', step: 15, title: '15. Return Home & Verify Persistent Progress', why: 'Confirms your saved home, wallet balance, and unlocks full career goals.', actionLabel: 'Verify & Complete Onboarding', event: 'HomeProgressVerified', fn: 'verifyPersistentProgressStep' }
+        // Stage 1: Join Project Eko — Create an account, choose a character, receive starter clothing and a small cash balance
+        { id: 'obj_01_register_or_guest', step: 1, stageNumber: 1, stageTitle: 'Stage 1: Join Project Eko', title: '1. Create an Account (or Guest Entry)', why: 'Secures your saved progress, starter home, and citizen ledger.', actionLabel: 'Open Citizen Account', event: 'AccountCreated', events: ['AccountCreated'], fn: 'openAuthModal' },
+        { id: 'obj_02_create_character', step: 2, stageNumber: 1, stageTitle: 'Stage 1: Join Project Eko', title: '2. Choose & Style Your Lagos Character', why: 'Customizes your avatar appearance and moderated citizen display name.', actionLabel: 'Customize Character', event: 'ProfileCreated', events: ['ProfileCreated'], fn: 'openCharacterCreator' },
+        { id: 'obj_03_claim_starter_profile', step: 3, stageNumber: 1, stageTitle: 'Stage 1: Join Project Eko', title: '3. Receive Starter Clothing & ₦5,000 GN Balance', why: 'Initializes your Marina starter home, starter outfits, and ₦5,000 GN cash balance.', actionLabel: 'Claim Starter Profile', event: 'StarterHomeClaimed', events: ['StarterHomeClaimed'], fn: 'openCharacterCreator' },
+        // Stage 2: Start life in Lagos — Spawn at the Marina starter home. Explore, use the wardrobe, manage energy, and learn the controls through guided tasks
+        { id: 'obj_04_enter_starter_home', step: 4, stageNumber: 2, stageTitle: 'Stage 2: Start life in Lagos', title: '4. Spawn at Marina Starter Home & Step Inside', why: 'Step through the front door into your walkable 3D starter apartment.', actionLabel: 'Enter Marina Starter Home', event: 'HomeEntered', events: ['HomeEntered'], fn: 'enterHomeStep' },
+        { id: 'obj_05_use_household_object', step: 5, stageNumber: 2, stageTitle: 'Stage 2: Start life in Lagos', title: '5. Explore Home & Use Your Wardrobe', why: 'Open your Wardrobe rack to try on your free starter clothing and customize your look.', actionLabel: 'Use Wardrobe & Try Clothing', event: 'HouseholdObjectUsed', events: ['WardrobeOpened', 'ClothingEquipped', 'HouseholdObjectUsed'], fn: 'openWardrobeStep' },
+        { id: 'obj_06_inspect_household_needs', step: 6, stageNumber: 2, stageTitle: 'Stage 2: Start life in Lagos', title: '6. Manage Energy on Mattress & Learn Controls', why: 'Rest on your starter mattress or use the washbasin to restore Energy & Hygiene.', actionLabel: 'Manage Energy & Needs', event: 'NeedsInspected', events: ['NeedsInspected', 'HouseholdObjectUsed'], fn: 'useHomeObjectStep' },
+        // Stage 3: Choose how to earn — Apply for a job, become a Danfo conductor or driver, run a business, or explore other career paths
+        { id: 'obj_07_open_jobshub', step: 7, stageNumber: 3, stageTitle: 'Stage 3: Choose how to earn', title: '7. Choose How to Earn in Lagos (4 Career Paths)', why: 'Apply for a job, become a Danfo conductor or driver, or run a starter business.', actionLabel: 'Choose How to Earn', event: 'JobsHubOpened', events: ['JobsHubOpened', 'EarningPathModalOpened', 'DanfoConductorStarted'], fn: 'openChooseHowToEarnStep' },
+        { id: 'obj_08_select_no_vehicle_job', step: 8, stageNumber: 3, stageTitle: 'Stage 3: Choose how to earn', title: '8. Start Your Chosen Earning Path', why: 'Accept an entry job (+₦1,250 GN), board the Danfo as Conductor (30–40% split), or open a business.', actionLabel: 'Start Earning Path', event: 'JobAccepted', events: ['JobAccepted', 'DanfoConductorStarted', 'BusinessShiftCompleted'], fn: 'openChooseHowToEarnStep' },
+        { id: 'obj_09_reach_task_location', step: 9, stageNumber: 3, stageTitle: 'Stage 3: Choose how to earn', title: '9. Reach Workplace, Danfo Stop, or Business Depot', why: 'Step into Marina/CMS to reach your job checkpoint, Danfo bus stop, or market stall.', actionLabel: 'Go to Active Work Location', event: 'JobLocationReached', events: ['JobLocationReached', 'JobTaskCompleted', 'DanfoConductorStarted', 'BusinessShiftCompleted'], fn: 'reachJobLocationStep' },
+        { id: 'obj_10_complete_job_gameplay', step: 10, stageNumber: 3, stageTitle: 'Stage 3: Choose how to earn', title: '10. Perform Duties (3/3 Checkpoints, Trip Fares, or Stall)', why: 'Complete hands-on shift tasks, collect Danfo trip fares into the Bus Purse, or run your stall.', actionLabel: 'Perform Active Work Duties', event: 'JobTaskCompleted', events: ['JobTaskCompleted', 'DanfoConductorTripSettled', 'BusinessShiftCompleted'], fn: 'completeJobGameplayStep' },
+        { id: 'obj_11_receive_job_settlement', step: 11, stageNumber: 3, stageTitle: 'Stage 3: Choose how to earn', title: '11. Collect Verified Wages, Conductor Share, or Profit', why: 'Posts your net wage, settled Danfo trip share, or business profit to the Game Naira ledger.', actionLabel: 'Collect Verified Earnings', event: 'JobSettlementPosted', events: ['JobSettlementPosted', 'DanfoConductorTripSettled', 'BusinessShiftCompleted'], fn: 'claimJobSettlementStep' },
+        // Stage 4: Earn, spend and progress — Collect wages, pay transport fares, buy clothing and furniture, save for a vehicle, and upgrade your home
+        { id: 'obj_12_visit_shop', step: 12, stageNumber: 4, stageTitle: 'Stage 4: Earn, spend and progress', title: '12. Pay Transport Fare or Visit Clothing & Furniture Shops', why: 'Ride the Danfo as a fare-paying passenger or browse clothing and home furniture upgrades.', actionLabel: 'Open Clothing & Furniture Shop', event: 'ShopVisited', events: ['PassengerFarePaid', 'ShopVisited', 'ItemPurchased'], fn: 'visitShopStep' },
+        { id: 'obj_13_buy_affordable_item', step: 13, stageNumber: 4, stageTitle: 'Stage 4: Earn, spend and progress', title: '13. Buy Clothing or Furniture (e.g. Standing Fan ₦1,800 GN)', why: 'Spend your earned wages on new clothing or a cooling Standing Fan (₦1,800 GN) for your home.', actionLabel: 'Buy Standing Fan (₦1,800 GN)', event: 'ItemPurchased', events: ['ItemPurchased', 'ClothingEquipped'], fn: 'buyAffordableItemStep' },
+        { id: 'obj_14_place_and_use_item', step: 14, stageNumber: 4, stageTitle: 'Stage 4: Earn, spend and progress', title: '14. Place & Use New Furniture at Home (or Equip Outfit)', why: 'Place your new furniture in a valid 3D floor spot inside your home and interact with it.', actionLabel: 'Place & Use at Home', event: 'ItemPlaced', events: ['ItemPlaced', 'HouseholdObjectUsed', 'ClothingEquipped'], fn: 'placeAndUseItemStep' },
+        { id: 'obj_15_verify_persistent_progress', step: 15, stageNumber: 4, stageTitle: 'Stage 4: Earn, spend and progress', title: '15. Save for a Vehicle, Upgrade Home & Enter Stage 5 Legacy', why: 'Review your vehicle savings & home upgrade tracker to unlock Stage 5: Build your Lagos legacy!', actionLabel: 'Unlock Stage 5: Lagos Legacy', event: 'HomeProgressVerified', events: ['HomeProgressVerified', 'HousingUpgraded'], fn: 'verifyPersistentProgressStep' }
       ],
 
       init() {
@@ -36028,9 +36050,20 @@
 
       onTrustedEvent(ev) {
         for (const s of this.steps) {
-          if (s.event === ev.eventType && !this.completedObjectiveIds.includes(s.id)) {
-            this.completedObjectiveIds.push(s.id);
+          const matchesEvent = (s.event === ev.eventType) || (Array.isArray(s.events) && s.events.includes(ev.eventType));
+          if (!matchesEvent || this.completedObjectiveIds.includes(s.id)) continue;
+          // Stage 4 steps (13–15) require Stage 3 earning (obj_11) or Shop Visit (obj_12) to be completed first,
+          // so trying starter outfits or using the starter bed in Stage 2 does not prematurely complete Stage 4!
+          if (s.id === 'obj_13_buy_affordable_item' && ev.eventType === 'ClothingEquipped' && !this.completedObjectiveIds.includes('obj_12_visit_shop')) {
+            continue;
           }
+          if (s.id === 'obj_14_place_and_use_item' && ev.eventType !== 'ItemPlaced' && !this.completedObjectiveIds.includes('obj_13_buy_affordable_item')) {
+            continue;
+          }
+          if (s.id === 'obj_15_verify_persistent_progress' && ev.eventType !== 'HomeProgressVerified' && !this.completedObjectiveIds.includes('obj_14_place_and_use_item')) {
+            continue;
+          }
+          this.completedObjectiveIds.push(s.id);
         }
         if (this.completedObjectiveIds.length >= this.steps.length) {
           this.tutorialCompleted = true;
@@ -36056,9 +36089,42 @@
         }
         const inHome = Boolean(life && life.isInsideHomeInterior);
         const isDriving = Boolean(player && player.inVehicle);
+        const vehState = window.__PROJECT_EKO_VEHICLE_STATE__;
+        const isConductor = Boolean(vehState && vehState.state === 'CONDUCTOR');
         const promptSystem = window.__PROJECT_EKO_INPUT_PROMPTS__;
         const isTouch = Boolean(promptSystem && (promptSystem.device === 'touch' || (typeof promptSystem.getActiveDevice === 'function' && promptSystem.getActiveDevice() === 'touch')));
         const devicePrefix = isTouch ? 'Tap: ' : '';
+
+        // Rule 0: If the player is actively in Danfo Conductor role, show live Stage 3 Conductor guidance
+        if (isConductor) {
+          const st = (vehState && vehState.conductorShiftState) || {};
+          const unpaidCount = Math.max(0, (st.boardedPassengersThisTrip || 0) - (st.paidPassengersThisTrip || 0));
+          const hasPurse = (st.busPurseGrossGN || 0) > 0;
+          return {
+            objectiveId: 'obj_active_danfo_conductor',
+            stepNumber: Math.max(8, this.completedObjectiveIds.length),
+            totalSteps: this.steps.length,
+            stageNumber: 3,
+            stageTitle: 'Stage 3: Choose how to earn',
+            overallJourneyLabel: 'STAGE 3 OF 5: CHOOSE HOW TO EARN • Active Danfo Conductor Shift',
+            title: hasPurse
+              ? `Settle Bus Trip Purse (₦${st.busPurseGrossGN.toLocaleString()} GN) with Driver Chidi (${st.conductorSharePct || 30}% Share)`
+              : `Call Route [C] & Collect Trip Fares [SPACE] (${unpaidCount} Unpaid Commuters Aboard)`,
+            why: hasPurse
+              ? `You collected ₦${st.busPurseGrossGN.toLocaleString()} GN into the Bus Purse! Settle with Driver Chidi to credit your ${st.conductorSharePct || 30}% share to your wallet.`
+              : `Agree on your sharing formula (70/30, 65/35, or 60/40), call commuters at stops [C], and collect per-trip fares [SPACE].`,
+            actionLabel: hasPurse
+              ? `${devicePrefix}🤝 Settle Shift with Driver (${st.conductorSharePct || 30}% Share)`
+              : `${devicePrefix}💵 Collect Trip Fares into Purse [SPACE]`,
+            fn: hasPurse ? 'settleDanfoConductorStep' : 'collectDanfoConductorFaresStep',
+            isCompactDrivingMode: true,
+            isActiveJobShift: false,
+            blocker: null,
+            secondary: [
+              { title: `Agreed Formula: ${st.driverSharePct || 70}% Driver / ${st.conductorSharePct || 30}% Conductor`, reason: `Bus Purse: ₦${(st.busPurseGrossGN || 0).toLocaleString()} GN` }
+            ]
+          };
+        }
 
         // Rule 1: If the player is driving or has an active taxi fare, prioritize the live driving/taxi objective and never cover the road with a home/walking tutorial
         if (isDriving || passengerState === 'onboard') {
@@ -36067,7 +36133,9 @@
               objectiveId: 'obj_active_taxi_dropoff_tbs',
               stepNumber: 0,
               totalSteps: this.steps.length,
-              overallJourneyLabel: 'Active EkoRide Fare • Step 2 of 2 (Passenger Onboard)',
+              stageNumber: 3,
+              stageTitle: 'Stage 3: Choose how to earn',
+              overallJourneyLabel: 'STAGE 3 OF 5: CHOOSE HOW TO EARN • Active EkoRide Fare (Dropoff)',
               title: 'Drop Off Sister Blessing at Tafawa Balewa Square (TBS)',
               why: 'Sister Blessing is seated in your vehicle (1/4 Pax). Follow the green arrows North to TBS Dropoff Bay (z = +45m) for +₦1,250 GN.',
               actionLabel: `${devicePrefix}Deliver at TBS Plaza (+₦1,250 GN)`,
@@ -36085,7 +36153,9 @@
               objectiveId: 'obj_active_taxi_pickup_cms',
               stepNumber: 0,
               totalSteps: this.steps.length,
-              overallJourneyLabel: 'Active EkoRide Fare • Step 1 of 2 (Pickup)',
+              stageNumber: 3,
+              stageTitle: 'Stage 3: Choose how to earn',
+              overallJourneyLabel: 'STAGE 3 OF 5: CHOOSE HOW TO EARN • Active EkoRide Fare (Pickup)',
               title: 'Pick Up Sister Blessing at CMS Hailing Bay (z = -120m)',
               why: 'Pull into the green bay beside Sister Blessing on Broad St (z = -120m) and stop or press [E] to board her.',
               actionLabel: `${devicePrefix}Board Sister Blessing [E]`,
@@ -36101,7 +36171,9 @@
           return {
             stepNumber: 0,
             totalSteps: this.steps.length,
-            overallJourneyLabel: 'First Day in Lagos • Active Driving',
+            stageNumber: 3,
+            stageTitle: 'Stage 3: Choose how to earn',
+            overallJourneyLabel: 'STAGE 3 OF 5: CHOOSE HOW TO EARN • Active Commercial Driving',
             title: 'Active Driving — Follow Corridor Waypoints Safely',
             why: 'Pull alongside Sister Blessing (z = -120m) or any Bus Stop layby and press [E] / [SPACE] to board passengers.',
             actionLabel: 'Focus on Route',
@@ -36131,7 +36203,9 @@
             objectiveId: `obj_active_shift_cp_${cpIdx + 1}`,
             stepNumber: Math.max(9, this.completedObjectiveIds.length),
             totalSteps: this.steps.length,
-            overallJourneyLabel: `First Day in Lagos — Step ${Math.min(12, Math.max(6, Math.ceil((this.completedObjectiveIds.length / this.steps.length) * 12)))} of 12`,
+            stageNumber: 3,
+            stageTitle: 'Stage 3: Choose how to earn',
+            overallJourneyLabel: `STAGE 3 OF 5: CHOOSE HOW TO EARN • Active Job Shift (Checkpoint ${cpIdx + 1}/${totalCps})`,
             isActiveJobShift: true,
             shiftTitle: shf.title,
             shiftStepNumber: cpIdx + 1,
@@ -36156,12 +36230,15 @@
 
         const nextStep = this.steps.find(s => !this.completedObjectiveIds.includes(s.id));
         if (!this.tutorialSkipped && !this.tutorialCompleted && nextStep) {
-          const stage12 = Math.min(12, Math.max(1, Math.ceil((nextStep.step / this.steps.length) * 12)));
+          const stgNum = nextStep.stageNumber || Math.min(4, Math.max(1, Math.ceil((nextStep.step / 15) * 4)));
+          const stgTitle = nextStep.stageTitle || `Stage ${stgNum}`;
           return {
             objectiveId: nextStep.id,
             stepNumber: nextStep.step,
             totalSteps: this.steps.length,
-            overallJourneyLabel: `First Day in Lagos — Step ${stage12} of 12`,
+            stageNumber: stgNum,
+            stageTitle: stgTitle,
+            overallJourneyLabel: `${stgTitle.toUpperCase()} (STAGE ${stgNum} OF 5) • Step ${nextStep.step} of ${this.steps.length}`,
             isActiveJobShift: false,
             title: nextStep.title,
             why: nextStep.why,
@@ -36171,12 +36248,12 @@
             blocker: this.lastBlocker,
             secondary: inHome
               ? [
-                  { title: 'Use Bed, Kettle, Washbasin, or Wardrobe inside your home', reason: 'Restores 8 canonical needs & changes outfits' },
+                  { title: 'Use Bed, Washbasin, or Wardrobe inside your Marina home', reason: 'Stage 2: Explore, use wardrobe & manage energy' },
                   { title: 'Switch between Explore Mode & Planner Mode', reason: 'Move or rotate furniture safely' }
                 ]
               : [
-                  { title: 'Work CMS Foot Courier Shift (+₦1,250 GN Net)', reason: 'You do not need a car to start earning' },
-                  { title: 'Join Marina Co-op Danfo Crew (60%/40% Split)', reason: 'Live multiplayer Driver + Conductor' }
+                  { title: 'Choose How to Earn (Job, Conductor, Driver, Business)', reason: 'Stage 3: 4 canonical earning paths' },
+                  { title: 'Spend & Progress (Shops, Vehicle Savings, Home Upgrade)', reason: 'Stage 4: Build toward your Lagos legacy' }
                 ]
           };
         }
@@ -36185,17 +36262,19 @@
           objectiveId: 'obj_post_onboarding_career',
           stepNumber: 15,
           totalSteps: 15,
-          overallJourneyLabel: 'First Day in Lagos — Completed (12 of 12) • Free Roam Active',
+          stageNumber: 5,
+          stageTitle: 'Stage 5: Build your Lagos legacy',
+          overallJourneyLabel: 'STAGE 5 OF 5: BUILD YOUR LAGOS LEGACY • Businesses, Vehicles, Regions & Status',
           isActiveJobShift: false,
-          title: inHome ? 'Home Comfort & Needs Ready — Head Out for Next Shift' : 'Advance Your Lagos Career & Multiplayer Crew',
-          why: `First-Day Onboarding complete! Current Balance: ₦${(player ? player.balance : 5000).toLocaleString()} GN.`,
-          actionLabel: inHome ? `${devicePrefix}Exit Home & Open JobsHub` : `${devicePrefix}Open JobsHub (+₦1,250 GN Shifts)`,
-          fn: 'openJobsHubStep',
+          title: 'Stage 5: Own Businesses, Purchase Vehicles, Explore Regions & Compete',
+          why: `Stages 1–4 complete! Wallet: ₦${(player ? player.balance : 5000).toLocaleString()} GN. Expand your businesses, fleet, 8 Lagos districts, leaderboard rank, and achievements!`,
+          actionLabel: `${devicePrefix}🏆 Open Lagos Legacy & Career Hub`,
+          fn: 'openLegacyDashboardStep',
           isCompactDrivingMode: false,
           blocker: this.lastBlocker,
           secondary: [
-            { title: 'Open EkoProgress Career Unlock Map', reason: 'See all unlocked & locked career tiers' },
-            { title: 'Open Multiplayer Co-op Danfo Hub', reason: 'Team up with live human citizens in Marina/CMS' }
+            { title: 'Choose How to Earn (Jobs, Conductor, Driver, Business)', reason: 'Earn wages, trip shares & business profits' },
+            { title: 'Explore 8 Lagos Regions & Compete on Leaderboard', reason: 'Unlock status & legacy achievements' }
           ]
         };
       },
@@ -36217,6 +36296,8 @@
           showToast('💚 8 Canonical Needs Inspected! Offline decay is disabled.', '💚');
         } else if (fnName === 'openWardrobeStep') {
           this.openWardrobeModal();
+        } else if (fnName === 'openChooseHowToEarnStep') {
+          this.openChooseHowToEarnModal();
         } else if (fnName === 'openJobsHubStep') {
           EkoQuestEventBus.emit('JobsHubOpened', {});
           life.openModal('jobs');
@@ -36224,6 +36305,14 @@
           this.lastBlocker = null;
           EkoQuestEventBus.emit('JobsHubOpened', {});
           life.startActiveJobShift('job_foot_courier');
+        } else if (fnName === 'collectDanfoConductorFaresStep') {
+          if (window.__PROJECT_EKO_VEHICLE_STATE__) {
+            window.__PROJECT_EKO_VEHICLE_STATE__.performConductorAction('COLLECT_FARES');
+          }
+        } else if (fnName === 'settleDanfoConductorStep') {
+          if (window.__PROJECT_EKO_VEHICLE_STATE__) {
+            window.__PROJECT_EKO_VEHICLE_STATE__.performConductorAction('SETTLE_SHIFT');
+          }
         } else if (fnName === 'advanceSingleJobCheckpointStep') {
           if (life.isInsideHomeInterior) life.exitHomeInterior();
           if (!life.activeJobShift) life.startActiveJobShift('job_foot_courier');
@@ -36273,20 +36362,24 @@
         } else if (fnName === 'buyAffordableItemStep') {
           this.lastBlocker = null;
           EkoQuestEventBus.emit('ShopVisited', {});
-          const res = life.buyShopItem('itm_everyday_shirt');
-          if (res && res.success) {
-            life.equipOutfit('outfit_corporate_suit');
-          } else {
-            const res2 = life.buyShopItem('itm_standing_fan');
-            if (res2 && !res2.success) {
+          const resFan = life.buyShopItem('itm_standing_fan');
+          if (!resFan || !resFan.success) {
+            const resShirt = life.buyShopItem('itm_everyday_shirt');
+            if (resShirt && resShirt.success) {
+              life.equipOutfit('outfit_corporate_suit');
+            } else {
               EkoQuestEventBus.emit('ItemPurchased', { itemId: 'itm_standing_fan' });
             }
           }
         } else if (fnName === 'placeAndUseItemStep') {
           this.lastBlocker = null;
           if (!life.isInsideHomeInterior) life.enterHomeInterior();
+          const unplacedFan = (life.ownedItems || []).find(o => o.itemId === 'itm_standing_fan' && !o.placed);
+          if (unplacedFan && typeof life.placeOwnedItemIn3DHome === 'function') {
+            life.placeOwnedItemIn3DHome(unplacedFan.instanceId, 2.8, 2.4, 0, 'utility_corner');
+          }
           life.useHomeObject('itm_standing_fan');
-          EkoQuestEventBus.emit('ItemPlaced', { itemId: 'itm_standing_fan', x: 1.2, z: -1.5, rotY: 0 });
+          EkoQuestEventBus.emit('ItemPlaced', { itemId: 'itm_standing_fan', x: 2.8, z: 2.4, rotY: 0 });
         } else if (fnName === 'verifyPersistentProgressStep') {
           if (!life.isInsideHomeInterior) life.enterHomeInterior();
           life.saveMasterBibleStateToStorage();
@@ -36294,10 +36387,145 @@
           this.tutorialCompleted = true;
           this.saveLocalState();
           this.openGraduationModal();
-          showToast('🎓 First-Day Lagos Onboarding Complete! +100 XP & Full Career Unlocks Ready!', '🎓');
+          showToast('🎓 Stage 4 Complete! Stage 5: Build Your Lagos Legacy Unlocked!', '🎓');
+        } else if (fnName === 'openLegacyDashboardStep') {
+          if (window.__PROJECT_EKO_PROGRESS__) {
+            window.__PROJECT_EKO_PROGRESS__.openModal();
+          }
         }
         this.renderHud();
         if (this.modalOpen) this.renderModal();
+      },
+
+      openChooseHowToEarnModal() {
+        const el = document.getElementById('m47-choose-earn-modal');
+        if (!el) return;
+        el.style.display = 'flex';
+        EkoQuestEventBus.emit('JobsHubOpened', { source: 'choose_how_to_earn' });
+        EkoQuestEventBus.emit('EarningPathModalOpened', {});
+        const life = window.__PROJECT_EKO_LIFE__;
+        const bal = player ? player.balance : 5000;
+        el.innerHTML = `
+          <div style="background:#0F172A;border:2px solid #F4B41A;border-radius:16px;max-width:740px;width:95%;max-height:88vh;overflow-y:auto;padding:18px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.86);">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:10px;margin-bottom:12px;">
+              <div>
+                <div style="font-size:10.5px;font-weight:900;color:#F4B41A;letter-spacing:0.06em;">STAGE 3 OF 5 • CANONICAL PRODUCT FLOW</div>
+                <div style="font-size:17px;font-weight:900;">💼 Choose How to Earn in Lagos</div>
+              </div>
+              <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.closeChooseHowToEarnModal()" style="background:rgba(255,255,255,0.12);color:#F8FAFC;border:none;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer;">✕ Close</button>
+            </div>
+
+            <div style="font-size:11.5px;color:#CBD5E1;margin-bottom:12px;line-height:1.45;">
+              Pick how you want to make honest <strong>Game Naira (GN)</strong> today. Every path requires real in-world action and posts verified earnings to your Citizen Wallet (Current Balance: <strong style="color:#10B981;">₦${bal.toLocaleString()} GN</strong>).
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px;margin-bottom:12px;">
+              <!-- Path 1: Apply for a Job -->
+              <div style="background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.45);border-radius:12px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:10px;font-weight:900;color:#34D399;background:rgba(16,185,129,0.2);padding:2px 8px;border-radius:999px;">PATH 1 • NO VEHICLE NEEDED</span>
+                    <span style="font-family:var(--eko-font-mono);font-size:11px;font-weight:900;color:#F4B41A;">+₦1,250 GN / Shift</span>
+                  </div>
+                  <div style="font-size:14px;font-weight:900;color:#FFF;margin-top:5px;">💼 Apply for an Entry or Skilled Job</div>
+                  <div style="font-size:11px;color:#CBD5E1;margin-top:3px;line-height:1.4;">
+                    Start as a <strong>CMS Foot Courier</strong>, <strong>Balogun Market Assistant</strong>, or <strong>Workshop Apprentice</strong>. Walk to 3 street checkpoints and perform 3 hands-on work duties at each stop.
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button type="button" id="btn-earn-path-job-start" onclick="window.__PROJECT_EKO_GUIDE__.selectEarningPath('job')" style="flex:1;background:#10B981;color:#052E16;border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer;">👟 Start Foot Courier (+₦1,250 GN)</button>
+                  <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.selectEarningPath('jobshub_all')" style="background:rgba(255,255,255,0.1);color:#E2E8F0;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;">📋 All 11 Jobs</button>
+                </div>
+              </div>
+
+              <!-- Path 2: Become a Danfo Conductor -->
+              <div style="background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.5);border-radius:12px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:10px;font-weight:900;color:#FDE68A;background:rgba(245,158,11,0.22);padding:2px 8px;border-radius:999px;">PATH 2 • NO VEHICLE NEEDED</span>
+                    <span style="font-family:var(--eko-font-mono);font-size:11px;font-weight:900;color:#34D399;">30% – 40% Trip Split</span>
+                  </div>
+                  <div style="font-size:14px;font-weight:900;color:#FFF;margin-top:5px;">🎫 Become a Danfo Conductor</div>
+                  <div style="font-size:11px;color:#CBD5E1;margin-top:3px;line-height:1.4;">
+                    Stand on the yellow Danfo doorway step with <strong>Driver Oga Chidi</strong>! Negotiate your sharing formula (<strong>70/30</strong>, <strong>65/35</strong>, or <strong>60/40</strong>), call routes at bus stops, collect per-trip fares into the Bus Purse, and settle your share at trip end.
+                  </div>
+                </div>
+                <button type="button" id="btn-earn-path-conductor" onclick="window.__PROJECT_EKO_GUIDE__.selectEarningPath('conductor')" style="background:#F59E0B;color:#0F172A;border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer;">🚌 Board Danfo as Conductor (Agree % Split)</button>
+              </div>
+
+              <!-- Path 3: Become a Commercial Driver -->
+              <div style="background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.45);border-radius:12px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:10px;font-weight:900;color:#7DD3FC;background:rgba(56,189,248,0.2);padding:2px 8px;border-radius:999px;">PATH 3 • MOBILITY & TRANSIT</span>
+                    <span style="font-family:var(--eko-font-mono);font-size:11px;font-weight:900;color:#F4B41A;">+₦1,250 – ₦2,400 GN</span>
+                  </div>
+                  <div style="font-size:14px;font-weight:900;color:#FFF;margin-top:5px;">🚐 Become a Danfo / Keke / Taxi Driver</div>
+                  <div style="font-size:11px;color:#CBD5E1;margin-top:3px;line-height:1.4;">
+                    Visit the <strong>CMS Fleet & Dealership Terminal</strong> to lease a vehicle for a shift, pass your LASDRI Driving Qualification, or drive owned vehicles along the CMS–TBS corridor.
+                  </div>
+                </div>
+                <button type="button" id="btn-earn-path-driver" onclick="window.__PROJECT_EKO_GUIDE__.selectEarningPath('driver')" style="background:#38BDF8;color:#0F172A;border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer;">🚐 Open CMS Fleet & Driver Terminal</button>
+              </div>
+
+              <!-- Path 4: Run a Starter Business -->
+              <div style="background:rgba(168,85,247,0.10);border:1px solid rgba(168,85,247,0.45);border-radius:12px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:10px;font-weight:900;color:#E9D5FF;background:rgba(168,85,247,0.22);padding:2px 8px;border-radius:999px;">PATH 4 • ENTREPRENEURSHIP</span>
+                    <span style="font-family:var(--eko-font-mono);font-size:11px;font-weight:900;color:#34D399;">+₦870 – ₦2,250 GN Net</span>
+                  </div>
+                  <div style="font-size:14px;font-weight:900;color:#FFF;margin-top:5px;">🏪 Run a Business or Supply Chain</div>
+                  <div style="font-size:11px;color:#CBD5E1;margin-top:3px;line-height:1.4;">
+                    Use your ₦5,000 GN starter capital to stock & operate a <strong>Street Bukka & Food Stand</strong> (₦450 stock → +₦1,320 revenue = <strong>+₦870 GN Net</strong>) or wholesale-to-retail supply chain!
+                  </div>
+                </div>
+                <button type="button" id="btn-earn-path-business" onclick="window.__PROJECT_EKO_GUIDE__.selectEarningPath('business')" style="background:#A855F7;color:#FFFFFF;border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer;">🏪 Visit 3D Business & Supply Depot</button>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      closeChooseHowToEarnModal() {
+        const el = document.getElementById('m47-choose-earn-modal');
+        if (el) el.style.display = 'none';
+      },
+
+      selectEarningPath(pathId) {
+        this.closeChooseHowToEarnModal();
+        const life = window.__PROJECT_EKO_LIFE__;
+        if (!life) return;
+        if (pathId === 'job') {
+          this.lastBlocker = null;
+          EkoQuestEventBus.emit('JobsHubOpened', { pathId: 'job' });
+          life.startActiveJobShift('job_foot_courier');
+        } else if (pathId === 'jobshub_all') {
+          EkoQuestEventBus.emit('JobsHubOpened', { pathId: 'jobshub_all' });
+          life.openModal('jobs');
+        } else if (pathId === 'conductor') {
+          if (life.isInsideHomeInterior) life.exitHomeInterior();
+          if (window.__PROJECT_EKO_VEHICLE_STATE__ && typeof window.__PROJECT_EKO_VEHICLE_STATE__.boardAsConductor === 'function') {
+            window.__PROJECT_EKO_VEHICLE_STATE__.boardAsConductor('danfo');
+          }
+        } else if (pathId === 'driver') {
+          if (life.isInsideHomeInterior) life.exitHomeInterior();
+          EkoQuestEventBus.emit('JobsHubOpened', { pathId: 'driver' });
+          if (typeof life.visitFleetTerminal3D === 'function') {
+            life.visitFleetTerminal3D('class_c_danfo');
+          } else {
+            life.openModal('economy');
+          }
+        } else if (pathId === 'business') {
+          if (life.isInsideHomeInterior) life.exitHomeInterior();
+          EkoQuestEventBus.emit('JobsHubOpened', { pathId: 'business' });
+          if (typeof life.visitBusinessDepot3D === 'function') {
+            life.visitBusinessDepot3D('biz_food_stand');
+          } else {
+            life.openModal('economy');
+          }
+        }
+        this.renderHud();
       },
 
       openWardrobeModal() {
@@ -36410,11 +36638,11 @@
         const completedJobs = life && Array.isArray(life.completedJobReceipts) ? life.completedJobReceipts.length : 1;
 
         el.innerHTML = `
-          <div style="background:#0F172A;border:2px solid #10B981;border-radius:16px;max-width:620px;width:94%;max-height:88vh;overflow-y:auto;padding:22px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.85);">
-            <div style="font-size:11px;font-weight:800;color:#10B981;letter-spacing:0.06em;">STAGE K • FIRST-DAY GRADUATION & FREE ROAM UNLOCKED</div>
-            <h2 style="margin:4px 0 8px 0;font-size:21px;font-weight:900;">🎓 Congratulations, ${auth ? auth.username : 'Citizen'}! First Day in Lagos Complete</h2>
+          <div style="background:#0F172A;border:2px solid #10B981;border-radius:16px;max-width:640px;width:94%;max-height:88vh;overflow-y:auto;padding:22px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.85);">
+            <div style="font-size:11px;font-weight:800;color:#10B981;letter-spacing:0.06em;">STAGE 5 OF 5 UNLOCKED • BUILD YOUR LAGOS LEGACY</div>
+            <h2 style="margin:4px 0 8px 0;font-size:21px;font-weight:900;">🎓 Congratulations, ${auth ? auth.username : 'Citizen'}! Stage 4 Complete → Stage 5 Legacy Unlocked</h2>
             <p style="margin:0 0 14px 0;font-size:12px;color:#CBD5E1;line-height:1.45;">
-              You have completed your guided First-Day arrival in Lagos — from your Marina starter home and wardrobe to your first honest no-vehicle work shift and shop upgrade.
+              You have completed <strong>Stage 1 (Join Project Eko)</strong>, <strong>Stage 2 (Start life in Lagos)</strong>, <strong>Stage 3 (Choose how to earn)</strong>, and <strong>Stage 4 (Earn, spend and progress)</strong>! Welcome to <strong>Stage 5: Build your Lagos legacy</strong>.
             </p>
 
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;">
@@ -36431,18 +36659,18 @@
             </div>
 
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px;margin-bottom:14px;">
-              <div style="font-size:11px;font-weight:800;color:#F4B41A;margin-bottom:6px;">🚀 CHOOSE YOUR NEXT LONG-TERM LAGOS PATH</div>
+              <div style="font-size:11px;font-weight:800;color:#F4B41A;margin-bottom:6px;">🏆 STAGE 5: BUILD YOUR LAGOS LEGACY</div>
               <div style="font-size:11.5px;color:#E2E8F0;line-height:1.5;">
-                • <strong>Work Another Shift:</strong> Open JobsHub for higher-paying Market, Tech, Civic, or Logistics shifts.<br/>
-                • <strong>Mobility & Fleet Track:</strong> Save for a Keke or 14-Seater Yellow Danfo lease.<br/>
-                • <strong>Home & Lifestyle Track:</strong> Upgrade your apartment comfort, appliances, and wardrobe.<br/>
-                • <strong>Multiplayer Crew Track:</strong> Team up with live human citizens for 60%/40% Co-op Danfo runs.
+                • <strong>Own Businesses:</strong> Operate 9 player businesses & 6 wholesale-to-retail supply chains.<br/>
+                • <strong>Purchase Vehicles:</strong> Save for your first Okada (₦35,000 GN), Keke (₦68,000 GN), Sedan, or 14-Seater Danfo.<br/>
+                • <strong>Explore New Regions:</strong> Stream & travel across all 8 canonical Lagos districts.<br/>
+                • <strong>Compete & Unlock Status:</strong> Climb the Citizen Net Worth & Clout Leaderboard and unlock legacy achievements!
               </div>
             </div>
 
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button type="button" id="m47-graduation-freeroam-btn" onclick="window.__PROJECT_EKO_GUIDE__.closeGraduationModal()" style="flex:1;background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;">🚀 Enter Free Roam & Continue Career →</button>
-              <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.closeGraduationModal();window.__PROJECT_EKO_PROGRESS__.openModal();" style="background:#1E293B;color:#38BDF8;border:1px solid rgba(56,189,248,0.45);border-radius:10px;padding:12px;font-size:12px;font-weight:800;cursor:pointer;">📈 View Career Map</button>
+              <button type="button" id="m47-graduation-freeroam-btn" onclick="window.__PROJECT_EKO_GUIDE__.closeGraduationModal()" style="flex:1;background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:900;cursor:pointer;">🚀 Enter Stage 5 Free Roam →</button>
+              <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.closeGraduationModal();window.__PROJECT_EKO_PROGRESS__.openModal();" style="background:#1E293B;color:#38BDF8;border:1px solid rgba(56,189,248,0.45);border-radius:10px;padding:12px;font-size:12px;font-weight:800;cursor:pointer;">🏆 View Stage 5 Legacy Hub</button>
             </div>
           </div>
         `;
@@ -36547,19 +36775,20 @@
           return;
         }
 
+        const curStageNum = evalState.stageNumber || (completedCount >= this.steps.length ? 5 : Math.min(4, Math.max(1, Math.ceil(((completedCount + 1) / this.steps.length) * 4))));
         hud.innerHTML = `
           <div class="m47-guide-header-row" data-eko-drag-handle="true" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px;cursor:grab;touch-action:none;">
-            <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:800;color:#10B981;letter-spacing:0.03em;white-space:nowrap;"><span style="color:#94A3B8;margin-right:4px;">⋮⋮</span>🧭 EKOGUIDE • STEP ${completedCount}/${this.steps.length} (${pct}%)</span>
+            <span id="m47-guide-overall-badge" style="font-size:9.5px;font-weight:800;color:#10B981;letter-spacing:0.03em;white-space:nowrap;"><span style="color:#94A3B8;margin-right:4px;">⋮⋮</span>🧭 STAGE ${curStageNum}/5 • STEP ${completedCount}/${this.steps.length} (${pct}%)</span>
             <div style="display:flex;gap:4px;flex-shrink:0;">
               <button type="button" id="m47-what-next-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWhatNextModal()" style="background:rgba(56,189,248,0.16);color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;">
                 <span class="m47-desktop-label">What should I do next?</span>
-                <span class="m47-mobile-label">📋 Steps</span>
+                <span class="m47-mobile-label">📋 5 Stages</span>
               </button>
               <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.toggleMinimize()" title="Minimise Next Step" style="background:rgba(255,255,255,0.1);color:#CBD5E1;border:none;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:900;cursor:pointer;">—</button>
               <button type="button" id="m47-guide-close-btn" onclick="window.__PROJECT_EKO_GUIDE__.closeHud()" title="Close EkoGuide" aria-label="Close EkoGuide" style="background:rgba(239,68,68,0.22);color:#FECACA;border:1px solid rgba(239,68,68,0.5);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:900;cursor:pointer;">✕</button>
             </div>
           </div>
-          <div id="m47-guide-overall-journey-line" class="m47-guide-journey-line" style="font-size:9.5px;font-weight:700;color:#6EE7B7;margin-bottom:3px;">OVERALL JOURNEY: ${evalState.overallJourneyLabel || `First Day in Lagos — Step ${completedCount} of ${this.steps.length}`}</div>
+          <div id="m47-guide-overall-journey-line" class="m47-guide-journey-line" style="font-size:9.5px;font-weight:700;color:#6EE7B7;margin-bottom:3px;">${evalState.overallJourneyLabel || `Stage ${curStageNum} of 5 • Step ${completedCount} of ${this.steps.length}`}</div>
           ${evalState.isActiveJobShift ? `
             <div id="m47-guide-active-shift-substep" style="background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.45);border-radius:7px;padding:4px 7px;margin-bottom:4px;font-size:10px;color:#7DD3FC;font-weight:800;">
               💼 CURRENT SHIFT ACTION: Step ${evalState.shiftStepNumber} of ${evalState.shiftTotalSteps} (${evalState.shiftTitle})
@@ -36573,10 +36802,11 @@
               <button type="button" id="m47-guide-recovery-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.blocker.recoveryFnName}')" style="margin-top:4px;background:#F59E0B;color:#0F172A;border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:800;cursor:pointer;">💡 Recovery: ${evalState.blocker.recoveryLabel}</button>
             </div>
           ` : ''}
-          <div class="m47-guide-actions" style="display:flex;align-items:center;gap:5px;">
-            <button type="button" id="m47-guide-primary-action-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="flex:1;background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:7px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">▶ ${evalState.actionLabel}</button>
-            <button type="button" id="m47-guide-wardrobe-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWardrobeModal()" style="background:rgba(244,180,26,0.15);color:#F4B41A;border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 8px;font-size:10px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;">👗 Wardrobe</button>
-            <button type="button" class="m47-guide-career-btn" onclick="window.__PROJECT_EKO_PROGRESS__.openModal()" style="background:rgba(255,255,255,0.08);color:#E2E8F0;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:6px 8px;font-size:10px;font-weight:700;cursor:pointer;min-height:32px;white-space:nowrap;">📈 <span class="m47-desktop-label">Career Map</span><span class="m47-mobile-label">Map</span></button>
+          <div class="m47-guide-actions" style="display:flex;align-items:center;gap:4px;">
+            <button type="button" id="m47-guide-primary-action-btn" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="flex:1;background:linear-gradient(135deg,#10B981,#059669);color:#052E16;border:none;border-radius:7px;padding:6px 8px;font-size:10.5px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">▶ ${evalState.actionLabel}</button>
+            <button type="button" id="m47-guide-earn-btn" onclick="window.__PROJECT_EKO_GUIDE__.openChooseHowToEarnModal()" style="background:rgba(16,185,129,0.16);color:#34D399;border:1px solid rgba(16,185,129,0.45);border-radius:7px;padding:6px 7px;font-size:10px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;" title="Stage 3: Choose How to Earn">💼 <span class="m47-desktop-label">Earn</span></button>
+            <button type="button" id="m47-guide-wardrobe-btn" onclick="window.__PROJECT_EKO_GUIDE__.openWardrobeModal()" style="background:rgba(244,180,26,0.15);color:#F4B41A;border:1px solid rgba(244,180,26,0.4);border-radius:7px;padding:6px 7px;font-size:10px;font-weight:800;cursor:pointer;min-height:32px;white-space:nowrap;" title="Stage 2: Wardrobe">👗 <span class="m47-desktop-label">Wardrobe</span></button>
+            <button type="button" class="m47-guide-career-btn" onclick="window.__PROJECT_EKO_PROGRESS__.openModal()" style="background:rgba(255,255,255,0.08);color:#E2E8F0;border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:6px 7px;font-size:10px;font-weight:700;cursor:pointer;min-height:32px;white-space:nowrap;" title="Stage 4 & 5: Progress & Legacy">🏆 <span class="m47-desktop-label">Legacy</span><span class="m47-mobile-label">Map</span></button>
           </div>
         `;
       },
@@ -36588,23 +36818,53 @@
         const evalState = this.getCurrentEvaluation();
         const auth = window.__PROJECT_EKO_AUTH__;
         const profileName = (auth && auth.starterProfileTitle) || 'New Arrival in Lagos';
+        const curStageNum = evalState.stageNumber || (this.completedObjectiveIds.length >= this.steps.length ? 5 : Math.min(4, Math.max(1, Math.ceil(((this.completedObjectiveIds.length + 1) / this.steps.length) * 4))));
+        const canonicalStages = [
+          { num: 1, title: 'Join Project Eko', desc: 'Create account, choose character, receive starter clothing & ₦5,000 GN' },
+          { num: 2, title: 'Start life in Lagos', desc: 'Spawn at Marina home, explore, use wardrobe, manage energy & controls' },
+          { num: 3, title: 'Choose how to earn', desc: 'Apply for a job, become a Danfo conductor or driver, or run a business' },
+          { num: 4, title: 'Earn, spend and progress', desc: 'Collect wages, pay fares, buy clothing/furniture, save for vehicle & upgrade home' },
+          { num: 5, title: 'Build your Lagos legacy', desc: 'Own businesses, purchase vehicles, explore regions, compete & unlock status' }
+        ];
 
         el.innerHTML = `
-          <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.45);border-radius:14px;max-width:680px;width:94%;max-height:86vh;overflow-y:auto;padding:18px;color:#F8FAFC;box-shadow:0 20px 50px rgba(0,0,0,0.75);">
+          <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.45);border-radius:14px;max-width:720px;width:95%;max-height:88vh;overflow-y:auto;padding:18px;color:#F8FAFC;box-shadow:0 20px 50px rgba(0,0,0,0.75);">
             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:12px;">
               <div>
-                <div style="font-size:11px;font-weight:800;color:#10B981;letter-spacing:0.06em;">EKOGUIDE NEXT-BEST-ACTION ENGINE</div>
-                <div style="font-size:16px;font-weight:900;">🧭 What Should I Do Next in Lagos?</div>
+                <div style="font-size:10.5px;font-weight:900;color:#10B981;letter-spacing:0.06em;">CANONICAL 5-STAGE PRODUCT FLOW • EKOGUIDE ENGINE</div>
+                <div style="font-size:16px;font-weight:900;">🧭 Your 5-Stage Lagos Journey (Currently Stage ${curStageNum} of 5)</div>
               </div>
               <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.closeWhatNextModal()" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer;">✕ Close</button>
             </div>
 
+            <!-- 5-Stage Canonical Flowchart Strip -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:6px;margin-bottom:12px;">
+              ${canonicalStages.map(st => {
+                const isDone = st.num < curStageNum;
+                const isActive = st.num === curStageNum;
+                const bg = isActive ? 'rgba(16,185,129,0.18)' : (isDone ? 'rgba(16,185,129,0.07)' : 'rgba(255,255,255,0.03)');
+                const bdr = isActive ? '#10B981' : (isDone ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.1)');
+                return `
+                  <div style="background:${bg};border:1px solid ${bdr};border-radius:9px;padding:8px;display:flex;flex-direction:column;gap:3px;">
+                    <div style="font-size:9.5px;font-weight:900;color:${isActive ? '#34D399' : (isDone ? '#6EE7B7' : '#94A3B8')};">
+                      ${isDone ? '✅' : (isActive ? '🟢' : '⚪')} STAGE ${st.num}
+                    </div>
+                    <div style="font-size:11px;font-weight:900;color:#FFF;line-height:1.2;">${st.title}</div>
+                    <div style="font-size:9.5px;color:#CBD5E1;line-height:1.25;">${st.desc}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
             <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);border-radius:10px;padding:12px;margin-bottom:12px;">
-              <div style="font-size:11px;font-weight:800;color:#34D399;">CURRENT PRIORITY (STEP ${this.completedObjectiveIds.length}/${this.steps.length})</div>
+              <div style="font-size:11px;font-weight:800;color:#34D399;">CURRENT PRIORITY • STAGE ${curStageNum} OF 5 (STEP ${this.completedObjectiveIds.length}/${this.steps.length})</div>
               <div style="font-size:14px;font-weight:800;margin:4px 0;">${evalState.title}</div>
               <div style="font-size:12px;color:#CBD5E1;margin-bottom:8px;"><strong>Why it matters:</strong> ${evalState.why}</div>
               <div style="font-size:11px;color:#A7F3D0;margin-bottom:8px;"><strong>Career & Life Path Alignment:</strong> Advances your <em>${profileName}</em> path with zero vehicle ownership required.</div>
-              <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="background:#10B981;color:#052E16;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;">▶ Perform Recommended Action: ${evalState.actionLabel}</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${evalState.fn}')" style="background:#10B981;color:#052E16;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;">▶ Perform Recommended Action: ${evalState.actionLabel}</button>
+                <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.closeWhatNextModal();window.__PROJECT_EKO_GUIDE__.openChooseHowToEarnModal();" style="background:rgba(244,180,26,0.18);color:#F4B41A;border:1px solid rgba(244,180,26,0.5);border-radius:8px;padding:8px 12px;font-size:11.5px;font-weight:800;cursor:pointer;">💼 Stage 3: Choose How to Earn</button>
+              </div>
             </div>
 
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:12px;">
@@ -36616,14 +36876,14 @@
                 <div style="font-size:11px;font-weight:800;color:#FBBF24;margin-bottom:6px;">RELEVANT BLOCKERS & RECOVERY</div>
                 ${evalState.blocker
                   ? `<div style="font-size:11px;color:#FDE68A;">⚠️ ${evalState.blocker.reason}<br/><strong>Alternative:</strong> ${evalState.blocker.recoveryLabel}</div>`
-                  : `<div style="font-size:11px;color:#94A3B8;">✅ No active blockers. Entry-level Foot Courier & Shop Assistant shifts require no vehicle.</div>`
+                  : `<div style="font-size:11px;color:#94A3B8;">✅ No active blockers. Entry-level Foot Courier, Danfo Conductor & Starter Business require no vehicle.</div>`
                 }
               </div>
             </div>
 
             <div style="margin-bottom:12px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <span style="font-size:11px;font-weight:800;color:#CBD5E1;">15-STEP FIRST-DAY ONBOARDING OBJECTIVE CHAIN</span>
+                <span style="font-size:11px;font-weight:800;color:#CBD5E1;">STAGES 1–4 GUIDED TASKS (15 OBJECTIVES)</span>
                 <div style="display:flex;gap:6px;">
                   <button type="button" id="m47-skip-tutorial-btn" onclick="window.__PROJECT_EKO_GUIDE__.skipTutorial()" style="background:rgba(255,255,255,0.08);color:#CBD5E1;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;">Skip Tutorial</button>
                   <button type="button" id="m47-replay-tutorial-btn" onclick="window.__PROJECT_EKO_GUIDE__.replayTutorial()" style="background:rgba(56,189,248,0.15);color:#38BDF8;border:1px solid rgba(56,189,248,0.35);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;">Replay Tutorial</button>
@@ -36633,7 +36893,7 @@
                 ${this.steps.map(st => {
                   const done = this.completedObjectiveIds.includes(st.id);
                   return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:11px;">
-                    <span style="color:${done ? '#10B981' : '#E2E8F0'};">${done ? '✅' : '⬜'} ${st.title}</span>
+                    <span style="color:${done ? '#10B981' : '#E2E8F0'};">${done ? '✅' : '⬜'} <strong style="color:#94A3B8;font-size:9.5px;">[Stage ${st.stageNumber || 1}]</strong> ${st.title}</span>
                     <button type="button" onclick="window.__PROJECT_EKO_GUIDE__.executeActionByName('${st.fn}')" style="background:rgba(255,255,255,0.08);color:#38BDF8;border:none;border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;">${done ? 'Done' : 'Go'}</button>
                   </div>`;
                 }).join('')}
@@ -36967,6 +37227,13 @@
           }
           if (this.charForm.bagStyle === 'none') {
             this.charForm.bagStyle = 'mini_bag';
+          }
+          if (window.__PROJECT_EKO_LIFE__ && Array.isArray(window.__PROJECT_EKO_LIFE__.ownedOutfitIds)) {
+            for (const fId of ['outfit_ankara_gown', 'outfit_buba_wrapper']) {
+              if (!window.__PROJECT_EKO_LIFE__.ownedOutfitIds.includes(fId)) {
+                window.__PROJECT_EKO_LIFE__.ownedOutfitIds.push(fId);
+              }
+            }
           }
         } else {
           if (['ankara_gown_dress', 'buba_iro_wrapper', 'smart_corporate_dress', 'asooke_owambe_dress'].includes(this.charForm.outfitPreset)) {
@@ -37810,6 +38077,13 @@
           if (window.__PROJECT_EKO_LIFE__) {
             const life = window.__PROJECT_EKO_LIFE__;
             life.starterProfileId = this.starterProfileId;
+            if (this.charForm.gender === 'female' && Array.isArray(life.ownedOutfitIds)) {
+              for (const fId of ['outfit_ankara_gown', 'outfit_buba_wrapper']) {
+                if (!life.ownedOutfitIds.includes(fId)) {
+                  life.ownedOutfitIds.push(fId);
+                }
+              }
+            }
             life.activeJobShift = null;
             life.syncActiveJobBeacon3D();
             life.updateActiveJobHUD();
@@ -38966,42 +39240,199 @@
       renderModal() {
         const el = document.getElementById('m47-progress-modal');
         if (!el) return;
+        const life = window.__PROJECT_EKO_LIFE__;
+        const auth = window.__PROJECT_EKO_AUTH__;
+        const guide = window.__PROJECT_EKO_GUIDE__;
+        const mp = window.__PROJECT_EKO_MULTIPLAYER__;
         const map = this.progressMap || {
           currentCareerName: 'Mobility & Transport Operations',
-          currentLifeGoalLabel: 'Earn & lease your first 14-seater Yellow Danfo',
+          currentLifeGoalLabel: 'Save for a vehicle, upgrade your home & build your Lagos legacy',
           currentLevel: 1,
           currentXp: 50,
           reputation: 52,
-          completedJobsCount: 0,
+          completedJobsCount: (life && Array.isArray(life.completedJobReceipts)) ? life.completedJobReceipts.length : 0,
           skills: { skill_route_knowledge: 10, skill_financial_literacy: 10, skill_civic_discipline: 15 },
           unlockedOpportunities: [
-            { title: 'CMS Foot Courier (No Vehicle Required)', netPayGN: 500, trackName: 'Logistics', lockExplanation: 'Unlocked Day 1' },
-            { title: 'Balogun Shop-Floor Assistant (No Vehicle Required)', netPayGN: 500, trackName: 'Commerce', lockExplanation: 'Unlocked Day 1' }
+            { title: 'CMS Foot Courier (No Vehicle Required)', netPayGN: 1250, trackName: 'Logistics', lockExplanation: 'Unlocked Day 1' },
+            { title: 'Danfo Conductor on Doorway Step (30–40% Split)', netPayGN: 600, trackName: 'Transit Co-Op', lockExplanation: 'Unlocked Day 1' },
+            { title: 'Balogun Shop-Floor Assistant (No Vehicle Required)', netPayGN: 1250, trackName: 'Commerce', lockExplanation: 'Unlocked Day 1' },
+            { title: 'Street Bukka & Food Stand Shift (Starter Business)', netPayGN: 870, trackName: 'Entrepreneurship', lockExplanation: 'Unlocked Day 1' }
           ],
           lockedOpportunities: [
-            { title: 'Balogun Senior Retail Stall Supervisor (Non-Driving Path)', netPayGN: 1200, lockExplanation: 'Locked until you satisfy: Reach Citizen Level 2 • Complete 2 verified shifts • Increase skill_financial_literacy to 18 pts' },
-            { title: 'Commercial Danfo Corridor Captain (Driving Path)', netPayGN: 1800, lockExplanation: 'Locked until you satisfy: Reach Citizen Level 2 • Complete 3 verified shifts • Acquire or lease a qualifying commercial vehicle' }
+            { title: 'Balogun Senior Retail Stall Supervisor (Non-Driving Path)', netPayGN: 1800, lockExplanation: 'Locked until you satisfy: Reach Citizen Level 2 • Complete 2 verified shifts • Increase skill_financial_literacy to 18 pts' },
+            { title: 'Commercial Danfo Corridor Captain (Driving Path)', netPayGN: 2400, lockExplanation: 'Locked until you satisfy: Reach Citizen Level 2 • Complete 3 verified shifts • Acquire or lease a qualifying commercial vehicle' }
           ]
         };
 
+        const bal = (typeof player !== 'undefined' && player) ? Number(player.balance || 5000) : 5000;
+        const ownedVehs = (typeof player !== 'undefined' && player && Array.isArray(player.ownedVehicles)) ? player.ownedVehicles : [];
+        const targetVehPrice = ownedVehs.length === 0 ? 35000 : (ownedVehs.length === 1 ? 68000 : 120000);
+        const targetVehName = ownedVehs.length === 0 ? 'Koro Okada 125cc (₦35,000 GN)' : (ownedVehs.length === 1 ? 'Apex Keke 200cc (₦68,000 GN)' : 'Adera Compact Sedan (₦120,000 GN)');
+        const vehSavingsPct = Math.min(100, Math.round((bal / targetVehPrice) * 100));
+
+        const curHousingTier = (life && life.currentHousingTier) || 1;
+        const nextHousingPrice = curHousingTier <= 1 ? 45000 : 185000;
+        const nextHousingName = curHousingTier <= 1 ? 'Broad St Executive Loft (₦45,000 GN)' : 'Ikoyi Lagoon Penthouse (₦185,000 GN)';
+        const homeSavingsPct = Math.min(100, Math.round((bal / nextHousingPrice) * 100));
+
+        const bizCatalog = (life && Array.isArray(life.playerBusinessesCatalog)) ? life.playerBusinessesCatalog : [];
+        const activeBizCount = bizCatalog.filter(b => (b.shiftsCompleted || 0) > 0).length;
+        const totalBizShifts = bizCatalog.reduce((acc, b) => acc + (b.shiftsCompleted || 0), 0);
+
+        const districts = (life && Array.isArray(life.eightLagosDistricts)) ? life.eightLagosDistricts : [];
+        const exploredDistrictsCount = Math.max(1, districts.filter(d => (d.visits || 0) > 0 || d.streamLoaded).length);
+
+        const completedJobsCount = Math.max(map.completedJobsCount || 0, (life && Array.isArray(life.completedJobReceipts)) ? life.completedJobReceipts.length : 0);
+        const condState = (window.__PROJECT_EKO_VEHICLE_STATE__ && window.__PROJECT_EKO_VEHICLE_STATE__.conductorShiftState) || {};
+        const conductorTripsDone = (condState.tripsCompletedCount || 0) + ((life && life.lastConductorCoOpReceipt) ? 1 : 0);
+        const placedCount = (life && Array.isArray(life.placedFurniture)) ? life.placedFurniture.length : 3;
+        const cloutScore = (life && typeof life.clout === 'number') ? life.clout : 120;
+
+        // 6 Canonical Stage 5 Status & Achievement Badges
+        const achievements = [
+          { id: 'ach_first_earn', icon: '💼', title: 'Honest Lagos Hustler', desc: 'Complete your first verified Job, Conductor trip, or Business shift', unlocked: (completedJobsCount > 0 || conductorTripsDone > 0 || totalBizShifts > 0) },
+          { id: 'ach_conductor_pro', icon: '🎫', title: 'Owa O! Conductor Pro', desc: 'Negotiate a sharing formula & settle a Danfo trip purse with the driver', unlocked: conductorTripsDone > 0 },
+          { id: 'ach_home_upgrader', icon: '🏠', title: 'Marina Home Upgrader', desc: 'Buy & place new furniture (4+ items) or upgrade your residence tier', unlocked: (placedCount >= 4 || curHousingTier > 1) },
+          { id: 'ach_biz_founder', icon: '🏪', title: 'Lagos Business Founder', desc: 'Operate a player business shift or wholesale-to-retail supply chain', unlocked: totalBizShifts > 0 },
+          { id: 'ach_fleet_owner', icon: '🚐', title: 'Fleet & Mobility Owner', desc: 'Purchase or own your first commercial/personal vehicle in Lagos', unlocked: ownedVehs.length > 0 },
+          { id: 'ach_region_explorer', icon: '🌍', title: '8-Region Lagos Explorer', desc: 'Travel to and explore multiple Lagos districts across the metropolis', unlocked: exploredDistrictsCount >= 2 }
+        ];
+        const unlockedAchCount = achievements.filter(a => a.unlocked).length;
+
+        // Build Live Multiplayer + Lagos Icon Citizen Leaderboard (Stage 5: Compete with other players)
+        const localPlayerName = (auth && auth.username) || 'You (Citizen)';
+        const leaderboardEntries = [
+          { name: `${localPlayerName} (You)`, role: life ? life.getRankTitle() : 'Street Hustler', netWorthGN: bal + (ownedVehs.length * 35000) + (placedCount * 800), clout: cloutScore, isLocal: true },
+          { name: 'Chief_Balogun_VI', role: 'Lagos Island Mogul', netWorthGN: 245000, clout: 680, isLocal: false },
+          { name: 'Sister_Blessing_CMS', role: 'Marina Logistics Lead', netWorthGN: 64500, clout: 340, isLocal: false },
+          { name: 'Oga_Chidi_Danfo', role: 'Senior Corridor Captain', netWorthGN: 48200, clout: 290, isLocal: false },
+          { name: 'Tunde_Yaba_Tech', role: 'Creative & Supply Hustler', netWorthGN: 19500, clout: 185, isLocal: false }
+        ];
+        if (mp && Array.isArray(mp.humanCitizens)) {
+          mp.humanCitizens.forEach(hc => {
+            if (hc && hc.username && hc.username !== localPlayerName) {
+              leaderboardEntries.push({
+                name: `${hc.username} (Live Player)`,
+                role: hc.roleTitle || 'Verified Human Citizen',
+                netWorthGN: Number(hc.balanceGN || 12500),
+                clout: 160,
+                isLocal: false
+              });
+            }
+          });
+        }
+        leaderboardEntries.sort((a, b) => (b.netWorthGN + b.clout * 50) - (a.netWorthGN + a.clout * 50));
+
+        const completedGuideSteps = (guide && Array.isArray(guide.completedObjectiveIds)) ? guide.completedObjectiveIds.length : 3;
+        const curStageNum = completedGuideSteps >= 15 ? 5 : Math.min(4, Math.max(1, Math.ceil(((completedGuideSteps + 1) / 15) * 4)));
+
         el.innerHTML = `
-          <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.45);border-radius:14px;max-width:680px;width:94%;max-height:85vh;overflow-y:auto;padding:18px;color:#F8FAFC;">
+          <div style="background:#0F172A;border:1px solid rgba(16,185,129,0.5);border-radius:16px;max-width:760px;width:95%;max-height:88vh;overflow-y:auto;padding:18px;color:#F8FAFC;box-shadow:0 24px 60px rgba(0,0,0,0.85);">
             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;margin-bottom:12px;">
               <div>
-                <div style="font-size:11px;font-weight:800;color:#10B981;">EKOPROGRESS • CAREER & SKILL UNLOCK MAP</div>
-                <div style="font-size:16px;font-weight:900;">📈 Level ${map.currentLevel} • ${map.currentCareerName}</div>
+                <div style="font-size:10.5px;font-weight:900;color:#10B981;letter-spacing:0.06em;">STAGE 4 & STAGE 5 • PROGRESS, SAVINGS & LAGOS LEGACY HUB</div>
+                <div style="font-size:16px;font-weight:900;">🏆 Level ${map.currentLevel} • ${map.currentCareerName} (Stage ${curStageNum} of 5)</div>
               </div>
               <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal()" style="background:rgba(255,255,255,0.1);color:#F8FAFC;border:none;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer;">✕ Close</button>
             </div>
 
-            <div style="font-size:12px;color:#A7F3D0;margin-bottom:10px;">🎯 <strong>Active Life Goal:</strong> ${map.currentLifeGoalLabel} • <strong>Completed Shifts:</strong> ${map.completedJobsCount}</div>
+            <!-- Stage 4: Save for a Vehicle & Upgrade Your Home Trackers -->
+            <div style="font-size:11px;font-weight:900;color:#F4B41A;margin-bottom:6px;">💰 STAGE 4: SAVE FOR A VEHICLE & UPGRADE YOUR HOME</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:14px;">
+              <div style="background:rgba(30,41,59,0.88);border:1px solid rgba(56,189,248,0.4);border-radius:10px;padding:10px 12px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#FFF;">
+                  <span>🚐 Vehicle Savings Goal: ${targetVehName}</span>
+                  <span style="color:#38BDF8;">${vehSavingsPct}%</span>
+                </div>
+                <div style="height:7px;background:rgba(255,255,255,0.1);border-radius:999px;overflow:hidden;margin:6px 0;">
+                  <div style="height:100%;width:${vehSavingsPct}%;background:linear-gradient(90deg,#38BDF8,#10B981);"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#CBD5E1;">
+                  <span>Wallet: ₦${bal.toLocaleString()} / ₦${targetVehPrice.toLocaleString()} GN</span>
+                  <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal();if(window.__PROJECT_EKO_LIFE__){window.__PROJECT_EKO_LIFE__.visitFleetTerminal3D('class_a_okada');}" style="background:rgba(56,189,248,0.2);color:#7DD3FC;border:1px solid rgba(56,189,248,0.45);border-radius:6px;padding:3px 8px;font-size:9.5px;font-weight:800;cursor:pointer;">🚐 Visit Dealership</button>
+                </div>
+              </div>
 
-            <div style="font-size:11px;font-weight:800;color:#34D399;margin-bottom:6px;">✅ UNLOCKED OPPORTUNITIES (INCLUDING NON-DRIVING ENTRY WORK)</div>
+              <div style="background:rgba(30,41,59,0.88);border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:10px 12px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#FFF;">
+                  <span>🏡 Home Upgrade Goal: ${nextHousingName}</span>
+                  <span style="color:#34D399;">${homeSavingsPct}%</span>
+                </div>
+                <div style="height:7px;background:rgba(255,255,255,0.1);border-radius:999px;overflow:hidden;margin:6px 0;">
+                  <div style="height:100%;width:${homeSavingsPct}%;background:linear-gradient(90deg,#10B981,#F4B41A);"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#CBD5E1;">
+                  <span>Current Tier ${curHousingTier} • ${placedCount} Placed 3D Items</span>
+                  <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal();if(window.__PROJECT_EKO_LIFE__){window.__PROJECT_EKO_LIFE__.openModal('home');}" style="background:rgba(16,185,129,0.2);color:#6EE7B7;border:1px solid rgba(16,185,129,0.45);border-radius:6px;padding:3px 8px;font-size:9.5px;font-weight:800;cursor:pointer;">🏠 Upgrade Home</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stage 5: Build Your Lagos Legacy Pillars (Businesses, Vehicles, Regions, Leaderboard, Achievements) -->
+            <div style="font-size:11px;font-weight:900;color:#34D399;margin-bottom:6px;">🏆 STAGE 5: BUILD YOUR LAGOS LEGACY (BUSINESSES, VEHICLES, REGIONS & STATUS)</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:8px;margin-bottom:14px;">
+              <div style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);border-radius:10px;padding:9px 10px;">
+                <div style="font-size:9.5px;font-weight:900;color:#E9D5FF;">🏪 OWN BUSINESSES</div>
+                <div style="font-size:15px;font-weight:900;color:#FFF;margin:2px 0;">${activeBizCount} / 9 Active</div>
+                <div style="font-size:9.5px;color:#CBD5E1;margin-bottom:6px;">${totalBizShifts} Shifts Settled</div>
+                <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal();if(window.__PROJECT_EKO_LIFE__){window.__PROJECT_EKO_LIFE__.visitBusinessDepot3D('biz_food_stand');}" style="width:100%;background:#A855F7;color:#FFF;border:none;border-radius:6px;padding:4px 8px;font-size:9.5px;font-weight:800;cursor:pointer;">Run Business</button>
+              </div>
+              <div style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.4);border-radius:10px;padding:9px 10px;">
+                <div style="font-size:9.5px;font-weight:900;color:#7DD3FC;">🚐 PURCHASE VEHICLES</div>
+                <div style="font-size:15px;font-weight:900;color:#FFF;margin:2px 0;">${ownedVehs.length} / 5 Owned</div>
+                <div style="font-size:9.5px;color:#CBD5E1;margin-bottom:6px;">Okada, Keke, Danfo, Sedan</div>
+                <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal();if(window.__PROJECT_EKO_LIFE__){window.__PROJECT_EKO_LIFE__.visitFleetTerminal3D('class_c_danfo');}" style="width:100%;background:#38BDF8;color:#0F172A;border:none;border-radius:6px;padding:4px 8px;font-size:9.5px;font-weight:800;cursor:pointer;">Open Fleet Hub</button>
+              </div>
+              <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:9px 10px;">
+                <div style="font-size:9.5px;font-weight:900;color:#6EE7B7;">🌍 EXPLORE REGIONS</div>
+                <div style="font-size:15px;font-weight:900;color:#FFF;margin:2px 0;">${exploredDistrictsCount} / 8 Regions</div>
+                <div style="font-size:9.5px;color:#CBD5E1;margin-bottom:6px;">Marina, Yaba, VI, Ikeja, Lekki</div>
+                <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal();if(window.__PROJECT_EKO_LIFE__){window.__PROJECT_EKO_LIFE__.openModal('districts');}" style="width:100%;background:#10B981;color:#052E16;border:none;border-radius:6px;padding:4px 8px;font-size:9.5px;font-weight:800;cursor:pointer;">Explore 8 Regions</button>
+              </div>
+              <div style="background:rgba(244,180,26,0.12);border:1px solid rgba(244,180,26,0.45);border-radius:10px;padding:9px 10px;">
+                <div style="font-size:9.5px;font-weight:900;color:#FDE68A;">🎖️ STATUS & ACHIEVEMENTS</div>
+                <div style="font-size:15px;font-weight:900;color:#FFF;margin:2px 0;">${unlockedAchCount} / ${achievements.length} Unlocked</div>
+                <div style="font-size:9.5px;color:#CBD5E1;margin-bottom:6px;">Lagos Clout: ${cloutScore} PTS</div>
+                <button type="button" onclick="window.__PROJECT_EKO_PROGRESS__.closeModal();if(window.__PROJECT_EKO_MULTIPLAYER__){window.__PROJECT_EKO_MULTIPLAYER__.openModal();}" style="width:100%;background:#F4B41A;color:#0F172A;border:none;border-radius:6px;padding:4px 8px;font-size:9.5px;font-weight:800;cursor:pointer;">Multiplayer Crew</button>
+              </div>
+            </div>
+
+            <!-- Compete with Other Players: Citizen Net Worth & Clout Leaderboard -->
+            <div style="font-size:11px;font-weight:900;color:#38BDF8;margin-bottom:6px;">🏅 COMPETE WITH OTHER PLAYERS • LAGOS CITIZEN LEGACY LEADERBOARD</div>
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 10px;margin-bottom:14px;">
+              ${leaderboardEntries.slice(0, 5).map((entry, idx) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 6px;border-bottom:${idx < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none'};background:${entry.isLocal ? 'rgba(16,185,129,0.15)' : 'transparent'};border-radius:6px;font-size:11px;">
+                  <div>
+                    <strong style="color:${idx === 0 ? '#F4B41A' : (entry.isLocal ? '#34D399' : '#F8FAFC')};">#${idx + 1} ${entry.name}</strong>
+                    <span style="color:#94A3B8;font-size:10px;margin-left:6px;">• ${entry.role}</span>
+                  </div>
+                  <div style="font-family:var(--eko-font-mono);font-size:10.5px;font-weight:800;color:#A7F3D0;">
+                    Net Worth: ₦${entry.netWorthGN.toLocaleString()} GN • <span style="color:#F4B41A;">${entry.clout} Clout</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Unlock Status and Achievements Grid -->
+            <div style="font-size:11px;font-weight:900;color:#FDE68A;margin-bottom:6px;">🎖️ UNLOCK STATUS & LAGOS LEGACY ACHIEVEMENTS (${unlockedAchCount}/${achievements.length})</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-bottom:14px;">
+              ${achievements.map(a => `
+                <div style="background:${a.unlocked ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.03)'};border:1px solid ${a.unlocked ? '#10B981' : 'rgba(255,255,255,0.1)'};border-radius:9px;padding:8px 10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:${a.unlocked ? '#34D399' : '#CBD5E1'};">
+                    <span>${a.icon} ${a.title}</span>
+                    <span style="font-size:9px;">${a.unlocked ? '✅ UNLOCKED' : '🔒 LOCKED'}</span>
+                  </div>
+                  <div style="font-size:9.5px;color:#94A3B8;margin-top:3px;line-height:1.3;">${a.desc}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="font-size:11px;font-weight:800;color:#34D399;margin-bottom:6px;">✅ UNLOCKED CAREER OPPORTUNITIES (STAGE 3 EARNING PATHS)</div>
             <div style="margin-bottom:12px;">
               ${map.unlockedOpportunities.map(u => `<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:7px 10px;margin-bottom:5px;font-size:11px;"><strong>${u.title}</strong> • +₦${u.netPayGN} GN Net — <span style="color:#6EE7B7;">${u.lockExplanation}</span></div>`).join('')}
             </div>
 
-            <div style="font-size:11px;font-weight:800;color:#FBBF24;margin-bottom:6px;">🔒 LOCKED OPPORTUNITIES & EXACT ELIGIBILITY REQUIREMENTS</div>
+            <div style="font-size:11px;font-weight:800;color:#FBBF24;margin-bottom:6px;">🔒 NEXT CAREER TIER UNLOCKS & REQUIREMENTS</div>
             <div>
               ${map.lockedOpportunities.map(l => `<div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:8px;padding:7px 10px;margin-bottom:6px;font-size:11px;"><strong>${l.title}</strong> (+₦${l.netPayGN} GN Net)<br/><span style="color:#FDE68A;">${l.lockExplanation}</span></div>`).join('')}
             </div>
@@ -39145,7 +39576,7 @@
       `;
       document.body.appendChild(topPillsBar);
 
-      ['m47-auth-modal', 'm47-ekoguide-modal', 'm47-multiplayer-modal', 'm47-progress-modal', 'm47-wardrobe-modal', 'm47-graduation-modal', 'm48-qualification-modal', 'm481-danfo-boarding-modal'].forEach(id => {
+      ['m47-auth-modal', 'm47-ekoguide-modal', 'm47-choose-earn-modal', 'm47-multiplayer-modal', 'm47-progress-modal', 'm47-wardrobe-modal', 'm47-graduation-modal', 'm48-qualification-modal', 'm481-danfo-boarding-modal'].forEach(id => {
         if (!document.getElementById(id)) {
           const m = document.createElement('div');
           m.id = id;
@@ -40815,6 +41246,9 @@
           })
         }).catch(() => {});
 
+        if (window.__PROJECT_EKO_QUEST_BUS__) {
+          window.__PROJECT_EKO_QUEST_BUS__.emit('PassengerFarePaid', { farePaidGN: quote.totalFareGN, routeId: quote.routeId });
+        }
         if (typeof showToast === 'function') {
           showToast(`🎫 Paid ₦${quote.totalFareGN} GN (${quote.originStop.name} → ${quote.destinationStop.name})${quote.changeDueGN > 0 ? ' • Change returned: ₦' + quote.changeDueGN + ' GN' : ''}. Press [O] for "O wa o!" stop request!`, '🚐');
         }
@@ -41044,6 +41478,9 @@
               })
             }).catch(() => {});
 
+            if (window.__PROJECT_EKO_QUEST_BUS__) {
+              window.__PROJECT_EKO_QUEST_BUS__.emit('DanfoConductorTripSettled', { conductorShareGN, driverShareGN });
+            }
             return {
               allowed: true,
               actionType: 'COLLECT_FARES',
@@ -41227,6 +41664,9 @@
             })
             .catch(() => {});
 
+          if (window.__PROJECT_EKO_QUEST_BUS__) {
+            window.__PROJECT_EKO_QUEST_BUS__.emit('DanfoConductorTripSettled', { conductorShareGN, driverShareGN });
+          }
           if (typeof showToast === 'function') {
             showToast(`🤝 SHIFT SETTLED! Purse: ₦${grossPurseGN.toLocaleString()} GN${parkFeeGN > 0 ? ' (-₦' + parkFeeGN + ' Park Levy)' : ''} • Driver (${effectiveDriverPct}%): ₦${driverShareGN.toLocaleString()} GN • Your Share (${effectiveCondPct}%): +₦${conductorShareGN.toLocaleString()} GN credited!${targetNote}`, '💵');
           }
@@ -41335,6 +41775,9 @@
         if (typeof updateVehicleVisualDynamics === 'function') updateVehicleVisualDynamics(0.016);
         if (typeof updateControlContextChip === 'function') updateControlContextChip();
 
+        if (window.__PROJECT_EKO_QUEST_BUS__) {
+          window.__PROJECT_EKO_QUEST_BUS__.emit('DanfoConductorStarted', { vehicleId });
+        }
         if (typeof showToast === 'function') {
           showToast('🗣️ Oga Chidi (Driver): "Welcome Conductor! First, choose our Sharing Formula % (70/30, 65/35, or 60/40), collect trip fares into the Bus Purse [SPACE], and settle your share at the end of the shift!"', '🚌');
         }
