@@ -4521,14 +4521,18 @@
       <span style="margin-left:6px; opacity:0.75; font-weight:900;">✕</span>
     </div>
 
-    <!-- Bus Stop Operations HUD (M2.5) -->
-    <div id="bus-stop-hud" class="bus-stop-hud">
+    <!-- Bus Stop Operations HUD (M2.5 + Canonical Passenger & Motor Park Employment) -->
+    <div id="bus-stop-hud" class="bus-stop-hud" style="flex-wrap:wrap; gap:8px;">
       <span style="font-size: 20px;">🚏</span>
-      <div style="display:flex; flex-direction:column; gap:2px;">
+      <div style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:200px;">
         <div id="bus-stop-title" style="color:var(--eko-gold); font-size:12px; letter-spacing:0.5px;">CMS TERMINAL BUS STOP</div>
         <div id="bus-stop-action" style="font-size:13px; color:#FFF;">Press [SPACE] to Board Waiting Commuters (Queue: 8 pax • ₦200 GN/fare)</div>
       </div>
-      <button class="btn-app-action" style="margin-left:8px; background:var(--eko-gold); color:#000;" onclick="openMinigameModal('danfo_conductor')">🧮 Fare Game</button>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+        <button id="btn-bus-stop-board-passenger" class="btn-app-action" style="background:#38BDF8; color:#082F49; font-weight:900;" onclick="window.__PROJECT_EKO_VEHICLE_STATE__ && window.__PROJECT_EKO_VEHICLE_STATE__.openBusStopPassengerBoardingAtNearestStop()">🪑 Board as Passenger (See Fare) [F]</button>
+        <button id="btn-bus-stop-motor-park-apply" class="btn-app-action" style="background:#10B981; color:#052E16; font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__ && window.__PROJECT_EKO_DANFO_HUSTLE__.openHubModal()">🏢 Motor Park Work (Driver/Conductor)</button>
+        <button id="btn-bus-stop-fare-game" class="btn-app-action" style="background:var(--eko-gold); color:#000;" onclick="openMinigameModal('danfo_conductor')">🧮 Fare Game</button>
+      </div>
     </div>
 
     <!-- Quick Slang Chat Popover -->
@@ -5913,10 +5917,32 @@
     <div class="dh-modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:8px;">
         <div>
-          <div style="font-family:var(--eko-font-display); font-size:18px; font-weight:900; color:var(--eko-gold);">🚐 DANFO HUSTLE • LAGOS ARCADE MODE</div>
-          <div style="font-size:11px; color:#94A3B8;">Navigate traffic, collect Eko Hustle Coins, stop at bus bays & deliver commuters!</div>
+          <div style="font-family:var(--eko-font-display); font-size:18px; font-weight:900; color:var(--eko-gold);">🚐 DANFO HUSTLE • MOTOR PARK EMPLOYMENT</div>
+          <div style="font-size:11px; color:#94A3B8;">Work for CMS Motor Park Union Fleet (Oga Chidi) — You do NOT own the vehicle. Receive an assigned bus & route, earn wages + tips + bonuses, and return the vehicle to the park at shift end!</div>
         </div>
         <button class="dh-ctrl-btn warn" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.closeHubModal()">✕ Close</button>
+      </div>
+
+      <!-- Motor Park Employment Role & Assigned Vehicle Contract Banner -->
+      <div id="dh-motor-park-employment-banner" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+          <div style="font-size:11px; font-weight:900; color:#34D399;">🏢 EMPLOYER: Oga Chidi • CMS Motor Park Union Fleet (Assigned Bus: Apex Danfo #04 • Plate EKO-404-YD)</div>
+          <span id="dh-emp-ownership-badge" style="font-size:10px; font-weight:800; color:#F4B41A; background:rgba(244,180,26,0.15); padding:2px 8px; border-radius:999px; border:1px solid rgba(244,180,26,0.4);">SHIFT ASSIGNMENT ONLY (NOT PLAYER-OWNED)</span>
+        </div>
+        <div id="dh-emp-status-line" style="font-size:11px; color:#E2E8F0;">
+          Select your Motor Park employment role below: apply as <strong>Employed Driver</strong> (drive assigned route, earn shift wage + tips + performance bonus) or <strong>Employed Conductor</strong> (board doorway step, call stops, collect fares & split purse).
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">
+          <button id="dh-btn-apply-driver" type="button" class="dh-ctrl-btn primary" style="font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.applyForMotorParkRole('DRIVER')">
+            🪪 Apply as Employed Driver (Assigned Danfo)
+          </button>
+          <button id="dh-btn-apply-conductor" type="button" class="dh-ctrl-btn" style="background:rgba(245,158,11,0.22); border-color:#F59E0B; color:#FDE68A; font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.applyForMotorParkRole('CONDUCTOR')">
+            🎫 Apply as Employed Conductor (Doorway Step)
+          </button>
+          <button id="dh-btn-return-park-hub" type="button" class="dh-ctrl-btn" style="background:rgba(56,189,248,0.2); border-color:#38BDF8; color:#BAE6FD; font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.returnAssignedVehicleToMotorPark()">
+            🅿️ Return Assigned Danfo to Motor Park
+          </button>
+        </div>
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; background:rgba(15,23,42,0.85); padding:8px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
@@ -5927,7 +5953,7 @@
       </div>
 
       <div>
-        <div style="font-size:11px; font-weight:800; color:var(--eko-gold); margin-bottom:6px; text-transform:uppercase;">1. Choose Lagos Corridor Route (5 Authentic Routes)</div>
+        <div style="font-size:11px; font-weight:800; color:var(--eko-gold); margin-bottom:6px; text-transform:uppercase;">1. Assigned Lagos Corridor Route (5 Authentic Motor Park Routes)</div>
         <div id="dh-hub-routes-grid" class="dh-route-grid"></div>
       </div>
 
@@ -5943,7 +5969,7 @@
 
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
         <button id="dh-btn-start-selected-run" class="btn-modal-dismiss" style="flex:2; min-width:190px; background:linear-gradient(135deg,#F4B41A,#D97706); color:#05080F; font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.startSelectedRoute()">
-          🚀 START DANFO HUSTLE RUN
+          🚀 START ASSIGNED MOTOR PARK SHIFT
         </button>
         <button class="btn-modal-dismiss" style="flex:1; min-width:140px; background:rgba(30,41,59,0.95); border:1px solid rgba(255,255,255,0.2);" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.exitToLivingLagos()">
           🌍 Return to Living Lagos
@@ -5960,18 +5986,20 @@
         <button type="button" class="dh-ctrl-btn warn" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.closeResultsAndOpenHub()" aria-label="Close Results">✕</button>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:11px; font-weight:800; color:var(--eko-gold); letter-spacing:1px;">DANFO HUSTLE • RUN COMPLETE</div>
+        <div style="font-size:11px; font-weight:800; color:var(--eko-gold); letter-spacing:1px;">DANFO HUSTLE • MOTOR PARK SHIFT COMPLETE</div>
         <h2 id="dh-res-title" style="font-family:var(--eko-font-display); font-size:22px; font-weight:900; color:#FFF; margin:2px 0;">CMS PASSENGER RUSH</h2>
         <div id="dh-res-score-badge" style="font-family:var(--eko-font-mono); font-size:24px; font-weight:900; color:#38BDF8;">0 PTS</div>
       </div>
 
       <div class="trip-receipt-box" style="margin-bottom:4px;">
+        <div class="receipt-row"><span>Assigned Fleet Vehicle:</span><strong id="dh-res-assigned-veh" style="color:#F4B41A;">Apex Danfo #04 (Owned by CMS Motor Park Fleet)</strong></div>
         <div class="receipt-row"><span>Distance Driven:</span><strong id="dh-res-dist">0m</strong></div>
         <div class="receipt-row"><span>Eko Hustle Coins Collected:</span><strong id="dh-res-coins" style="color:var(--eko-gold);">+0 HC</strong></div>
         <div class="receipt-row"><span>Passengers Boarded & Delivered:</span><strong id="dh-res-pax" style="color:#10B981;">0 Pax (0 Stops)</strong></div>
-        <div class="receipt-row"><span>Passenger Fares + Route Bonus:</span><strong id="dh-res-fares" style="color:#10B981;">+₦0 GN</strong></div>
+        <div class="receipt-row"><span>Shift Wage + Fares + Tips + Bonus:</span><strong id="dh-res-fares" style="color:#10B981;">+₦0 GN</strong></div>
         <div class="receipt-row"><span>Collisions / Missed-Stop Penalties:</span><strong id="dh-res-penalties" style="color:#EF4444;">-₦0 GN (0 hits)</strong></div>
         <div class="receipt-row"><span>Passenger Service Rating:</span><strong id="dh-res-rating" style="color:#38BDF8;">100% ★</strong></div>
+        <div class="receipt-row"><span>Motor Park Vehicle Return Status:</span><strong id="dh-res-return-status" style="color:#34D399;">AWAITING PARK HANDOVER</strong></div>
         <hr style="border:none; border-top:1px solid rgba(255,255,255,0.12); margin:4px 0;">
         <div class="receipt-row"><span>Net Game Naira Credited (Ledger):</span><strong id="dh-res-net-gn" style="color:#10B981; font-size:14px;">+₦0 GN</strong></div>
         <div class="receipt-row"><span>Total Eko Hustle Coins Awarded:</span><strong id="dh-res-net-hc" style="color:var(--eko-gold); font-size:14px;">+0 HC</strong></div>
@@ -5983,14 +6011,14 @@
       </div>
 
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="dh-btn-return-vehicle-park" class="btn-modal-dismiss" style="flex:1.4; min-width:185px; background:linear-gradient(135deg,#10B981,#059669); color:#052E16; font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.returnAssignedVehicleToMotorPark()">
+          🅿️ RETURN VEHICLE TO MOTOR PARK
+        </button>
         <button id="dh-btn-play-again" class="btn-modal-dismiss" style="flex:1; min-width:135px; background:linear-gradient(135deg,#F4B41A,#D97706); color:#05080F; font-weight:900;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.restartRun()">
-          🔄 PLAY AGAIN
+          🔄 NEXT SHIFT
         </button>
         <button id="dh-btn-open-shop" class="btn-modal-dismiss" style="flex:1; min-width:135px;" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.closeResultsAndOpenHub()">
           🗺️ ROUTES & UNLOCKS
-        </button>
-        <button id="dh-btn-return-world" class="btn-modal-dismiss" style="flex:1; min-width:135px; background:rgba(30,41,59,0.95); border:1px solid rgba(255,255,255,0.22);" onclick="window.__PROJECT_EKO_DANFO_HUSTLE__.exitToLivingLagos()">
-          🌍 LIVING LAGOS
         </button>
       </div>
     </div>
@@ -14886,8 +14914,31 @@
           currentVehicle.position.z = vehCol.z;
           currentVehicle.rotation.x = vehCol.pitch + pitchSquatDive;
 
+          // Non-Negotiable Rule: Ordinary Danfos cannot use dedicated BRT lanes
+          if (
+            activeVehicleKey === 'danfo' &&
+            window.__PROJECT_EKO_TRAFFIC_ENGINE__ &&
+            typeof window.__PROJECT_EKO_TRAFFIC_ENGINE__.enforceOrdinaryDanfoBrtLaneRule === 'function'
+          ) {
+            window.__PROJECT_EKO_TRAFFIC_ENGINE__.enforceOrdinaryDanfoBrtLaneRule(currentVehicle, dt);
+          }
+
           if (vehCol.hitDetected) {
+            const impactSpd = Math.abs(currentSpeedKmh);
             currentSpeedKmh *= 0.35;
+            if (
+              window.__PROJECT_EKO_TRAFFIC_ENGINE__ &&
+              typeof window.__PROJECT_EKO_TRAFFIC_ENGINE__.reportRoadIncident === 'function'
+            ) {
+              const occ = window.__PROJECT_EKO_VEHICLE_STATE__;
+              const vId = (occ && occ.currentVehicleId) || (activeVehicleKey === 'danfo' ? 'veh_danfo_coop' : 'veh_sedan_starter');
+              window.__PROJECT_EKO_TRAFFIC_ENGINE__.reportRoadIncident({
+                vehicleId: vId,
+                otherEntityId: 'lagos_road_obstacle',
+                incidentType: impactSpd < 20 ? 'SCRAPE' : (impactSpd < 45 ? 'LOW_SPEED_BUMP' : 'VEHICLE_VEHICLE'),
+                impactSpeedKmh: Math.max(8, Math.round(impactSpd))
+              });
+            }
           } else if (vehCol.inPothole && Math.abs(currentSpeedKmh) > 15) {
             currentSpeedKmh *= 0.985;
           }
@@ -15515,12 +15566,16 @@
           }
         });
 
-        if (nearestStop && minStopDist < 10.0 && isDriving && Math.abs(currentSpeedKmh) < 12.0) {
+        if (nearestStop && minStopDist < 12.5 && isDriving && Math.abs(currentSpeedKmh) < 12.0) {
           activeNearbyBusStop = nearestStop;
           if (busHud) {
             busHud.style.display = 'flex';
             const bTitle = document.getElementById('bus-stop-title');
             const bAct = document.getElementById('bus-stop-action');
+            const btnPax = document.getElementById('btn-bus-stop-board-passenger');
+            const btnPark = document.getElementById('btn-bus-stop-motor-park-apply');
+            if (btnPax) btnPax.style.display = 'none';
+            if (btnPark) btnPark.style.display = 'inline-flex';
             if (bTitle) bTitle.innerText = `${nearestStop.name.toUpperCase()} BUS STOP`;
             if (bAct) {
               if (onboardPassengers > 0 && minStopDist < 8.0) {
@@ -15530,6 +15585,26 @@
               } else {
                 bAct.innerText = `Vehicle Full (${onboardPassengers}/${maxPassengerCapacity}) • Proceed to Next Stop to Drop Off`;
               }
+            }
+          }
+        } else if (
+          nearestStop &&
+          minStopDist < 12.5 &&
+          !isDriving &&
+          (!window.__PROJECT_EKO_VEHICLE_STATE__ || window.__PROJECT_EKO_VEHICLE_STATE__.state === 'ON_FOOT')
+        ) {
+          activeNearbyBusStop = nearestStop;
+          if (busHud) {
+            busHud.style.display = 'flex';
+            const bTitle = document.getElementById('bus-stop-title');
+            const bAct = document.getElementById('bus-stop-action');
+            const btnPax = document.getElementById('btn-bus-stop-board-passenger');
+            const btnPark = document.getElementById('btn-bus-stop-motor-park-apply');
+            if (btnPax) btnPax.style.display = 'inline-flex';
+            if (btnPark) btnPark.style.display = 'inline-flex';
+            if (bTitle) bTitle.innerText = `🚏 ${nearestStop.name.toUpperCase()} BUS STOP & MOTOR PARK`;
+            if (bAct) {
+              bAct.innerText = `Passenger Fare Table: ₦150–₦450 GN by destination stop • Press [F] to Board as Passenger or apply for Motor Park Employment (Driver / Conductor)`;
             }
           }
         } else {
@@ -19043,7 +19118,108 @@
       { modelId: 'ekobrt_coach_42', vehKey: 'brt', name: 'EkoBRT 42 Mass-Transit Coach', priceGN: 480000, spec: '98 km/h • 42 Seats • LAMATA Blue' }
     ];
 
+    function ensurePlayerVehicleOwnershipAndLicensingFields() {
+      if (typeof player === 'undefined' || !player) return;
+      if (!Array.isArray(player.ownedVehicles)) player.ownedVehicles = [];
+      if (!Array.isArray(player.ownedVehicleModels)) player.ownedVehicleModels = [];
+      if (!Array.isArray(player.commercialRegisteredVehicles)) player.commercialRegisteredVehicles = [];
+      if (typeof player.hasPersonalDriverLicence !== 'boolean') {
+        player.hasPersonalDriverLicence = true; // Personal Class B private vehicle licence
+      }
+      if (typeof player.hasCommercialDriverQualification !== 'boolean') {
+        // Purchasing a personal car does NOT automatically qualify a player as a professional commercial driver
+        player.hasCommercialDriverQualification = Boolean(typeof cdlPassed !== 'undefined' && cdlPassed);
+      }
+    }
+
+    function serviceOwnedVehicleFuel(vehKey = 'sedan') {
+      ensurePlayerVehicleOwnershipAndLicensingFields();
+      if (!player.ownedVehicles.includes(vehKey)) {
+        showToast(`⚠️ You do not own this ${vehKey.toUpperCase()} in your personal garage!`, '⚠️', 'warn');
+        return { allowed: false, reasonCode: 'NOT_OWNED' };
+      }
+      const litersNeeded = Math.max(2.0, Number((50.0 - (typeof playerFuelLiters === 'number' ? playerFuelLiters : 25.0)).toFixed(1)));
+      const costGN = Math.max(200, Math.round(litersNeeded * 20));
+      if (player.balance < costGN) {
+        showToast(`❌ Insufficient Game Naira for fuel! Cost: ₦${costGN.toLocaleString()} GN`, '❌', 'error');
+        return { allowed: false, reasonCode: 'INSUFFICIENT_FUNDS', costGN };
+      }
+      debitPlayerNaira(costGN, `Personal Vehicle Fuel Refill (${vehKey.toUpperCase()} • ${litersNeeded}L)`);
+      playerFuelLiters = 50.0;
+      player.fuel = 100;
+      renderDealershipAndGarageUI();
+      showToast(`⛽ Refuelled personal ${vehKey.toUpperCase()} (+${litersNeeded}L to 100%) for -₦${costGN.toLocaleString()} GN!`, '⛽');
+      return { allowed: true, vehKey, litersAdded: litersNeeded, costGN, fuelPct: 100, balanceAfterGN: player.balance };
+    }
+
+    function serviceOwnedVehicleMaintenance(vehKey = 'sedan') {
+      ensurePlayerVehicleOwnershipAndLicensingFields();
+      if (!player.ownedVehicles.includes(vehKey)) {
+        showToast(`⚠️ You do not own this ${vehKey.toUpperCase()} in your personal garage!`, '⚠️', 'warn');
+        return { allowed: false, reasonCode: 'NOT_OWNED' };
+      }
+      const occ = window.__PROJECT_EKO_VEHICLE_STATE__;
+      const vId = (occ && occ.vehicleKeyToIdMap && occ.vehicleKeyToIdMap[vehKey]) || 'veh_sedan_starter';
+      const trafficEng = window.__PROJECT_EKO_TRAFFIC_ENGINE__;
+      const health = trafficEng && trafficEng.vehicleHealthRegistry ? trafficEng.vehicleHealthRegistry[vId] : null;
+      const condBefore = health ? health.overallCondition : Math.round(playerVehicleCondition || 85);
+      const costGN = Math.max(350, (health && health.estimatedRepairCostGN) ? health.estimatedRepairCostGN : Math.max(350, (100 - condBefore) * 25));
+      if (player.balance < costGN) {
+        showToast(`❌ Insufficient Game Naira for maintenance & repairs! Cost: ₦${costGN.toLocaleString()} GN`, '❌', 'error');
+        return { allowed: false, reasonCode: 'INSUFFICIENT_FUNDS', costGN };
+      }
+      debitPlayerNaira(costGN, `Personal Vehicle Maintenance & Overhaul (${vehKey.toUpperCase()})`);
+      playerVehicleCondition = 100;
+      if (health) {
+        health.components = { body: 100, tyres: 100, steering: 100, engine: 100, lighting: 100 };
+        health.overallCondition = 100;
+        health.operatingStatus = 'OPERATIONAL';
+        health.hazardLightsOn = false;
+        health.estimatedRepairCostGN = 0;
+      }
+      renderDealershipAndGarageUI();
+      showToast(`🔧 Serviced & repaired personal ${vehKey.toUpperCase()} to 100% Condition for -₦${costGN.toLocaleString()} GN!`, '🔧');
+      return { allowed: true, vehKey, conditionBefore: condBefore, conditionAfter: 100, costGN, balanceAfterGN: player.balance };
+    }
+
+    function registerOwnedMinibusCommercially(vehKey = 'danfo') {
+      ensurePlayerVehicleOwnershipAndLicensingFields();
+      if (!player.ownedVehicles.includes(vehKey) && !player.ownedVehicleModels.includes('apex_danfo_14')) {
+        const msg = '⚠️ You must first purchase and own an Apex Danfo 14 Minibus in your Personal Garage before registering it as a commercial transport vehicle!';
+        showToast(msg, '⚠️', 'warn');
+        return { allowed: false, reasonCode: 'MINIBUS_NOT_OWNED', explanation: msg };
+      }
+      if (player.commercialRegisteredVehicles.includes(vehKey)) {
+        showToast('✅ Your Apex Danfo 14 Minibus is already registered as a Commercial Transport Vehicle!', '✅', 'info');
+        return { allowed: true, alreadyRegistered: true, vehKey, hasCommercialDriverQualification: player.hasCommercialDriverQualification };
+      }
+      const permitCostGN = 3500;
+      if (player.balance < permitCostGN) {
+        showToast(`❌ Insufficient Game Naira for LASDRI Commercial Minibus Registration (₦${permitCostGN.toLocaleString()} GN)!`, '❌', 'error');
+        return { allowed: false, reasonCode: 'INSUFFICIENT_FUNDS', costGN: permitCostGN };
+      }
+      debitPlayerNaira(permitCostGN, 'LASDRI Commercial Minibus Registration & Transport Operator Permit');
+      player.commercialRegisteredVehicles.push(vehKey);
+      player.hasCommercialDriverQualification = true;
+      if (typeof cdlPassed !== 'undefined') cdlPassed = true;
+      renderDealershipAndGarageUI();
+      showToast('🚐 Registered Owned Minibus as a Commercial Vehicle (-₦3,500 GN)! You are now a licensed Commercial Transport Operator.', '🚐');
+      return {
+        allowed: true,
+        vehKey,
+        costGN: permitCostGN,
+        commercialRegisteredVehicles: [...player.commercialRegisteredVehicles],
+        hasCommercialDriverQualification: player.hasCommercialDriverQualification,
+        balanceAfterGN: player.balance
+      };
+    }
+
+    window.serviceOwnedVehicleFuel = serviceOwnedVehicleFuel;
+    window.serviceOwnedVehicleMaintenance = serviceOwnedVehicleMaintenance;
+    window.registerOwnedMinibusCommercially = registerOwnedMinibusCommercially;
+
     function renderDealershipAndGarageUI() {
+      ensurePlayerVehicleOwnershipAndLicensingFields();
       if (typeof window.syncEkoPhoneCitizenHeader === 'function') {
         window.syncEkoPhoneCitizenHeader();
       }
@@ -19059,30 +19235,55 @@
       if (countEl) countEl.innerText = String(ownedItems.length);
 
       if (garageList) {
+        const licenceBannerHtml = `
+          <div style="font-size:10px; color:#CBD5E1; background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.3); padding:7px 9px; border-radius:8px; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+              <span>🪪 <strong>Personal Licence:</strong> <span style="color:${player.hasPersonalDriverLicence ? '#34D399' : '#F87171'};">${player.hasPersonalDriverLicence ? 'LICENSED (Private Cars)' : 'UNLICENSED'}</span></span>
+              <span>🚌 <strong>Commercial CDL:</strong> <span style="color:${player.hasCommercialDriverQualification ? '#F4B41A' : '#94A3B8'};">${player.hasCommercialDriverQualification ? 'QUALIFIED OPERATOR' : 'NOT QUALIFIED (Private Only)'}</span></span>
+            </div>
+            <div style="font-size:9.5px; color:#94A3B8; margin-top:3px;">
+              Note: Purchasing a personal car grants private ownership but does not automatically qualify you as a commercial driver. Work at the Motor Park to earn wages, or register an owned minibus commercially.
+            </div>
+          </div>
+        `;
         if (ownedItems.length === 0) {
-          garageList.innerHTML = `
+          garageList.innerHTML = licenceBannerHtml + `
             <div style="font-size:11px; color:#94A3B8; background:rgba(0,0,0,0.28); padding:10px; border-radius:8px; text-align:center;">
               <strong style="color:#E2E8F0;">No Personal Vehicle Owned Yet (0 in Garage)</strong><br>
-              <span style="font-size:10px; color:#A7F3D0;">New Lagos arrivals start on foot. Board public transit as a Passenger [F], work as a Conductor [G] or Parcel Runner, and save up to buy your first vehicle below!</span>
+              <span style="font-size:10px; color:#A7F3D0;">New Lagos arrivals start on foot. Board public transit as a Passenger [F], work as a Motor Park Driver/Conductor [G] or Parcel Runner, and save up to buy your first vehicle below!</span>
             </div>
           `;
         } else {
-          garageList.innerHTML = ownedItems
+          const fuelPct = Math.round((typeof playerFuelLiters === 'number' ? (playerFuelLiters / 50) * 100 : (player.fuel || 100)));
+          garageList.innerHTML = licenceBannerHtml + ownedItems
             .map(item => {
               const imgTag = portraits[item.vehKey]
                 ? `<img src="${portraits[item.vehKey]}" style="width:48px; height:32px; object-fit:contain; border-radius:6px; border:1px solid rgba(16,185,129,0.45); background:#061318;">`
                 : '';
               const isMounted = isDriving && activeVehicleKey === item.vehKey;
+              const isCommercialReg = Array.isArray(player.commercialRegisteredVehicles) && player.commercialRegisteredVehicles.includes(item.vehKey);
+              const minibusCommercialBtn = item.vehKey === 'danfo'
+                ? (isCommercialReg
+                    ? `<span style="font-size:9.5px; color:#F4B41A; font-weight:800; padding:3px 6px; border:1px solid rgba(244,180,26,0.4); border-radius:6px;">✅ Commercial Registered</span>`
+                    : `<button class="btn-app-action" style="background:#F4B41A; color:#05080F; font-size:10px; font-weight:900;" onclick="registerOwnedMinibusCommercially('danfo')">📋 Register Commercial (₦3.5k)</button>`)
+                : '';
               return `
-                <div style="font-size:11px; color:#CBD5E1; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.28); padding:6px 8px; border-radius:8px;">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    ${imgTag}
-                    <div>
-                      <strong>${item.name}</strong><br>
-                      <span style="font-size:10px; color:#94A3B8;">Condition: ${Math.round(playerVehicleCondition)}% • ${isMounted ? 'ACTIVE ON ROAD' : 'GARAGED'}</span>
+                <div style="font-size:11px; color:#CBD5E1; display:flex; flex-direction:column; gap:6px; background:rgba(0,0,0,0.28); padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      ${imgTag}
+                      <div>
+                        <strong>${item.name}</strong><br>
+                        <span style="font-size:10px; color:#94A3B8;">Condition: ${Math.round(playerVehicleCondition)}% • Fuel: ${fuelPct}% • ${isMounted ? 'ACTIVE ON ROAD' : 'GARAGED'}</span>
+                      </div>
                     </div>
+                    <button class="btn-app-action" onclick="summonVehicleToCurb('${item.vehKey}')">${isMounted ? 'Mounted' : 'Summon Curb'}</button>
                   </div>
-                  <button class="btn-app-action" onclick="summonVehicleToCurb('${item.vehKey}')">${isMounted ? 'Mounted' : 'Summon Curb'}</button>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                    <button class="btn-app-action" style="background:rgba(56,189,248,0.2); color:#7DD3FC; border:1px solid rgba(56,189,248,0.4); font-size:10px;" onclick="serviceOwnedVehicleFuel('${item.vehKey}')">⛽ Fuel</button>
+                    <button class="btn-app-action" style="background:rgba(16,185,129,0.2); color:#6EE7B7; border:1px solid rgba(16,185,129,0.4); font-size:10px;" onclick="serviceOwnedVehicleMaintenance('${item.vehKey}')">🔧 Maintain/Repair</button>
+                    ${minibusCommercialBtn}
+                  </div>
                 </div>
               `;
             })
@@ -19237,8 +19438,14 @@
       }
 
       // Commit ownership and debit immediately to prevent duplicate purchases on rapid touch taps
+      ensurePlayerVehicleOwnershipAndLicensingFields();
       if (!player.ownedVehicleModels.includes(modelId)) player.ownedVehicleModels.push(modelId);
       if (!player.ownedVehicles.includes(catalogEntry.vehKey)) player.ownedVehicles.push(catalogEntry.vehKey);
+      player.hasPersonalDriverLicence = true;
+      // Purchasing a personal car does NOT automatically qualify a player as a professional commercial driver
+      if (typeof player.hasCommercialDriverQualification !== 'boolean') {
+        player.hasCommercialDriverQualification = false;
+      }
       debitPlayerNaira(price, `Berger Auto Purchase (${catalogEntry.name})`);
       renderDealershipAndGarageUI();
       AudioEngine.playCashChime();
@@ -19246,7 +19453,7 @@
       if (window.__PROJECT_EKO_INTERACTION__) {
         window.__PROJECT_EKO_INTERACTION__.logAllowed('PURCHASE_VEHICLE', `BUY_${modelId}`, `Purchased ${catalogEntry.name} for ₦${price.toLocaleString()} GN`);
       }
-      showToast(`🚗 Acquired ${catalogEntry.name} from Berger Auto! -₦${price.toLocaleString()} GN • Deed added to Personal Garage.`, '🚗');
+      showToast(`🚗 Acquired ${catalogEntry.name} from Berger Auto! -₦${price.toLocaleString()} GN • Personal ownership recorded (Commercial qualification separate).`, '🚗');
 
       fetch('http://localhost:3001/api/v1/dealership/purchase', {
         method: 'POST',
@@ -23679,6 +23886,88 @@
         }
       },
 
+      employmentState: {
+        employed: true,
+        role: 'DRIVER', // 'DRIVER' | 'CONDUCTOR'
+        employerName: 'Oga Chidi • CMS Motor Park Union Fleet',
+        assignedVehicleId: 'veh_danfo_coop',
+        assignedVehicleLabel: 'Apex Danfo 14 #04 (CMS Motor Park Fleet)',
+        assignedVehiclePlate: 'EKO-404-YD',
+        assignedRouteId: 'cms_passenger_rush',
+        playerOwnsAssignedVehicle: false,
+        vehicleReturnedToPark: false,
+        baseWageGN: 1200,
+        tipsEarnedGN: 0,
+        performanceBonusGN: 0,
+        lastShiftCompletedAt: null,
+        lastVehicleReturnedAt: null
+      },
+
+      applyForMotorParkRole(role = 'DRIVER', routeId = null) {
+        const cleanRole = String(role || 'DRIVER').toUpperCase() === 'CONDUCTOR' ? 'CONDUCTOR' : 'DRIVER';
+        if (routeId && this.routes.some(r => r.id === routeId)) {
+          this.selectedRouteId = routeId;
+        }
+        const activeRoute = this.getActiveRoute();
+        this.employmentState = {
+          ...this.employmentState,
+          employed: true,
+          role: cleanRole,
+          assignedVehicleId: 'veh_danfo_coop',
+          assignedVehicleLabel: 'Apex Danfo 14 #04 (CMS Motor Park Fleet)',
+          assignedVehiclePlate: 'EKO-404-YD',
+          assignedRouteId: activeRoute.id,
+          playerOwnsAssignedVehicle: false,
+          vehicleReturnedToPark: false
+        };
+        // Enforce that Motor Park Employment NEVER grants personal ownership of the Danfo unless already purchased at Berger Auto
+        if (window.__PROJECT_EKO_VEHICLE_STATE__ && typeof window.__PROJECT_EKO_VEHICLE_STATE__.applyForMotorParkEmployment === 'function') {
+          window.__PROJECT_EKO_VEHICLE_STATE__.applyForMotorParkEmployment(cleanRole, 'route_cms_tbs_northbound');
+        }
+        if (cleanRole === 'CONDUCTOR') {
+          this.closeHubModal();
+          if (window.__PROJECT_EKO_VEHICLE_STATE__) {
+            window.__PROJECT_EKO_VEHICLE_STATE__.boardAsConductor('danfo');
+          }
+          showToast(`🎫 Employed as Motor Park Conductor on Assigned Bus EKO-404-YD (${activeRoute.name})! You do NOT own the vehicle — collect trip fares and return the bus at shift end.`, '🎫');
+          return {
+            allowed: true,
+            employmentState: { ...this.employmentState }
+          };
+        }
+        this.renderHubUI();
+        showToast(`🪪 Employed as Motor Park Driver for ${this.employmentState.employerName}! Assigned Vehicle: ${this.employmentState.assignedVehiclePlate} on ${activeRoute.name} (Shift Assignment Only — Not Player-Owned).`, '🚐');
+        return {
+          allowed: true,
+          employmentState: { ...this.employmentState }
+        };
+      },
+
+      returnAssignedVehicleToMotorPark() {
+        const wasActive = this.isActive;
+        this.employmentState.vehicleReturnedToPark = true;
+        this.employmentState.employed = false;
+        this.employmentState.lastVehicleReturnedAt = new Date().toISOString();
+        const retEl = document.getElementById('dh-res-return-status');
+        if (retEl) retEl.innerText = '✓ RETURNED TO CMS MOTOR PARK BAY';
+        this.closeResultsModal();
+        this.closeHubModal();
+        if (wasActive) {
+          this.exitToLivingLagos();
+        }
+        if (window.__PROJECT_EKO_VEHICLE_STATE__ && typeof window.__PROJECT_EKO_VEHICLE_STATE__.returnAssignedDanfoToMotorPark === 'function') {
+          window.__PROJECT_EKO_VEHICLE_STATE__.returnAssignedDanfoToMotorPark();
+        }
+        showToast('🅿️ Assigned Fleet Danfo (EKO-404-YD) returned to CMS Motor Park Union Bay! Shift signed off & player back on foot.', '🅿️');
+        return {
+          returned: true,
+          assignedVehicleId: this.employmentState.assignedVehicleId,
+          playerOwnsAssignedVehicle: false,
+          playerState: window.__PROJECT_EKO_VEHICLE_STATE__ ? window.__PROJECT_EKO_VEHICLE_STATE__.state : 'ON_FOOT',
+          returnedAt: this.employmentState.lastVehicleReturnedAt
+        };
+      },
+
       async completeRun(reason = 'route_completed') {
         if (this.runState === 'completed') return this.lastSettlementResult;
         this.runState = 'completed';
@@ -23718,10 +24007,23 @@
           }
         } catch (_) {}
 
+        const baseShiftWageGN = routeCompleted ? 1200 : 600;
+        const tipsEarnedGN = Math.max(150, (this.runPassengersCarried || 2) * 75);
+        const perfBonusGN = this.collisions === 0 ? 500 : Math.max(100, 400 - this.collisions * 100);
+        this.employmentState.baseWageGN = baseShiftWageGN;
+        this.employmentState.tipsEarnedGN = tipsEarnedGN;
+        this.employmentState.performanceBonusGN = perfBonusGN;
+        this.employmentState.vehicleReturnedToPark = false;
+        this.employmentState.lastShiftCompletedAt = new Date().toISOString();
+
         if (settlement && settlement.success) {
           this.hustleCoinsBalance = settlement.hustleCoinsBalance;
           this.records = settlement.records || this.records;
           this.runScore = settlement.calculatedScore;
+          settlement.baseShiftWageGN = baseShiftWageGN;
+          settlement.tipsEarnedGN = tipsEarnedGN;
+          settlement.performanceBonusGN = perfBonusGN;
+          settlement.playerOwnsAssignedVehicle = false;
           if (typeof settlement.gameNairaBalance === 'number') {
             player.balance = settlement.gameNairaBalance;
             const balEl = document.getElementById('hud-gn-balance');
@@ -23731,9 +24033,12 @@
           // Local fallback if offline
           const bonusHC = routeCompleted ? route.completionBonusHC : 0;
           const totalHC = this.runCoinsCollected + bonusHC;
-          const netGN = Math.max(0, this.runFaresGN + (routeCompleted ? route.completionBonusGN : 300) - this.collisions * 120);
+          const netGN = Math.max(
+            0,
+            baseShiftWageGN + tipsEarnedGN + perfBonusGN + this.runFaresGN + (routeCompleted ? route.completionBonusGN : 300) - this.collisions * 120
+          );
           this.hustleCoinsBalance += totalHC;
-          creditPlayerNaira(netGN, `Danfo Hustle Run (${route.name})`);
+          creditPlayerNaira(netGN, `Motor Park Danfo Employment Shift (${route.name}: Wage + Tips + Bonus)`);
           settlement = {
             success: true,
             routeName: route.name,
@@ -23745,11 +24050,16 @@
             stopsMissed: this.stopsMissed,
             collisions: this.collisions,
             serviceRatingPct: Math.max(0, 100 - this.collisions * 8 - this.stopsMissed * 12),
+            baseShiftWageGN,
+            tipsEarnedGN,
+            performanceBonusGN: perfBonusGN,
             grossFareGN: this.runFaresGN,
             completionBonusGN: routeCompleted ? route.completionBonusGN : 300,
             penaltyGN: this.collisions * 120 + this.stopsMissed * 200,
             totalGameNairaAwarded: netGN,
             totalHustleCoinsEarned: totalHC,
+            playerOwnsAssignedVehicle: false,
+            assignedVehiclePlate: this.employmentState.assignedVehiclePlate,
             newlyCompletedMissions: [],
             hustleCoinsBalance: this.hustleCoinsBalance,
             gameNairaBalance: player.balance
@@ -23769,12 +24079,18 @@
         };
         setTxt('dh-res-title', (s.routeName || 'CMS PASSENGER RUSH').toUpperCase());
         setTxt('dh-res-score-badge', `${(s.calculatedScore || 0).toLocaleString()} PTS`);
+        setTxt('dh-res-assigned-veh', `${this.employmentState.assignedVehicleLabel} • Plate ${this.employmentState.assignedVehiclePlate} (Not Player-Owned)`);
         setTxt('dh-res-dist', `${s.distanceM || 0}m`);
         setTxt('dh-res-coins', `+${s.verifiedCoins || 0} HC (Pickup)`);
         setTxt('dh-res-pax', `${s.verifiedPassengers || 0} Pax (${s.stopsCompleted || 0} Stops)`);
-        setTxt('dh-res-fares', `+₦${((s.grossFareGN || 0) + (s.completionBonusGN || 0)).toLocaleString()} GN`);
+        const wageTipsBonus = (s.baseShiftWageGN || 0) + (s.tipsEarnedGN || 0) + (s.performanceBonusGN || 0);
+        setTxt(
+          'dh-res-fares',
+          `+₦${((s.grossFareGN || 0) + (s.completionBonusGN || 0) + wageTipsBonus).toLocaleString()} GN (Wage ₦${(s.baseShiftWageGN || 1200).toLocaleString()} + Tips ₦${(s.tipsEarnedGN || 150).toLocaleString()} + Bonus ₦${(s.performanceBonusGN || 400).toLocaleString()})`
+        );
         setTxt('dh-res-penalties', `-₦${(s.penaltyGN || 0).toLocaleString()} GN (${s.collisions || 0} hits, ${s.stopsMissed || 0} missed)`);
         setTxt('dh-res-rating', `${s.serviceRatingPct ?? 100}% ★`);
+        setTxt('dh-res-return-status', this.employmentState.vehicleReturnedToPark ? '✓ RETURNED TO CMS MOTOR PARK BAY' : 'AWAITING PARK HANDOVER (CLICK RETURN BELOW)');
         setTxt('dh-res-net-gn', `+₦${(s.totalGameNairaAwarded || 0).toLocaleString()} GN`);
         setTxt('dh-res-net-hc', `+${s.totalHustleCoinsEarned || 0} HC (Total Balance: ${this.hustleCoinsBalance} HC)`);
         setTxt('dh-res-ledger-status', s.transactionId ? `✓ LEDGER TX (${s.transactionId.slice(0, 18)})` : '✓ VERIFIED');
@@ -23784,7 +24100,7 @@
           if (Array.isArray(s.newlyCompletedMissions) && s.newlyCompletedMissions.length > 0) {
             mBox.innerHTML = `🏅 <strong>Missions Completed:</strong> ${s.newlyCompletedMissions.map(m => `${m.title} (+${m.rewardHC} HC)`).join(' • ')}`;
           } else {
-            mBox.innerHTML = `🎯 <strong>High Scores:</strong> Best Score: ${(this.records.bestScore || 0).toLocaleString()} PTS • Best Distance: ${this.records.bestDistanceM || 0}m • Best Coins: ${this.records.bestCoinsCollected || 0} HC`;
+            mBox.innerHTML = `🎯 <strong>Motor Park Shift Complete:</strong> Click <em>"🅿️ RETURN VEHICLE TO MOTOR PARK"</em> below to hand back Assigned Danfo ${this.employmentState.assignedVehiclePlate} to Oga Chidi!`;
           }
         }
 
@@ -40262,6 +40578,119 @@
         `;
       },
 
+      danfoFareTable: {
+        baseOneStopFareGN: 150,
+        perAdditionalStopGN: 100,
+        rainSurchargeGN: 50,
+        routeMultipliers: {
+          route_cms_tbs_northbound: 1.0,
+          route_tbs_cms_southbound: 1.0,
+          route_marina_waterfront: 1.2
+        },
+        explicitStopPairFares: {}
+      },
+
+      setDanfoFareTable(customConfig = {}) {
+        if (!customConfig || typeof customConfig !== 'object') return this.danfoFareTable;
+        if (typeof customConfig.baseOneStopFareGN === 'number') this.danfoFareTable.baseOneStopFareGN = Math.max(50, Math.round(customConfig.baseOneStopFareGN));
+        if (typeof customConfig.perAdditionalStopGN === 'number') this.danfoFareTable.perAdditionalStopGN = Math.max(25, Math.round(customConfig.perAdditionalStopGN));
+        if (typeof customConfig.rainSurchargeGN === 'number') this.danfoFareTable.rainSurchargeGN = Math.max(0, Math.round(customConfig.rainSurchargeGN));
+        if (customConfig.routeMultipliers && typeof customConfig.routeMultipliers === 'object') {
+          this.danfoFareTable.routeMultipliers = { ...this.danfoFareTable.routeMultipliers, ...customConfig.routeMultipliers };
+        }
+        if (customConfig.explicitStopPairFares && typeof customConfig.explicitStopPairFares === 'object') {
+          this.danfoFareTable.explicitStopPairFares = { ...this.danfoFareTable.explicitStopPairFares, ...customConfig.explicitStopPairFares };
+        }
+        return { ...this.danfoFareTable };
+      },
+
+      motorParkEmployment: {
+        employed: false,
+        role: null, // 'DRIVER' | 'CONDUCTOR'
+        employerName: 'Oga Chidi • CMS Motor Park Union Fleet',
+        assignedVehicleId: null,
+        assignedVehiclePlate: 'EKO-404-YD',
+        assignedRouteId: null,
+        playerOwnsAssignedVehicle: false,
+        vehicleReturnedToPark: false,
+        baseWageGN: 1200,
+        tipsEarnedGN: 0,
+        performanceBonusGN: 0,
+        hiredAt: null,
+        returnedAt: null
+      },
+
+      applyForMotorParkEmployment(role = 'DRIVER', routeId = 'route_cms_tbs_northbound') {
+        const cleanRole = String(role || 'DRIVER').toUpperCase() === 'CONDUCTOR' ? 'CONDUCTOR' : 'DRIVER';
+        const rId = this.danfoRoutes[routeId] ? routeId : 'route_cms_tbs_northbound';
+        this.motorParkEmployment = {
+          employed: true,
+          role: cleanRole,
+          employerName: 'Oga Chidi • CMS Motor Park Union Fleet',
+          assignedVehicleId: 'veh_danfo_coop',
+          assignedVehiclePlate: 'EKO-404-YD',
+          assignedRouteId: rId,
+          playerOwnsAssignedVehicle: false,
+          vehicleReturnedToPark: false,
+          baseWageGN: 1200,
+          tipsEarnedGN: 250,
+          performanceBonusGN: 400,
+          hiredAt: new Date().toISOString(),
+          returnedAt: null
+        };
+        this.activeDanfoRouteId = rId;
+        return {
+          allowed: true,
+          employment: { ...this.motorParkEmployment }
+        };
+      },
+
+      returnAssignedDanfoToMotorPark() {
+        const wasInVehicle = this.state !== 'ON_FOOT';
+        if (wasInVehicle) {
+          this.exitVehicleToOnFoot({ forceExit: true, settlePurseOnExit: true });
+        }
+        if (typeof heroDanfo !== 'undefined' && heroDanfo) {
+          heroDanfo.position.set(-110.2, 0.35, -211.0);
+          heroDanfo.rotation.set(0, 0, 0);
+        }
+        this.motorParkEmployment.employed = false;
+        this.motorParkEmployment.vehicleReturnedToPark = true;
+        this.motorParkEmployment.returnedAt = new Date().toISOString();
+        return {
+          allowed: true,
+          returned: true,
+          assignedVehicleId: 'veh_danfo_coop',
+          parkedAt: 'CMS Motor Park Union Bay (-110.2, -211.0)',
+          playerOwnsAssignedVehicle: false,
+          playerState: this.state,
+          currentVehicleId: this.currentVehicleId
+        };
+      },
+
+      openBusStopPassengerBoardingAtNearestStop(opts = {}) {
+        let origStopId = opts.originStopId || this.currentDanfoStopId || 'stop_cms';
+        if (typeof activeNearbyBusStop !== 'undefined' && activeNearbyBusStop && activeNearbyBusStop.name) {
+          const nm = activeNearbyBusStop.name.toLowerCase();
+          if (nm.includes('broad') && nm.includes('north')) origStopId = 'stop_broad_north';
+          else if (nm.includes('broad')) origStopId = 'stop_broad_central';
+          else if (nm.includes('marina')) origStopId = 'stop_broad_south';
+          else if (nm.includes('tbs')) origStopId = 'stop_tbs_gate';
+          else origStopId = 'stop_cms';
+        }
+        const destStopId = opts.destinationStopId || (origStopId === 'stop_tbs_gate' ? 'stop_cms' : 'stop_tbs_gate');
+        const routeId = origStopId === 'stop_tbs_gate' ? 'route_tbs_cms_southbound' : 'route_cms_tbs_northbound';
+        this.activeDanfoRouteId = routeId;
+        this.currentDanfoStopId = origStopId;
+        this.selectedDestinationStopId = destStopId;
+        return this.tryBoardNearestVehicleAsPassenger('danfo', {
+          originStopId: origStopId,
+          destinationStopId: destStopId,
+          openRouteModal: opts.openRouteModal !== undefined ? opts.openRouteModal : true,
+          settleFareImmediately: Boolean(opts.settleFareImmediately)
+        });
+      },
+
       tryBoardNearestVehicleAsPassenger(explicitVehKey, opts = {}) {
         // Ensure Flex Card NEVER opens when boarding as passenger
         const flexModal = document.getElementById('flex-card-modal');
@@ -40426,10 +40855,19 @@
 
         const stopsCount = destStop.index - originStop.index;
         const distanceMeters = Math.round(Math.abs(destStop.worldZ - originStop.worldZ));
-        // Stop-based Nigerian commercial minibus fare formula: 150 GN base for 1 stop + 100 GN per additional stop
-        const baseFareGN = 150 + (stopsCount - 1) * 100;
+        // Configurable route + distance fare table
+        const ft = this.danfoFareTable || { baseOneStopFareGN: 150, perAdditionalStopGN: 100, rainSurchargeGN: 50, routeMultipliers: {}, explicitStopPairFares: {} };
+        const pairKey = `${rId}:${originStop.stopId}->${destStop.stopId}`;
+        const explicitFare = ft.explicitStopPairFares && typeof ft.explicitStopPairFares[pairKey] === 'number'
+          ? ft.explicitStopPairFares[pairKey]
+          : null;
+        const routeMult = (ft.routeMultipliers && typeof ft.routeMultipliers[rId] === 'number') ? ft.routeMultipliers[rId] : 1.0;
+        const rawBaseFare = explicitFare !== null
+          ? explicitFare
+          : Math.round(((ft.baseOneStopFareGN || 150) + (stopsCount - 1) * (ft.perAdditionalStopGN || 100)) * routeMult);
+        const baseFareGN = Math.max(50, rawBaseFare);
         const rainActive = opts.isRaining !== undefined ? Boolean(opts.isRaining) : (typeof isRaining !== 'undefined' && isRaining);
-        const weatherSurchargeGN = rainActive ? 50 : 0;
+        const weatherSurchargeGN = rainActive ? (ft.rainSurchargeGN ?? 50) : 0;
         const totalFareGN = baseFareGN + weatherSurchargeGN;
         const driverShareGN = Math.round(totalFareGN * 0.70);
         const conductorShareGN = totalFareGN - driverShareGN;
@@ -40446,6 +40884,7 @@
           destinationStop: destStop,
           stopsCount,
           distanceMeters,
+          routeMultiplier: routeMult,
           baseFareGN,
           weatherSurchargeGN,
           totalFareGN,
@@ -41835,21 +42274,53 @@
         const prevState = this.state;
         const prevVehicleId = this.currentVehicleId;
         const prevSeatId = this.currentSeatId;
-        const mesh = currentVehicle || playerCar;
+        const mesh = currentVehicle || (prevVehicleId === 'veh_danfo_coop' && typeof heroDanfo !== 'undefined' ? heroDanfo : playerCar);
         this.lastDanfoInteractionMs = Date.now();
+
+        // Non-Negotiable Rule 4: A completed journey triggers the appropriate fare settlement, vehicle movement, and passenger-state updates
+        if (prevState === 'PASSENGER' && this.danfoPaidTicket) {
+          this.lastCompletedPassengerJourney = {
+            ticketId: this.danfoPaidTicket.ticketId,
+            routeId: this.danfoPaidTicket.routeId,
+            originStopId: this.danfoPaidTicket.originStopId,
+            destinationStopId: this.danfoPaidTicket.destinationStopId,
+            alightedStopId: this.danfoRequestedStopId || this.currentDanfoStopId || this.danfoPaidTicket.destinationStopId,
+            fareSettledGN: this.danfoPaidTicket.totalFareGN,
+            passengerRemovedFromVehicle: true,
+            completedAt: new Date().toISOString()
+          };
+          this.danfoPaidTicket = null;
+          if (window.__PROJECT_EKO_QUEST_BUS__) {
+            window.__PROJECT_EKO_QUEST_BUS__.emit('PassengerJourneyCompleted', this.lastCompletedPassengerJourney);
+          }
+          // Resume autonomous Danfo route cycle after passenger steps down at their requested stop
+          if (
+            prevVehicleId === 'veh_danfo_coop' &&
+            window.__PROJECT_EKO_TRAFFIC_ENGINE__ &&
+            window.__PROJECT_EKO_TRAFFIC_ENGINE__.heroDanfoController
+          ) {
+            window.__PROJECT_EKO_TRAFFIC_ENGINE__.heroDanfoController.autonomousActive = true;
+          }
+        }
 
         this.recordTransition(prevState, 'EXITING_VEHICLE', prevVehicleId, prevSeatId, 'ON_FOOT');
         this.clearLocalUserSeats(Boolean(opts.forceExit));
         this.closeDanfoBoardingModal();
 
+        // Non-Negotiable Rule 3: Exiting a bus removes the player from that vehicle
         this.state = 'ON_FOOT';
+        this.currentVehicleId = null;
+        this.currentVehicleKey = 'sedan';
         this.currentSeatId = null;
         this.currentSeatLabel = null;
+        this.occupiedSeatOffset = null;
+        this.occupiedEyeOffset = null;
         this.shuttleCruiseActive = false;
         this.shuttleSpeedKmh = 0;
         this.danfoRideActive = false;
         this.conductorModeType = 'NPC';
 
+        currentVehicle = null;
         isDriving = false;
         isConductorMode = false;
         currentSpeedKmh = 0;
@@ -42622,6 +43093,11 @@
           'Go-slow dey front o, everybody hold patience small!',
           'Traffic dey build for Marina, make we follow line gently!'
         ],
+        DRIVER_DISPUTE: [
+          'Wetin you dey do for middle of Broad Street?! Carry your jalopy commot make working Danfo pass o!',
+          'Oga na turn-by-turn o! Why you dey block yellow bus lane like say na your parlour?!',
+          'You buy driving licence for Balogun market?! Look your side mirror before you cut person corner!'
+        ],
         DRIVER_WARNING: [
           'Watch pedestrian for zebra crossing! Hold brake!',
           'Engine and steering dey feel heavy o—visit Segun Workshop soon!'
@@ -43147,6 +43623,40 @@
         this.syncHeroDanfoSlidingDoorMesh();
       },
 
+      lastBrtLaneEnforcement: null,
+
+      enforceOrdinaryDanfoBrtLaneRule(vehicleMesh, dt = 0.016) {
+        const mesh = vehicleMesh || (typeof heroDanfo !== 'undefined' && heroDanfo);
+        if (!mesh || !mesh.position) return { enforced: false };
+        // Dedicated Blue BRT corridor is at x = -108.5 (x < -104.8).
+        // Permitted bus stop laybys are at z in [-211, -205, -150, -145, -95, -85, -35, -25, 18, 38, 45] ± 16.5m.
+        const stopBayZs = [-211, -205, -150, -145, -95, -85, -35, -25, 18, 38, 45];
+        const nearPermittedStopLayby = stopBayZs.some(sz => Math.abs(mesh.position.z - sz) <= 16.5);
+        if (mesh.position.x < -104.8 && !nearPermittedStopLayby) {
+          const prevX = Number(mesh.position.x.toFixed(2));
+          mesh.position.x = -103.2; // Redirect out of BRT_ONLY lane onto GENERAL_TRAFFIC / MERGE_ZONE
+          const now = Date.now();
+          if (!this.lastBrtLaneEnforcement || (now - this.lastBrtLaneEnforcement.timestamp > 2500)) {
+            this.lastBrtLaneEnforcement = {
+              enforced: true,
+              vehicleClass: 'DANFO',
+              forbiddenLane: 'BRT_ONLY',
+              redirectedFromX: prevX,
+              redirectedToX: -103.2,
+              z: Number(mesh.position.z.toFixed(2)),
+              explanation: 'Ordinary Danfos cannot use dedicated Blue BRT lanes! Redirected to general traffic carriageway.',
+              timestamp: now
+            };
+            this.emitBanter('DRIVER_WARNING', 'LAMATA BRT Corridor Enforcement');
+            if (typeof showToast === 'function') {
+              showToast('🚫 Dedicated Blue BRT Lane! Ordinary Danfos cannot use BRT-only lanes outside bus stop laybys.', '🚌', 'warn');
+            }
+          }
+          return this.lastBrtLaneEnforcement;
+        }
+        return { enforced: false, currentX: Number(mesh.position.x.toFixed(2)), nearPermittedStopLayby };
+      },
+
       updateBlueBrtCorridor(dt = 0.016) {
         if (typeof heroBRT === 'undefined' || !heroBRT) return;
         const occ = window.__PROJECT_EKO_VEHICLE_STATE__;
@@ -43341,6 +43851,10 @@
             ? Math.max(2, Math.round(impactSpeedKmh * 0.18))
             : Math.max(5, Math.round(impactSpeedKmh * 0.42));
 
+        const severityTier = severity === 0
+          ? 'NO_IMPACT_HAZARD_BRAKE'
+          : (severity <= 8 ? 'MINOR_SCRAPE' : (severity <= 20 ? 'MODERATE_BUMP' : 'SEVERE_CRASH'));
+
         if (severity > 0) {
           health.components.body = Math.max(0, health.components.body - severity);
           health.components.lighting = Math.max(0, health.components.lighting - Math.round(severity * 0.85));
@@ -43385,7 +43899,7 @@
           health.lastIncidentTimestamp = now;
 
           this.playContextualHorn(vehicleId, 'DANFO', 'NEAR_MISS_OR_COLLISION');
-          this.emitBanter('NEAR_COLLISION', 'Lagos Driver');
+          this.emitBanter(severityTier === 'MINOR_SCRAPE' ? 'DRIVER_DISPUTE' : 'NEAR_COLLISION', 'Lagos Driver');
         } else if (incidentType === 'PEDESTRIAN_EMERGENCY_BRAKE') {
           this.playContextualHorn(vehicleId, 'DANFO', 'PEDESTRIAN_HAZARD_WARNING');
           this.emitBanter('DRIVER_WARNING', 'Traffic Safety Alert');
@@ -43398,6 +43912,7 @@
           incidentType,
           impactSpeedKmh,
           severity,
+          severityTier,
           effectiveRole,
           passengerProtectedFromPenalty: isInnocentPassenger,
           playerPenaltyGN: 0,
@@ -43583,6 +44098,7 @@
       }
     };
     window.__PROJECT_EKO_TRAFFIC__ = EkoLivingLagosTrafficEngine;
+    window.__PROJECT_EKO_TRAFFIC_ENGINE__ = EkoLivingLagosTrafficEngine;
 
     let __ekoBooted = false;
     function bootProjectEko() {
